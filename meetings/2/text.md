@@ -10,8 +10,21 @@
 Прочитал: http://wphomes.soic.indiana.edu/jsiek/what-is-gradual-typing/
 
 ### Type resolving
+#### C#
+[Rules](https://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx)
+- Given the set of applicable candidate function members, the best function member in that set is located.
+- If the set contains only one function member, then that function member is the best function member.
+- Otherwise, the best function member is the one function member that is better than all other function members with respect to the given argument list, provided that each function member is compared to all other function members using the rules in [__Better function member rules__](https://msdn.microsoft.com/en-us/library/aa691338(v=vs.71).aspx]).
+- If there is not exactly one function member that is better than all other function members, then the function member invocation is ambiguous and a compile-time error occurs.
 
+__Better function member rules__:
+
+Given an argument list A with a set of argument types {A1, A2, ..., AN} and two applicable function members MP and MQ with parameter types {P1, P2, ..., PN} and {Q1, Q2, ..., QN}, MP is defined to be a better function member than MQ if
+- for each argument, the implicit conversion from AX to PX is not worse than the implicit conversion from AX to QX, and
+- for at least one argument, the conversion from AX to PX is better than the conversion from AX to QX.
+When performing this evaluation, if MP or MQ is applicable in its expanded form, then PX or QX refers to a parameter in the expanded form of the parameter list.
 #### Groovy
+
 
 [Documentation](http://groovy-lang.org/objectorientation.html#_method_selection_algorithm)
 ```
@@ -59,3 +72,16 @@ while distance of foo #2 would be (distance(String, String) + distance(Integer, 
 
 Therefore foo #1 should have been selected
 ```
+ In Groovy a class can have different sets of methods at
+the same time in different threads
+```
+```
+The problem comes when I look at the method definition at runtime via
+reflection. I can't tell the difference between def foo(a) {... and
+def foo(Object a) {.... as they both have a single parameter of type
+Object.
+```
+
+## [Dynalang](http://dynalang.sourceforge.net/)
+
+[Implementation](https://sourceforge.net/p/dynalang/code/HEAD/tree/trunk/invoke/src/org/dynalang/dynalink/beans/OverloadedDynamicMethod.java#l26)
