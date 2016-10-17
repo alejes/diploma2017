@@ -1,14 +1,17 @@
 # Сравнение производительности Dynamic vs NotDynamic
 
-|Compiler | [Time per iteration](http://blog.dhananjaynene.com/2008/07/performance-comparison-c-java-python-ruby-jython-jruby-groovy/) | [Fib(48)](https://gist.github.com/chanwit/133661) [Mail](http://www.mail-archive.com/mlvm-dev@openjdk.java.net/msg00821.html) |
-|---|---| --- |
-| Indy     |  23.903433212 microseconds | 98932.222809 ms |
-| Standart |  22.292255485 microseconds | 248350.093248 ms |
-| Static | ~ | 18076.178766 ms |
+|Compiler | [Time per iteration](http://blog.dhananjaynene.com/2008/07/performance-comparison-c-java-python-ruby-jython-jruby-groovy/) | [Fib(48)](https://gist.github.com/chanwit/133661) [Mail](http://www.mail-archive.com/mlvm-dev@openjdk.java.net/msg00821.html) | [fannkuch](http://blackdragsview.blogspot.ru/2015/01/indy-and-compilestatic-as-tag-team-to.html) |
+|---|---| --- | --- |
+| Indy     |  23.903433212 microseconds | 98932.222809 ms | 	878.0258219|
+| Standart |  22.292255485 microseconds | 248350.093248 ms | 12889.2358718	|  
+| Static | ~ | 18076.178766 ms |3325.5838752 |
+
 
 ### Gradual typing
 - Прочитал: http://wphomes.soic.indiana.edu/jsiek/what-is-gradual-typing/
 - In progress: http://pleiad.dcc.uchile.cl/papers/2016/garciaAl-popl2016.pdf
+- Waiting [The Gradualizer: A Methodology and Algorithm
+for Generating Gradual Type Systems](https://dl.dropboxusercontent.com/u/10275252/gradualizer-popl16.pdf) [[Video](http://conf.researchr.org/event/POPL-2016/popl-2016-papers-abstracting-gradual-typing#modal-phid_5a515ae4c4d6487ac71095fd3b420bbf)]
 
 
 ### Type resolving
