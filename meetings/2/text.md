@@ -7,7 +7,9 @@
 | Static | ~ | 18076.178766 ms |
 
 ### Gradual typing
-Прочитал: http://wphomes.soic.indiana.edu/jsiek/what-is-gradual-typing/
+- Прочитал: http://wphomes.soic.indiana.edu/jsiek/what-is-gradual-typing/
+- In progress: http://pleiad.dcc.uchile.cl/papers/2016/garciaAl-popl2016.pdf
+
 
 ### Type resolving
 #### C#
@@ -85,3 +87,6 @@ Object.
 ## [Dynalang](http://dynalang.sourceforge.net/)
 
 [Implementation](https://sourceforge.net/p/dynalang/code/HEAD/tree/trunk/invoke/src/org/dynalang/dynalink/beans/OverloadedDynamicMethod.java#l26)
+
+
+## [ Method Invocation Rules in java](https://docs.oracle.com/javase/specs/jls/se8/html/jls-15.html#jls-15.12)
