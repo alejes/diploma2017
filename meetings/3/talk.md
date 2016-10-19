@@ -14,3 +14,5 @@ When an operation is statically bound, the type of a constituent expression (e.g
 
 • Otherwise the constituent expression is considered to have its compile-time type.
 ```
+
+[Documentatuion](http://dlr.codeplex.com/wikipage?title=Docs%20and%20specs&referringTitle=Documentation) [ [Short Intro](https://msdn.microsoft.com/en-us/library/dd233052(v=vs.110).aspx) ]
