@@ -16,3 +16,5 @@ When an operation is statically bound, the type of a constituent expression (e.g
 ```
 
 [Documentation](http://dlr.codeplex.com/wikipage?title=Docs%20and%20specs&referringTitle=Documentation) [ [Short Intro](https://msdn.microsoft.com/en-us/library/dd233052(v=vs.110).aspx) ]
+
+[Difference between dynamic and compile resolution](http://codinglight.blogspot.ru/2009/05/dynamic-type-and-runtime-overload.html)
