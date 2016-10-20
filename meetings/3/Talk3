@@ -99,3 +99,26 @@ If no candidate passes this test, a __compile-time__ error occurs.
 
 
 ### [Overload resolution with dynamic](https://blogs.msdn.microsoft.com/cburrows/2010/04/01/errata-dynamic-conversions-and-overload-resolution/)
+```
+class C
+
+{
+
+    void M(dynamic d) { }
+
+    void M(string s) { }
+
+    void M(int i) { }
+
+    void CallM()
+
+    {
+
+        dynamic d = “test”;
+
+        this.M(d);
+
+    }
+
+}
+```
