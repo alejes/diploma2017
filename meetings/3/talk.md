@@ -3,6 +3,25 @@ Intro
 
 [Own DynamicObject Like Scala](https://msdn.microsoft.com/en-us/library/system.dynamic.dynamicobject(v=vs.110).aspx)
 
+`
+The type dynamic has special meaning in C#. Its purpose is to allow dynamic binding, which is described in detail in §7.2.2.
+dynamic is considered identical to object except in the following respects:
+
+- Operations on expressions of type dynamic can be dynamically bound (§7.2.2).
+- __Type inference (§7.5.2) will prefer dynamic over object if both are candidates.__
+ 
+Because of this equivalence, the following holds:
+
+- There is an implicit identity conversion between object and dynamic, and between constructed types that are the same when replacing dynamic with object
+- Implicit and explicit conversions to and from object also apply to and from dynamic.
+- __Method signatures that are the same when replacing dynamic with object are considered the same signature__
+- 
+__The type dynamic is indistinguishable from object at run-time.__
+
+An expression of the type dynamic is referred to as a dynamic expression.
+
+
+
 ```
 7.2.3 Types of constituent expressions
 
