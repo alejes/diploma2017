@@ -1,0 +1,101 @@
+Intro
+### C#
+
+[Own DynamicObject Like Scala](https://msdn.microsoft.com/en-us/library/system.dynamic.dynamicobject(v=vs.110).aspx)
+
+`
+The type dynamic has special meaning in C#. Its purpose is to allow dynamic binding, which is described in detail in §7.2.2.
+dynamic is considered identical to object except in the following respects:
+
+- Operations on expressions of type dynamic can be dynamically bound (§7.2.2).
+- __Type inference (§7.5.2) will prefer dynamic over object if both are candidates.__
+ 
+Because of this equivalence, the following holds:
+
+- There is an implicit identity conversion between object and dynamic, and between constructed types that are the same when replacing dynamic with object
+- Implicit and explicit conversions to and from object also apply to and from dynamic.
+- __Method signatures that are the same when replacing dynamic with object are considered the same signature__
+- 
+__The type dynamic is indistinguishable from object at run-time.__
+
+An expression of the type dynamic is referred to as a dynamic expression.
+
+
+
+```
+7.2.3 Types of constituent expressions
+
+When an operation is statically bound, the type of a constituent expression (e.g. a receiver, and argument, an index or an operand) is always considered to be the compile-time type of that expression. When an operation is dynamically bound, the type of a constituent expression is determined in different ways depending on the compile-time type of the constituent expression:
+
+• A constituent expression of compile-time type dynamic is considered to have the type of the actual value that the expression evaluates to at runtime
+
+• A constituent expression whose compile-time type is a type parameter is considered to have the type which the type parameter is bound to at runtime
+
+• Otherwise the constituent expression is considered to have its compile-time type.
+```
+
+[Documentation](http://dlr.codeplex.com/wikipage?title=Docs%20and%20specs&referringTitle=Documentation) [ [Short Intro](https://msdn.microsoft.com/en-us/library/dd233052(v=vs.110).aspx) ]
+
+[Difference between dynamic and compile resolution](http://codinglight.blogspot.ru/2009/05/dynamic-type-and-runtime-overload.html)
+
+
+### Overloading resolution 7.5.3
+Overload resolution selects the function member to invoke in the following distinct contexts within C#:
+    
+- Invocation of a method named in an invocation-expression (§7.6.5.1).
+- Invocation of an instance constructor named in an object-creation-expression (§7.6.10.1).
+- Invocation of an indexer accessor through an element-access (§7.6.6).
+- Invocation of a predefined or user-defined operator referenced in an expression (§7.3.3 and §7.3.4).
+
+Each of these contexts defines the __set of candidate__ function members and the list of arguments in its own unique way, as described in detail in the sections listed above.
+
+Once the candidate function members and the argument list have been identified, the selection of the best function member is the same in all cases:
+- Given the set of applicable candidate function members, the best function member in that set is located. If the set contains only one function member, then that function member is the best function member. 
+- Otherwise, the best function member is the one function member that is better than all other function members with respect to the given argument list, provided that each function member is compared to all other function members using the rules in __§7.5.3.2__. 
+- -If there is not exactly one function member that is better than all other function members, then the function member invocation is ambiguous and a __binding-time__ error occurs.
+- 
+The following sections define the exact meanings of the terms _applicable function member_ and _better function member_.
+
+
+### 7.5.3.2 Better function member
+For the purposes of determining the better function member, a stripped-down argument list A is constructed containing just the argument expressions themselves in the order they appear in the original argument list.
+
+Parameter lists for each of the candidate function members are constructed in the following way: 
+- The expanded form is used if the function member was applicable only in the expanded form.
+- Optional parameters with no corresponding arguments are removed from the parameter list
+- The parameters are reordered so that they occur at the same position as the corresponding argument in the argument list.
+
+Given an argument list A with a set of argument expressions { E1, E2, ..., EN } and two applicable function members MP and MQ with parameter types { P1, P2, ..., PN } and { Q1, Q2, ..., QN }, MP is defined to be a better function member than MQ if
+- for each argument, the implicit conversion from EX to QX is not better than the implicit conversion from EX to PX, and
+- for at least one argument, the conversion from EX to PX is better than the conversion from EX to QX.
+
+When performing this evaluation, if MP or MQ is applicable in its expanded form, then PX or QX refers to a parameter in the expanded form of the parameter list.
+
+In case the parameter type sequences {P1, P2, …, PN} and {Q1, Q2, …, QN} are equivalent (i.e. each Pi has an identity conversion to the corresponding Qi), the following tie-breaking rules are applied, in order, to determine the better function member. 
+- If MP is a non-generic method and MQ is a generic method, then MP is better than MQ.
+- Otherwise, if MP is applicable in its normal form and MQ has a params array and is applicable only in its expanded form, then MP is better than MQ.
+- Otherwise, if MP has more declared parameters than MQ, then MP is better than MQ. This can occur if both methods have params arrays and are applicable only in their expanded forms.
+- Otherwise if all parameters of MP have a corresponding argument whereas default arguments need to be substituted for at least one optional parameter in MQ then MP is better than MQ. 
+- Otherwise, if MP has more specific parameter types than MQ, then MP is better than MQ. Let {R1, R2, …, RN} and {S1, S2, …, SN} represent the uninstantiated and unexpanded parameter types of MP and MQ. MP’s parameter types are more specific than MQ’s if, for each parameter, RX is not less specific than SX, and, for at least one parameter, RX is more specific than SX:
+  -	A type parameter is less specific than a non-type parameter.
+  -	Recursively, a constructed type is more specific than another constructed type (with the same number of type arguments) if at least one type argument is more specific and no type argument is less specific than the corresponding type argument in the other.
+  -	An array type is more specific than another array type (with the same number of dimensions) if the element type of the first is more specific than the element type of the second.
+-	Otherwise if one member is a non-lifted operator and  the other is a lifted operator, the non-lifted one is better.
+-	Otherwise, neither function member is better.
+
+
+### 7.5.4 Compile-time checking of dynamic overload resolution
+For most dynamically bound operations the set of possible candidates for resolution is unknown at compile-time. In certain cases, however the candidate set is known at compile-time:
+- Static method calls with dynamic arguments
+- Instance method calls where the receiver is not a dynamic expression
+- Indexer calls where the receiver is not a dynamic expression
+- Constructor calls with dynamic arguments
+
+In these cases a limited compile-time check is performed for each candidate to see if any of them could possibly apply at run-time.This check consists of the following steps:
+- Partial type inference: Any type argument that does not depend directly or indirectly on an argument of type _dynamic_ is inferred using the rules of §7.5.2. The remaining type arguments are _unknown_.
+- Partial applicability check: Applicability is checked according to §7.5.3.1, but ignoring parameters whose types are _unknown_.
+    
+If no candidate passes this test, a __compile-time__ error occurs.
+
+
+### [Overload resolution with dynamic](https://blogs.msdn.microsoft.com/cburrows/2010/04/01/errata-dynamic-conversions-and-overload-resolution/)
