@@ -53,7 +53,12 @@ Once the candidate function members and the argument list have been identified, 
 - Given the set of applicable candidate function members, the best function member in that set is located. If the set contains only one function member, then that function member is the best function member. 
 - Otherwise, the best function member is the one function member that is better than all other function members with respect to the given argument list, provided that each function member is compared to all other function members using the rules in __§7.5.3.2__. 
 - -If there is not exactly one function member that is better than all other function members, then the function member invocation is ambiguous and a __binding-time__ error occurs.
-- 
+
+```
+7.2.1 Binding-time
+Static binding takes place at compile-time, whereas dynamic binding takes place at run-time.
+```
+
 The following sections define the exact meanings of the terms _applicable function member_ and _better function member_.
 
 
@@ -99,26 +104,19 @@ If no candidate passes this test, a __compile-time__ error occurs.
 
 
 ### [Overload resolution with dynamic](https://blogs.msdn.microsoft.com/cburrows/2010/04/01/errata-dynamic-conversions-and-overload-resolution/)
+The new rules are dead simple: __If you have a method call with a dynamic argument, it is dispatched dynamically, period.__ During the runtime binding, all the static types of your arguments are known, and __types are picked for the dynamic arguments based on their actual values__.
+
+See? That’s much simpler to explain, and easier to reason about. It means that in the following code, the call to M will be dispatched at runtime, and the M that gets picked will depend on the value in d. In this case, M(string) will be called.
+
 ```
-class C
-
-{
-
+class C {
     void M(dynamic d) { }
-
     void M(string s) { }
-
     void M(int i) { }
-
-    void CallM()
-
-    {
-
+    void CallM() {
         dynamic d = “test”;
-
         this.M(d);
-
     }
-
 }
 ```
+You might ask, what about that M(dynamic) overload? Well, when you have a parameter of type dynamic, the fact that it is dynamic is only relevant in the body of the method. Because of this new simple scheme for overload resolution, as callers see it, M(dynamic) is really no different than M(object).
