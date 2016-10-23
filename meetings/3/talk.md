@@ -21,6 +21,19 @@ __The type dynamic is indistinguishable from object at run-time.__
 An expression of the type dynamic is referred to as a dynamic expression.
 
 
+### My overview
+
+- If we have a function member that has as receiver or argument of a dynamic type, at compilation, we only do the checks in accordance with 7.5.4 Compile-time checking of dynamic overload resolution.
+- At runtime if we see such method then in runtime we define a set of candidate function members using the rules described in 7.5.3 Overloading resolution:
+  - Invocation of a method named in an invocation-expression (§7.6.5.1).
+  - Invocation of an instance constructor named in an object-creation-expression (§7.6.10.1).
+Invocation of an indexer accessor through an element-access (§7.6.6).
+Invocation of a predefined or user-defined operator referenced in an expression (§7.3.3 and §7.3.4).
+After using exactly the same rules as compile-time (7.5.3.2 Better function member) in runtime we define Better function member. During the method definition, all the arguments which are of type dynamic is considered to have the type object. Uncertainties between Dynamic vs Object does not occur, because they are rejected at compile time.
+Finally, according to the rules 7.5.3 Overloading resolution, we define the overload or fall with the exception if failed.
+
+
+
 
 ```
 7.2.3 Types of constituent expressions
@@ -37,3 +50,146 @@ When an operation is statically bound, the type of a constituent expression (e.g
 [Documentation](http://dlr.codeplex.com/wikipage?title=Docs%20and%20specs&referringTitle=Documentation) [ [Short Intro](https://msdn.microsoft.com/en-us/library/dd233052(v=vs.110).aspx) ]
 
 [Difference between dynamic and compile resolution](http://codinglight.blogspot.ru/2009/05/dynamic-type-and-runtime-overload.html)
+
+
+### Overloading resolution 7.5.3
+Overload resolution selects the function member to invoke in the following distinct contexts within C#:
+    
+- Invocation of a method named in an invocation-expression (§7.6.5.1).
+- Invocation of an instance constructor named in an object-creation-expression (§7.6.10.1).
+- Invocation of an indexer accessor through an element-access (§7.6.6).
+- Invocation of a predefined or user-defined operator referenced in an expression (§7.3.3 and §7.3.4).
+
+Each of these contexts defines the __set of candidate__ function members and the list of arguments in its own unique way, as described in detail in the sections listed above.
+
+Once the candidate function members and the argument list have been identified, the selection of the best function member is the same in all cases:
+- Given the set of applicable candidate function members, the best function member in that set is located. If the set contains only one function member, then that function member is the best function member. 
+- Otherwise, the best function member is the one function member that is better than all other function members with respect to the given argument list, provided that each function member is compared to all other function members using the rules in __§7.5.3.2__. 
+- -If there is not exactly one function member that is better than all other function members, then the function member invocation is ambiguous and a __binding-time__ error occurs.
+- 
+The following sections define the exact meanings of the terms _applicable function member_ and _better function member_.
+
+
+### 7.5.3.2 Better function member
+For the purposes of determining the better function member, a stripped-down argument list A is constructed containing just the argument expressions themselves in the order they appear in the original argument list.
+
+Parameter lists for each of the candidate function members are constructed in the following way: 
+- The expanded form is used if the function member was applicable only in the expanded form.
+- Optional parameters with no corresponding arguments are removed from the parameter list
+- The parameters are reordered so that they occur at the same position as the corresponding argument in the argument list.
+
+Given an argument list A with a set of argument expressions { E1, E2, ..., EN } and two applicable function members MP and MQ with parameter types { P1, P2, ..., PN } and { Q1, Q2, ..., QN }, MP is defined to be a better function member than MQ if
+- for each argument, the implicit conversion from EX to QX is not better than the implicit conversion from EX to PX, and
+- for at least one argument, the conversion from EX to PX is better than the conversion from EX to QX.
+
+When performing this evaluation, if MP or MQ is applicable in its expanded form, then PX or QX refers to a parameter in the expanded form of the parameter list.
+
+In case the parameter type sequences {P1, P2, …, PN} and {Q1, Q2, …, QN} are equivalent (i.e. each Pi has an identity conversion to the corresponding Qi), the following tie-breaking rules are applied, in order, to determine the better function member. 
+- If MP is a non-generic method and MQ is a generic method, then MP is better than MQ.
+- Otherwise, if MP is applicable in its normal form and MQ has a params array and is applicable only in its expanded form, then MP is better than MQ.
+- Otherwise, if MP has more declared parameters than MQ, then MP is better than MQ. This can occur if both methods have params arrays and are applicable only in their expanded forms.
+- Otherwise if all parameters of MP have a corresponding argument whereas default arguments need to be substituted for at least one optional parameter in MQ then MP is better than MQ. 
+- Otherwise, if MP has more specific parameter types than MQ, then MP is better than MQ. Let {R1, R2, …, RN} and {S1, S2, …, SN} represent the uninstantiated and unexpanded parameter types of MP and MQ. MP’s parameter types are more specific than MQ’s if, for each parameter, RX is not less specific than SX, and, for at least one parameter, RX is more specific than SX:
+  -	A type parameter is less specific than a non-type parameter.
+  -	Recursively, a constructed type is more specific than another constructed type (with the same number of type arguments) if at least one type argument is more specific and no type argument is less specific than the corresponding type argument in the other.
+  -	An array type is more specific than another array type (with the same number of dimensions) if the element type of the first is more specific than the element type of the second.
+-	Otherwise if one member is a non-lifted operator and  the other is a lifted operator, the non-lifted one is better.
+-	Otherwise, neither function member is better.
+
+
+### 7.5.4 Compile-time checking of dynamic overload resolution
+For most dynamically bound operations the set of possible candidates for resolution is unknown at compile-time. In certain cases, however the candidate set is known at compile-time:
+- Static method calls with dynamic arguments
+- Instance method calls where the receiver is not a dynamic expression
+- Indexer calls where the receiver is not a dynamic expression
+- Constructor calls with dynamic arguments
+
+In these cases a limited compile-time check is performed for each candidate to see if any of them could possibly apply at run-time.This check consists of the following steps:
+- Partial type inference: Any type argument that does not depend directly or indirectly on an argument of type _dynamic_ is inferred using the rules of §7.5.2. The remaining type arguments are _unknown_.
+- Partial applicability check: Applicability is checked according to §7.5.3.1, but ignoring parameters whose types are _unknown_.
+    
+If no candidate passes this test, a __compile-time__ error occurs.
+
+
+### [Overload resolution with dynamic](https://blogs.msdn.microsoft.com/cburrows/2010/04/01/errata-dynamic-conversions-and-overload-resolution/)
+The new rules are dead simple: __If you have a method call with a dynamic argument, it is dispatched dynamically, period.__ During the runtime binding, all the static types of your arguments are known, and __types are picked for the dynamic arguments based on their actual values__.
+
+See? That’s much simpler to explain, and easier to reason about. It means that in the following code, the call to M will be dispatched at runtime, and the M that gets picked will depend on the value in d. In this case, M(string) will be called.
+
+```
+class C {
+    void M(dynamic d) { }
+    void M(string s) { }
+    void M(int i) { }
+    void CallM() {
+        dynamic d = “test”;
+        this.M(d);
+    }
+}
+```
+You might ask, what about that M(dynamic) overload? Well, when you have a parameter of type dynamic, the fact that it is dynamic is only relevant in the body of the method. Because of this new simple scheme for overload resolution, as callers see it, M(dynamic) is really no different than M(object).
+
+### My overview on C# [Chris Burrows :(](https://github.com/cburrows)
+
+- If we have a function member that has as receiver or argument of a dynamic type, at compilation, we only do the checks in accordance with 7.5.4 Compile-time checking of dynamic overload resolution.
+- At runtime if we see such method then in runtime we define a set of candidate function members using the rules described in 7.5.3 Overloading resolution:
+  - Invocation of a method named in an invocation-expression (§7.6.5.1).
+  - Invocation of an instance constructor named in an object-creation-expression (§7.6.10.1).
+  - Invocation of an indexer accessor through an element-access (§7.6.6).
+  - Invocation of a predefined or user-defined operator referenced in an expression (§7.3.3 and §7.3.4).
+- After using exactly the same rules as compile-time (7.5.3.2 Better function member) in runtime we define Better function member. During the method definition, all the arguments which are of type dynamic is considered to have the type object. Uncertainties between Dynamic vs Object does not occur, because they are rejected at compile time.
+- Finally, according to the rules 7.5.3 Overloading resolution, we define the overload or fall with the exception if failed.
+
+
+### Scala
+
+http://docs.scala-lang.org/sips/completed/type-dynamic.html
+
+```
+import scala.language.dynamics
+
+class DynTrait extends Dynamic {
+  def selectDynamic(name: String) = name
+
+  def applyDynamic(name: String)(args: Any*) =
+    s"method '$name' called with arguments ${args.mkString("'", "', '", "'")}"
+
+  def method(x: Int): String = {
+    s"int method"
+  }
+}
+
+object wdqw {
+  def main(args: Array[String]): Unit = {
+    val x = new DynTrait
+    println(x.method(5))
+    println(x.methods(2.4))
+    println(x.method(5, "ss"))
+  }
+}
+```
+    Too many arguments for method method(int)
+    
+#### Rules from [SIP-17 - Type Dynamic](http://docs.scala-lang.org/sips/completed/type-dynamic.html)
+. When typing an qual.sel, if type checking fails, provide one more rule before giving up:
+
+If the static type of the receiver qual conforms to scala.Dynamic, and the selector sel is not one of the names applyDynamic, applyDynamicNamed, selectDynamic, or updateDynamic, then rewrite the selection to one of the following:
+
+- If qual.sel is followed by a type argument list [Ts] (optionally) and an argument list (arg1, …, argn), where none of the arguments argi are named, and argn is not a sequence argument, i.e., of the shape e: _* (the argument list is required, though it may be empty), as in: qual.sel[Ts](arg1, …, argn), rewrite the expression to: qual.applyDynamic[Ts](“sel”)(arg1, …, argn)
+- If qual.sel is followed by a type argument list [Ts] (optionally) and a non-empty named argument list (x1 = arg1, …, xn = argn) where some (but not all) name prefixes xi = might be missing (the argument list is required, and it must not end in a sequence argument), as in:
+qual.sel[Ts](x1 = arg1, …, xn = argn), rewrite the expression to: qual.applyDynamicNamed[Ts](“sel”)(xs1 -> arg1, …, xsn -> argn), where each xsi is either the string “xi”, if the i’th argument carries the name xi or is the empty string “” if the i’th argument is unnamed.
+- If qual.sel appears immediately on the left-hand side of an assignment, as in: qual.sel = expr, rewrite the expression to: qual.updateDynamic(“sel”)(expr)
+- If qual.sel is not followed by arguments or an assignment operator: qual.selectDynamic[Ts](“sel”)
+
+
+The result of the rewriting gets type checked in turn.
+
+The selector may also be followed by some explicit type parameters. In that case, the type parameters are passed as given to the generated applyDynamic, applyDynamicNamed, and selectDynamic (but not updateDynamic) methods. For instance, 
+
+ ```qual.meth[Int, String](x)```
+
+would become
+
+ ```qual.applyDynamic[Int, String](“meth”)(x)```
+
+In summary: To support dynamic member dispatch a class or trait has to extend trait scala.Dynamic and has to implement some subset of the applyDynamic, applyDynamicNamed, selectDynamic, and updateDynamic methods. The precise type signature of these methods can be chosen freely by the implementer of the dynamic type.
