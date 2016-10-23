@@ -21,6 +21,19 @@ __The type dynamic is indistinguishable from object at run-time.__
 An expression of the type dynamic is referred to as a dynamic expression.
 
 
+### My overview
+
+- If we have a function member that has as receiver or argument of a dynamic type, at compilation, we only do the checks in accordance with 7.5.4 Compile-time checking of dynamic overload resolution.
+- At runtime if we see such method then in runtime we define a set of candidate function members using the rules described in 7.5.3 Overloading resolution:
+  - Invocation of a method named in an invocation-expression (§7.6.5.1).
+  - Invocation of an instance constructor named in an object-creation-expression (§7.6.10.1).
+Invocation of an indexer accessor through an element-access (§7.6.6).
+Invocation of a predefined or user-defined operator referenced in an expression (§7.3.3 and §7.3.4).
+After using exactly the same rules as compile-time (7.5.3.2 Better function member) in runtime we define Better function member. During the method definition, all the arguments which are of type dynamic is considered to have the type object. Uncertainties between Dynamic vs Object does not occur, because they are rejected at compile time.
+Finally, according to the rules 7.5.3 Overloading resolution, we define the overload or fall with the exception if failed.
+
+
+
 
 ```
 7.2.3 Types of constituent expressions
@@ -53,12 +66,7 @@ Once the candidate function members and the argument list have been identified, 
 - Given the set of applicable candidate function members, the best function member in that set is located. If the set contains only one function member, then that function member is the best function member. 
 - Otherwise, the best function member is the one function member that is better than all other function members with respect to the given argument list, provided that each function member is compared to all other function members using the rules in __§7.5.3.2__. 
 - -If there is not exactly one function member that is better than all other function members, then the function member invocation is ambiguous and a __binding-time__ error occurs.
-
-```
-7.2.1 Binding-time
-Static binding takes place at compile-time, whereas dynamic binding takes place at run-time.
-```
-
+- 
 The following sections define the exact meanings of the terms _applicable function member_ and _better function member_.
 
 
@@ -120,3 +128,68 @@ class C {
 }
 ```
 You might ask, what about that M(dynamic) overload? Well, when you have a parameter of type dynamic, the fact that it is dynamic is only relevant in the body of the method. Because of this new simple scheme for overload resolution, as callers see it, M(dynamic) is really no different than M(object).
+
+### My overview on C# [Chris Burrows :(](https://github.com/cburrows)
+
+- If we have a function member that has as receiver or argument of a dynamic type, at compilation, we only do the checks in accordance with 7.5.4 Compile-time checking of dynamic overload resolution.
+- At runtime if we see such method then in runtime we define a set of candidate function members using the rules described in 7.5.3 Overloading resolution:
+  - Invocation of a method named in an invocation-expression (§7.6.5.1).
+  - Invocation of an instance constructor named in an object-creation-expression (§7.6.10.1).
+  - Invocation of an indexer accessor through an element-access (§7.6.6).
+  - Invocation of a predefined or user-defined operator referenced in an expression (§7.3.3 and §7.3.4).
+- After using exactly the same rules as compile-time (7.5.3.2 Better function member) in runtime we define Better function member. During the method definition, all the arguments which are of type dynamic is considered to have the type object. Uncertainties between Dynamic vs Object does not occur, because they are rejected at compile time.
+- Finally, according to the rules 7.5.3 Overloading resolution, we define the overload or fall with the exception if failed.
+
+
+### Scala
+
+http://docs.scala-lang.org/sips/completed/type-dynamic.html
+
+```
+import scala.language.dynamics
+
+class DynTrait extends Dynamic {
+  def selectDynamic(name: String) = name
+
+  def applyDynamic(name: String)(args: Any*) =
+    s"method '$name' called with arguments ${args.mkString("'", "', '", "'")}"
+
+  def method(x: Int): String = {
+    s"int method"
+  }
+}
+
+object wdqw {
+  def main(args: Array[String]): Unit = {
+    val x = new DynTrait
+    println(x.method(5))
+    println(x.methods(2.4))
+    println(x.method(5, "ss"))
+  }
+}
+```
+    Too many arguments for method method(int)
+    
+#### Rules from [SIP-17 - Type Dynamic](http://docs.scala-lang.org/sips/completed/type-dynamic.html)
+. When typing an qual.sel, if type checking fails, provide one more rule before giving up:
+
+If the static type of the receiver qual conforms to scala.Dynamic, and the selector sel is not one of the names applyDynamic, applyDynamicNamed, selectDynamic, or updateDynamic, then rewrite the selection to one of the following:
+
+- If qual.sel is followed by a type argument list [Ts] (optionally) and an argument list (arg1, …, argn), where none of the arguments argi are named, and argn is not a sequence argument, i.e., of the shape e: _* (the argument list is required, though it may be empty), as in: qual.sel[Ts](arg1, …, argn), rewrite the expression to: qual.applyDynamic[Ts](“sel”)(arg1, …, argn)
+- If qual.sel is followed by a type argument list [Ts] (optionally) and a non-empty named argument list (x1 = arg1, …, xn = argn) where some (but not all) name prefixes xi = might be missing (the argument list is required, and it must not end in a sequence argument), as in:
+qual.sel[Ts](x1 = arg1, …, xn = argn), rewrite the expression to: qual.applyDynamicNamed[Ts](“sel”)(xs1 -> arg1, …, xsn -> argn), where each xsi is either the string “xi”, if the i’th argument carries the name xi or is the empty string “” if the i’th argument is unnamed.
+- If qual.sel appears immediately on the left-hand side of an assignment, as in: qual.sel = expr, rewrite the expression to: qual.updateDynamic(“sel”)(expr)
+- If qual.sel is not followed by arguments or an assignment operator: qual.selectDynamic[Ts](“sel”)
+
+
+The result of the rewriting gets type checked in turn.
+
+The selector may also be followed by some explicit type parameters. In that case, the type parameters are passed as given to the generated applyDynamic, applyDynamicNamed, and selectDynamic (but not updateDynamic) methods. For instance, 
+
+ ```qual.meth[Int, String](x)```
+
+would become
+
+ ```qual.applyDynamic[Int, String](“meth”)(x)```
+
+In summary: To support dynamic member dispatch a class or trait has to extend trait scala.Dynamic and has to implement some subset of the applyDynamic, applyDynamicNamed, selectDynamic, and updateDynamic methods. The precise type signature of these methods can be chosen freely by the implementer of the dynamic type.
