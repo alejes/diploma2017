@@ -248,3 +248,17 @@ for all j from 1 to n.
 A method is said to be maximally preferred for a method invocation if it is applicable and there is no more preferred applicable method. If there is only one maximally preferred method, that method is necessarily preferred to all other applicable methods and it is the one invoked. If there is more than one maximally preferred method, an error occurs.
 
 + Prefered Table Java Method Overloading and LiveConnect 3
+
+### [Rjb - Ruby Java Bridge](http://rjb.rubyforge.org/)
+
+call overloaded method (with type informations)
+
+Rjb inspect type of arguments, and then decides which method to be called. But it's not complete (suppose the case; if there are three methods like void foo(int), void foo(short), void foo(long), and the argument is 30), in this case you need to call with obj#_invoke as
+
+```instance2 = instance._invoke('replaceAll', 'Ljava.lang.String;Ljava.lang.String;', 'hiki, 'rwiki')```
+
+- ```obj#_invoke(name, sig, arg[, more args])``` invoke a method with name 'name' with type informations
+- ```name```
+the name of the method to be called
+- ```sig```
+type signature. You can find the type names at J2SE's Class#getName API documentation as arrays's encoded element type names.
