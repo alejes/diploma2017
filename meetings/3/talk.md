@@ -208,7 +208,7 @@ Method dispatch is simplified if it doesn't need to do type matching as well. Ex
 
 Regarding operator overloading, it seems more a convenience than an absolute requirement. Again, things are simpler without it.
 
-### Js
+### Js &&  Typescript
 
 Функции вызываются только по именам. Добавление новой функции с тем же именем перезаписывает старую. Количество аргументов игнорируется.
 
@@ -225,3 +225,26 @@ f(5);
 f(5, 15);
 </script>
 ```
+
+### Rhino : [Calling Overloaded Methods](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino/Scripting_Java)
+[Java Method Overloading and LiveConnect 3](http://web.archive.org/web/20110623074154/http://www.mozilla.org/js/liveconnect/lc3_method_overloading.html#ConversionPreferences)
+
+
+#### 3.1 Method Accessibility and Applicability
+
+The first step in resolving a method invocation is to determine which methods of a class are accessible and applicable.  A Java method is accessible and applicable if all of the following are true:
+The method is public.
+If the invocation is a static invocation, the method must be a static method. If the invocation is an instance invocation, the method must not be static.
+The number of parameters in the method declaration equals the number of argument expressions in the method invocation.
+The type of each actual argument can be converted by LiveConnect method invocation conversion (See Section 3.3).
+If there are no applicable methods for an invocation, an error occurs. If there is only one applicable method, it is the one invoked.
+#### 3.2 Choose the Preferred Method
+
+When choosing between two or more applicable methods, an algorithm is used that is similar in spirit to the ones used in Java and C++:
+Suppose that U and S are both applicable methods for an invocation, each having n parameters.  Suppose, moreover, that the Java types of the parameters for method U are u1,...,un and the Java types of  the parameters for method S are s1,...,sn. Finally, the runtime JavaScript types of the actual arguments are t1,...,tn. Then the method U is preferred over method S iff
+uj and sj are the same type, or
+conversion to type uj is preferred to the conversion to type sj when converting from tj
+for all j from 1 to n.
+A method is said to be maximally preferred for a method invocation if it is applicable and there is no more preferred applicable method. If there is only one maximally preferred method, that method is necessarily preferred to all other applicable methods and it is the one invoked. If there is more than one maximally preferred method, an error occurs.
+
++ Prefered Table Java Method Overloading and LiveConnect 3
