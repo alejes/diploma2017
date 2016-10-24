@@ -193,3 +193,22 @@ would become
  ```qual.applyDynamic[Int, String](“meth”)(x)```
 
 In summary: To support dynamic member dispatch a class or trait has to extend trait scala.Dynamic and has to implement some subset of the applyDynamic, applyDynamicNamed, selectDynamic, and updateDynamic methods. The precise type signature of these methods can be chosen freely by the implementer of the dynamic type.
+
+
+### Ruby
+
+Instead of supporting method overloading Ruby [overwrites existing methods](http://stackoverflow.com/questions/28976531/function-overloading-in-ruby)
+
+
+### Go
+
+[Why does Go not support overloading of methods and operators?](https://golang.org/doc/faq#overloading)
+
+Method dispatch is simplified if it doesn't need to do type matching as well. Experience with other languages told us that having a variety of methods with the same name but different signatures was occasionally useful but that it could also be confusing and fragile in practice. Matching only by name and requiring consistency in the types was a major simplifying decision in Go's type system.
+
+Regarding operator overloading, it seems more a convenience than an absolute requirement. Again, things are simpler without it.
+
+### Js
+
+Функции вызываются только по именам. Добавление новой функции с тем же именем перезаписывает старую.
+
