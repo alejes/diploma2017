@@ -210,5 +210,18 @@ Regarding operator overloading, it seems more a convenience than an absolute req
 
 ### Js
 
-Функции вызываются только по именам. Добавление новой функции с тем же именем перезаписывает старую.
+Функции вызываются только по именам. Добавление новой функции с тем же именем перезаписывает старую. Количество аргументов игнорируется.
 
+```
+<script>
+function f(){
+	 document.writeln("no arguments");
+}
+function f(s){
+	 document.writeln("s argument");
+}
+f();
+f(5);
+f(5, 15);
+</script>
+```
