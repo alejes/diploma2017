@@ -262,3 +262,6 @@ Rjb inspect type of arguments, and then decides which method to be called. But i
 the name of the method to be called
 - ```sig```
 type signature. You can find the type names at J2SE's Class#getName API documentation as arrays's encoded element type names.
+
+### Papers
+ - Reconciling method overloading and dynamically typed scripting languages Alexandre Bergel [page11](http://sci-hub.cc/10.1016/j.cl.2011.03.002)  [in progress]
