@@ -176,11 +176,11 @@ which is a known interesting property of gradual type systems [17].
 // Javacode
 public classXMLWriter {
     public XMLWriter() { y}
-    public voidwrite(inte) { y}
-    public voidwrite(Integere) { y}
-    public voidwrite(XMLElemente) { y}
-    public voidwrite(StructuredXMLElemente) { y}
-    public voidwrite(Serializablee) { y}
+    public void write(inte) { y}
+    public void write(Integere) { y}
+    public void write(XMLElemente) { y}
+    public void write(StructuredXMLElemente) { y}
+    public void write(Serializablee) { y}
 }
 ```
 
@@ -198,3 +198,7 @@ in the other way around.__Values returned__ to JSmall __from Java are automatica
  used as arguments when calling another Java method.
 Note that the return type declared in the Java method isused to __tag the returned value__, and not the dynamic type of 
 the value.
+
+###  [Java Lite](http://sci-hub.cc/10.1016/j.cl.2011.03.002)
+
+![JavaLite](https://github.com/alejes/diploma2017/blob/master/meetings/4/javaLite.JPG?raw=true)
