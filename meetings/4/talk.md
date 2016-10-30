@@ -166,3 +166,35 @@ which is a known interesting property of gradual type systems [17].
 ```
 
 [ReflectedArgs.matches](https://sourceforge.net/p/jython/svn/HEAD/tree/trunk/jython/src/org/python/core/ReflectedArgs.java#l44)
+
+
+### [Jsmall](http://sci-hub.cc/10.1016/j.cl.2011.03.002)
+
+3.2. Evaluation of JSmall’s dynamic type tag
+
+```
+// Javacode
+public classXMLWriter {
+    public XMLWriter() { y}
+    public voidwrite(inte) { y}
+    public voidwrite(Integere) { y}
+    public voidwrite(XMLElemente) { y}
+    public voidwrite(StructuredXMLElemente) { y}
+    public voidwrite(Serializablee) { y}
+}
+```
+
+```
+‘‘JSmall code’’
+w :¼‘XMLWriter’ asJavaClassnew.
+w write:10. ‘‘Exception raised’’
+w write:(10type:‘int’). ‘‘call write(int)’’
+w write:(10type:‘Integer’). ‘‘call write(Integer)’’
+```
+
+The previous section essentially focuses on passing annotated objects from JSmall to Java.The same mechanism applies 
+in the other way around.__Values returned__ to JSmall __from Java are automatically annotated with the return type called Java
+ method__. The aimofthis automatic annotation is not to lose the type when results from calling Java methods have to be
+ used as arguments when calling another Java method.
+Note that the return type declared in the Java method isused to __tag the returned value__, and not the dynamic type of 
+the value.
