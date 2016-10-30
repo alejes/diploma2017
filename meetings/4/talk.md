@@ -39,3 +39,9 @@ The second step is important, since although subtypes can be
 converted implicitly, typing modes must be converted explicitly.
 This means that modal subtyping does not need to be transitive,
 which is a known interesting property of gradual type systems [17].
+
+
+
+### Jython
+[Robert W. Bill: Jython for Java Programmers, p.145](https://books.google.ru/books?id=-7MMHfZ8bc8C&printsec=frontcover&hl=ru#v=onepage&q&f=false)
+![](https://github.com/alejes/diploma2017/blob/master/meetings/4/sb+jython.JPG?raw=true)
