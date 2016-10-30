@@ -219,9 +219,9 @@ There is a module FSharp.Interop.Dynamic, on nuget that should robustly handle t
 
 It has several advantages over a lot of the snippets out there.
 
-Performance it uses Dynamitey for the dlr call which implements caching and is a PCL Library
+Performance it uses [Dynamitey](https://github.com/ekonbenefits/dynamitey/wiki/UsageReallyLateBinding) for the dlr call which implements caching and is a PCL Library
 Handles methods that return void, you'll get a binding exception if you don't discard results of those.
 The dlr handles the case of calling a delegate return by a function automatically, this will also allow you to do the same with an FSharpFunc
 Adds an !? prefix operator to handle invoking directly dynamic objects and functions you don't have the type at runtime.
 
-It's open source, Apache license, you can look at the implementation and it includes unit test example cases.
+It's open source, Apache license, you can look at the [implementation](https://github.com/fsprojects/FSharp.Interop.Dynamic/blob/master/FSharp.Interop.Dynamic/Dynamic.fs) and it includes [unit test example](https://github.com/fsprojects/FSharp.Interop.Dynamic/blob/master/Tests/Library1.fs) cases.
