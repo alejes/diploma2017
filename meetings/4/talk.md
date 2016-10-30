@@ -202,3 +202,26 @@ the value.
 ###  [Java Lite](http://sci-hub.cc/10.1016/j.cl.2011.03.002)
 
 ![JavaLite](https://github.com/alejes/diploma2017/blob/master/meetings/4/javaLite.JPG?raw=true)
+
+
+### F#
+[Dynamic operator ?](https://msdn.microsoft.com/en-us/library/hh304373(v=vs.100).aspx)
+
+How the Dynamic Operator Works
+The dynamic operator in F# is extremely simple but surprisingly powerful. Assume that the MyType type implements the dynamic operator as a static method and that myVal is a value of MyType. An expression that uses the dynamic operator such as myVal?Foo is translated to a call that passes the name Foo to the dynamic operator (that is, it is translated to MyType.(?) myVal "Foo").. This way, the implementation can perform a dynamic lookup using the string.
+
+The operator doesn't have a direct support for method calls. However, it can return a function that takes an arbitrary argument. If the return type of (?) is a function of type 'T -> unit, then it is possible to write, for example: myVal?Foo(1, "test"). This is translated to a call that invokes the dynamic operator (which returns a function) and then calls the returned function with a tuple as an argument.
+
+The helper for calling stored procedures uses exactly this approach. It returns a function that expects a tuple. When called, the function uses F# reflection to extract a list of arguments from the tuple (e.g., the number 1 and the string "test" in the previous example) and passes these arguments to the SQL-stored procedure. The following section shows a utility function that takes a tuple as input and constructs a SQL command object.
+
+#### [Implementation](http://stackoverflow.com/questions/5057672/looking-for-robust-general-op-dynamic-implementation)
+There is a module FSharp.Interop.Dynamic, on nuget that should robustly handle the dynamic operator using the dlr.
+
+It has several advantages over a lot of the snippets out there.
+
+Performance it uses Dynamitey for the dlr call which implements caching and is a PCL Library
+Handles methods that return void, you'll get a binding exception if you don't discard results of those.
+The dlr handles the case of calling a delegate return by a function automatically, this will also allow you to do the same with an FSharpFunc
+Adds an !? prefix operator to handle invoking directly dynamic objects and functions you don't have the type at runtime.
+
+It's open source, Apache license, you can look at the implementation and it includes unit test example cases.
