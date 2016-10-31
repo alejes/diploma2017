@@ -225,3 +225,35 @@ The dlr handles the case of calling a delegate return by a function automaticall
 Adds an !? prefix operator to handle invoking directly dynamic objects and functions you don't have the type at runtime.
 
 It's open source, Apache license, you can look at the [implementation](https://github.com/fsprojects/FSharp.Interop.Dynamic/blob/master/FSharp.Interop.Dynamic/Dynamic.fs) and it includes [unit test example](https://github.com/fsprojects/FSharp.Interop.Dynamic/blob/master/Tests/Library1.fs) cases.
+
+### IronPython
+#### [Method overloads](http://ironpython.net/documentation/dotnet/dotnet.html#method-overloads)
+
+.NET supports overloading methods by both number of arguments and type of arguments. When IronPython code calls an overloaded method, __IronPython tries to select one of the overloads at runtime based on the number and type of arguments passed to the method, and also names of any keyword arguments__. In most cases, the expected overload gets selected. Selecting an overload is easy when the argument types are an exact match with one of the overload signatures:
+```
+>>> from System.Collections import BitArray
+>>> ba = BitArray(5) # calls __new__(System.Int32)
+>>> ba = BitArray(5, True) # calls __new__(System.Int32, System.Boolean)
+>>> ba = BitArray(ba) # calls __new__(System.Collections.BitArray)
+```
+The argument types do not have be an exact match with the method signature. IronPython will try to convert the arguments if an unamibguous conversion exists to one of the overload signatures. The following code calls ```__new__(System.Int32)``` even though there are two constructors which take one argument, and neither of them accept a float as an argument:
+```
+>>> ba = BitArray(5.0)
+```
+However, note that IronPython will raise a TypeError if there are conversions to more than one of the overloads:
+```
+>>> BitArray((1, 2, 3))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: Multiple targets could match: BitArray(Array[Byte]), BitArray(Array[bool]), BitArray(Array[int])
+```
+If you want to control the exact overload that gets called, you can use the Overloads method on method objects:
+```
+>>> int_bool_new = BitArray.__new__.Overloads[int, type(True)]
+>>> ba = int_bool_new(BitArray, 5, True) # calls __new__(System.Int32, System.Boolean)
+>>> ba = int_bool_new(BitArray, 5, "hello") # converts "hello" to a System.Boolan
+>>> ba = int_bool_new(BitArray, 5)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: __new__() takes exactly 2 arguments (1 given)
+```
