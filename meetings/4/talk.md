@@ -324,3 +324,8 @@ HTH, Attila.
 
 
 [read this](https://blog.jooq.org/2014/09/19/learn-how-nashorn-prevents-effective-api-evolution-on-a-new-level/) in progress..
+
+
+### Тесты
+
+[Результаты](https://docs.google.com/spreadsheets/d/1gdMaBXMrH4Ukg9VbC1iEw4vEuyYwCBPFvBpxOcMRCkQ/edit#gid=0)
