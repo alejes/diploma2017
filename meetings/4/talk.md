@@ -287,3 +287,40 @@ public bool LoadFamily(
 ```
 The IronPython syntax candy for out parameters, returning a tuple of results, can’t automatically be selected here, because calling LoadFamily with just a string argument matches the first method overload. 
 
+
+### Nashorn
+
+[Parameter overloading](http://winterbe.com/posts/2014/04/05/java8-nashorn-tutorial/)
+
+Methods and functions can either be called with the point notation or with the square braces notation.
+```
+var System = Java.type('java.lang.System');
+System.out.println(10);              // 10
+System.out["println"](11.0);         // 11.0
+System.out["println(double)"](12);   // 12.0
+```
+Passing the optional parameter type println(double) when calling a method with overloaded parameters determines the exact method to be called.
+
+#### [Varargs and implicit conversion](http://stackoverflow.com/questions/25603191/nashorn-bug-when-calling-overloaded-method-with-varargs-parameter/25610856#25610856)
+
+As the guy who wrote the overload resolution mechanism for Nashorn, I'm always fascinated with corner cases that people run into. For better or worse, here's how this ends up being invoked:
+
+Nashorn's overload method resolution mimics Java Language Specification (JLS) as much as possible, but allows for JavaScript-specific conversions too. JLS says that when selecting a method to invoke for an overloaded name, variable arity methods can be considered for invocation only when there is no applicable fixed arity method. Normally, when invoking from Java ```test(String)``` would not be an applicable to an invocation with an int, so the ```test(Integer...)``` method would get invoked. However, since JavaScript actually allows number-to-string implicit conversion, it is applicable, and considered before any variable arity methods. Hence the observed behavior. Arity trumps non-conversion. If you added a test(int) method, it'd be invoked before the String method, as it's fixed arity and more specific than the String one.
+
+You could argue that we should alter the algorithm for choosing the method. A lot of thought has been given to this since even before the Nashorn project (even back when I was developing Dynalink independently). Current code (as embodied in the Dynalink library, which Nashorn actually builds upon) follows JLS to the letter and in absence of language-specific type conversions will choose the same methods as Java would. However, as soon as you start relaxing your type system, things start to subtly change, and the more you relax it, the more they'll change (and JavaScript relaxes a lot), and any change to the choice algorithm will have some other weird behavior that someone else will run into… it just comes with the relaxed type system, I'm afraid. For example:
+
+- If we allowed varargs to be considered together with fixargs, we'd need to invent a "more specific than" relation among differing arity methods, something that doesn't exist in JLS and thus isn't compatible with it, and would cause varargs to sometimes be invoked when otherwise JLS would prescribe fixargs invocation.
+- If we disallowed JS-allowed conversions (thus forcing ```test(String)``` to not be considered applicable to an ```int``` parameter), some JS developers would feel encumbered by needing to contort their program into invoking the String method (e.g. doing ```test(String(x))``` to ensure ```x``` is a string, etc.
+As you can see, no matter what we do, something else would suffer; overloaded method selection is in a tight spot between Java and JS type systems and very sensitive to even small changes in the logic.
+
+Finally, when you manually select among overloads, you can also stick to unqualified type names, as long as there's no ambiguity in potential methods signatures for the package name in the argument position, that is
+
+```
+API["test(Integer[])"](1);
+```
+should work too, no need for the java.lang. prefix. That might ease the syntactic noise a bit, unless you can rework the API.
+
+HTH, Attila.
+
+
+[read this](https://blog.jooq.org/2014/09/19/learn-how-nashorn-prevents-effective-api-evolution-on-a-new-level/) in progress..
