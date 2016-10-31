@@ -311,7 +311,7 @@ You could argue that we should alter the algorithm for choosing the method. A lo
 
 - If we allowed varargs to be considered together with fixargs, we'd need to invent a "more specific than" relation among differing arity methods, something that doesn't exist in JLS and thus isn't compatible with it, and would cause varargs to sometimes be invoked when otherwise JLS would prescribe fixargs invocation.
 - If we disallowed JS-allowed conversions (thus forcing ```test(String)``` to not be considered applicable to an ```int``` parameter), some JS developers would feel encumbered by needing to contort their program into invoking the String method (e.g. doing ```test(String(x))``` to ensure ```x``` is a string, etc.
-As you can see, no matter what we do, something else would suffer; overloaded method selection is in a tight spot between Java and JS type systems and very sensitive to even small changes in the logic.
+>As you can see, no matter what we do, something else would suffer; overloaded method selection is in a tight spot between Java and JS type systems and very sensitive to even small changes in the logic.
 
 Finally, when you manually select among overloads, you can also stick to unqualified type names, as long as there's no ambiguity in potential methods signatures for the package name in the argument position, that is
 
