@@ -8,7 +8,8 @@
 ```
 Array<T> singletonArray<T>(T t) {
     Array<T> array = new Array<T>(1);
-    array[0] = t;return array;
+    array[0] = t;
+    return array;
 }
 dynamic str = "Hello";
 Array<String> strs = singletonArray(str);`
