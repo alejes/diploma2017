@@ -257,3 +257,33 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 TypeError: __new__() takes exactly 2 arguments (1 given)
 ```
+
+[Bag with out parameters](http://darenatwork.blogspot.ru/2015/10/accessing-specific-overloads-in.html)
+
+revitpythonshell provides two very similar methods to load a family.
+```
+LoadFamily(self: Document, filename:str) -> (bool, Family)
+LoadFamily(self: Document, filename:str) -> bool
+```
+So it seems like only the return values are different. I have tried to calling it in several different ways:
+```
+(success, newFamily) = doc.LoadFamily(path) 
+success, newFamily = doc.LoadFamily(path) 
+o = doc.LoadFamily(path) 
+```
+But I always just get a bool back. I want the Family too.
+What is happening here is that the c# definitions of the method are:
+```
+public bool LoadFamily(
+    string filename
+)
+```
+and
+```
+public bool LoadFamily(
+    string filename,
+    out Family family
+)
+```
+The IronPython syntax candy for out parameters, returning a tuple of results, can’t automatically be selected here, because calling LoadFamily with just a string argument matches the first method overload. 
+
