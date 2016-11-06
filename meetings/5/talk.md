@@ -70,3 +70,7 @@ Basically, if an object is created right in the method-calling form -- (.foo (Fo
 - The compiler should emit bytecode for a separate method for each function overload (possibly named `invokeStatic`, since the methods would be the same as those needed for static invocation / direct linking)
 - In order to satisfy the `IFn` interface, the compiler should also generate a method using `java.lang.Object` parameters and return values. Internally, this could be implemented by generating a `cond` expression with `instance?` checks that invokes the correct typed variant (probably in order of declaration? or following Java dispatch conventions?)
 - If an overloaded function signature is also allowable as a primitive-hinted function, it should also create the appropriate `invokePrim` method and implement the corresponding interface. In this sense, this implementation might be considered as a generalisation of the existing `invokePrim` functionality.
+
+
+### JRuby
+in Repo....
