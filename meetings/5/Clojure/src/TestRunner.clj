@@ -23,6 +23,9 @@
 (assert (= 1 (. br method_IntDyn xdyn)))
 (assert (= 1 (. br method_IntDyn 1)))
 (assert (= 1 (. br method_IntDyn (int 1))))
+(assert (= 1 (.method_IntDyn br  (int 10))))
+(assert (= 0 (.method_IntDyn (resolving.tests.BasicRouter.)  (int 10))))
+; WAT?????
 
 
 
