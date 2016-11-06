@@ -57,7 +57,10 @@ Basically, if an object is created right in the method-calling form -- (.foo (Fo
 
 [IRC log](http://gist.github.com/381625)
 
-[Propose for function overloading hints](http://dev.clojure.org/display/design/Function+overloading)
+> Решение отсюда не смогло выбрать между int и Integer с перекосом в Integer
+
+
+#### [Propose for function overloading hints](http://dev.clojure.org/display/design/Function+overloading)
 
 #### Why existing solutions are not satisfactory
 - Primitive-hinted functions are already available, but don't allow multiple overloads and do not help with different Object types
