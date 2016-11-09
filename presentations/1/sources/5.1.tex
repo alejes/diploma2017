@@ -112,12 +112,17 @@
 
 \begin{frame}
 	\frametitle{\insertsection} 
-	Постепенная типизация
-	\begin{itemize}
-    	\item eval
-       	\item DOM
-        \item DSL (Gradle)
-	\end{itemize}    
+	\begin{block}{Постепенная типизация}
+		Постепенная типизация - система типов, в которой часть переменных и выражений может быть типизированна, и их корректность 					проверяется в момент компиляции, а часть может быть не типизированна, и об ошибках в них мы узнаем во время исполнения.
+	\end{block}
+
+	\begin{block}{Преимущества}
+		\begin{itemize}
+	    	\item eval
+	        \item DSL (Gradle)
+   	       	\item DOM
+		\end{itemize}    
+    \end{block}
 \end{frame}
 
 \subsection{DOM}
@@ -233,6 +238,7 @@ class MyRouter extends Dynamic{
         \pro Поддержка в ScalaJS
         \pro Возможность написать свою логику диспетчеризации
         \con Нет стандартных реализаций
+        \con Своя логика будет скорее всего медленная
 %        \item neutral
    \end{itemize}
 \end{block}
@@ -332,8 +338,7 @@ contact.Address.Postal = "8402";
 	\end{block}
 \end{frame}
 
-
-\subsection{Разрешение перегрузок}
+	
 \begin{frame}
 	\frametitle{\insertsection} 
   	\framesubtitle{\insertsubsection}
