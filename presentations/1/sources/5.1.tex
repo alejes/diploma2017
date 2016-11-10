@@ -304,6 +304,16 @@ contact.Address.Postal = "8402";
 	\end{block}
 \end{frame}
 
+
+\begin{frame}[fragile]
+	\frametitle{\insertsection} 
+  	\framesubtitle{\insertsubsection}
+    \begin{block}{Dynamic Language Runtime}
+		\includegraphics[height=0.55\paperheight]{dlr} 
+    \end{block}
+\end{frame}
+
+
 \section{Вопросы постепенной типизации}
 \begin{frame}
 	\frametitle{\insertsection} 
@@ -402,7 +412,6 @@ bar()
 \item Во время компиляции мы проверяем что во время исполнения может подойти хотя бы один метод
 \item По алгоритму похожему на используемый во время компиляции определяем лучший метод
 \item Разницу между Object и dynamic не разрешаем
-\item В несколько уровней кешируем результаты выбора метода
 \end{itemize}
     \end{block}
 \end{frame}
