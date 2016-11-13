@@ -2,6 +2,15 @@
 
 Дополнение - они делают вывод типа в @CompileStatic только для локальных переменных.
 
+### Clojure
+
+Ответ: https://groups.google.com/forum/#!topic/clojure/STwhI5t4Z4g
+
+Кратко: используйте теги типа. Как в Java Lite.
+
+### Typed Clojure
+
+http://typedclojure.org/
 
 ### Набор правил
 
