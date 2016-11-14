@@ -38,4 +38,38 @@ http://typedclojure.org/
   2. Если отправитель является _dynamic_: (\*)
     - Если мы в compile time можем разрешить его тип, то мы действуем согласно пункту 1 (\*)
     - Если мы в compile time не можем разрешить его тип, то мы проверяем есть ли вообщем методы которые вызывают подходящие по сигнатуре или нет. Если их нет, то кидаем Compile Time Binding Exception. (\*)
-  ,
+  
+#### Основные правила
+
+1. Составим список методов подходящих по арности. Из них отбираем только те которые можно применить с учётом модификаторов доступа и применимости в зависимости от текущих параметров. Если метод один, то выбираем его. Если методов 0 то кидаем RuntimeBindingException. Иначе идём дальше.
+2. 
+
+
+
+#### Требование на работу не типизированного кода также как типизированного, упразднено
+```
+import java.util.*;
+import java.lang.*;
+import java.io.*;
+
+class Base {}
+
+class Derived extends Base {}
+
+class Runner {
+	public  void method(Base b) {
+		System.out.println("Base1");
+	}
+	public  void method(Derived b) {
+		System.out.println("Derived1");
+	}
+}
+
+class Ideone {
+	public static void main (String[] args) throws java.lang.Exception {
+		Runner r = new Runner();
+		Base b = new Derived();
+		r.method(b);
+	}
+}
+```
