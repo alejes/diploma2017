@@ -1,21 +1,21 @@
 package kotlin;
 
 import java.lang.invoke.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.BindException;
-import java.util.*;
+
 
 public class DynamicMetaFactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET;
     private static final MethodHandle FIELD_SET;
+    private static final MethodHandle INVOKE_METHOD;
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);
         try {
             FIELD_GET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldGetProxy", mt);
             FIELD_SET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldSetProxy", mt);
+            INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mt);
         } catch (IllegalAccessException | NoSuchMethodException e) {
             //[TODO] chose exception
             throw new RuntimeException(e.getMessage());
@@ -34,6 +34,9 @@ public class DynamicMetaFactory {
         }
         else if (query.equals(INVOKE_TYPE.SET.type)) {
             it = INVOKE_TYPE.SET;
+        }
+        else if (query.equals(INVOKE_TYPE.METHOD.type)) {
+            it = INVOKE_TYPE.METHOD;
         }
         else{
             throw new UnsupportedOperationException("unknown invoke query");
@@ -54,7 +57,7 @@ public class DynamicMetaFactory {
 
     private static Object fieldGetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
+        DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         selector.setCallSite();
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
@@ -64,7 +67,17 @@ public class DynamicMetaFactory {
 
     private static Object fieldSetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
+        DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
+        selector.setCallSite();
+        MethodHandle call = selector.getMethodHandle()
+                .asSpreader(Object[].class, arguments.length)
+                .asType(MethodType.methodType(Object.class, Object[].class));
+        return call.invokeExact(arguments);
+    }
+
+    private static Object invokeProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
+        //[TODO] Selector
+        DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.METHOD);
         selector.setCallSite();
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
@@ -74,7 +87,8 @@ public class DynamicMetaFactory {
 
     public static enum INVOKE_TYPE {
         GET("getField", FIELD_GET),
-        SET("setField", FIELD_SET);
+        SET("setField", FIELD_SET),
+        METHOD("invoke", INVOKE_METHOD);
         private final String type;
         private final MethodHandle mh;
 
