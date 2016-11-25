@@ -6,6 +6,10 @@ public class IDDL {
         System.out.println(obj.hashCode());
     }
 
+    public static void doWorkString(Object obj){
+        System.out.println(obj.toString());
+    }
+
     public static void main(String[] args) {
         Object inst = new TargetClass();
         doWork(inst);

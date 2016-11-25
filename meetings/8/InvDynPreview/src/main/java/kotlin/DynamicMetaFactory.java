@@ -39,8 +39,14 @@ public class DynamicMetaFactory {
         return mh;
     }
 
-    private static Object fieldGetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
-        return new Object();
+    private static Object fieldGetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
+        //[TODO] Selector
+        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments);
+        selector.setCallSite();
+        MethodHandle call = selector.getMethodHandle()
+                .asSpreader(Object[].class, arguments.length)
+                .asType(MethodType.methodType(Object.class, Object[].class));
+        return call.invokeExact(arguments);
     }
 
 }
