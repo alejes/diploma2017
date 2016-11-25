@@ -4,12 +4,18 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
+import java.lang.reflect.Field;
 import java.net.BindException;
 
 public abstract class DynamicSelector {
 
-    public static DynamicSelector getMethodSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
-        return new FieldSelector(mc, caller, type, name, arguments);
+    public static DynamicSelector getMethodSelector(MutableCallSite mc,
+                                                    MethodHandles.Lookup caller,
+                                                    MethodType type,
+                                                    String name,
+                                                    Object[] arguments,
+                                                    DynamicMetaFactory.INVOKE_TYPE it) {
+        return new FieldSelector(mc, caller, type, name, arguments, it);
     }
 
     public abstract void setCallSite() throws BindException;
@@ -17,24 +23,24 @@ public abstract class DynamicSelector {
     public abstract MethodHandle getMethodHandle();
 
     private static class FieldSelector extends DynamicSelector {
+        private final String name;
+        private final DynamicMetaFactory.INVOKE_TYPE it;
         private MutableCallSite mc;
         private MethodHandles.Lookup caller;
         private MethodType type;
-        private String name;
         private Object[] arguments;
         private MethodHandle handle;
 
-        private FieldSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
+        private FieldSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, DynamicMetaFactory.INVOKE_TYPE it) {
             this.mc = mc;
             this.caller = caller;
             this.type = type;
             this.name = name;
             this.arguments = arguments;
+            this.it = it;
         }
 
         public void setCallSite() throws BindException {
-            //mc.setTarget(cal);
-            int z = 4;
             genMethodClass();
             processSetCallSite();
         }
@@ -54,7 +60,16 @@ public abstract class DynamicSelector {
                 throw new UnsupportedOperationException("null");
             } else {
                 try {
-                    handle = caller.unreflectGetter(receiver.getClass().getField(name));
+                    Field field = receiver.getClass().getField(name);
+                    switch (it) {
+                        case GET:
+                            handle = caller.unreflectGetter(field);
+                            break;
+                        case SET:
+                            handle = caller.unreflectSetter(field);
+                            break;
+                    }
+
                 } catch (NoSuchFieldException | IllegalAccessException e) {
                     throw new BindException(e.getMessage());
                 }

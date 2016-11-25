@@ -36,13 +36,25 @@ public class DynamicFieldGetterConsumerGen implements Opcodes {
         {
             mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "doWork", "(Ljava/lang/Object;)V", null, null);
             mv.visitCode();
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitLdcInsn("rewrite object");
+            mv.visitInvokeDynamicInsn("setField",
+                    "(Ljava/lang/Object;Ljava/lang/Object;)V",
+                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
+                            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
+                    new Object[]{"myStringField", new Integer(0)});
 
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitInvokeDynamicInsn("getProperty",
+            mv.visitInvokeDynamicInsn("getField",
                     "(Ljava/lang/Object;)Ljava/lang/Object;",
                     new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
                             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
                     new Object[]{"myStringField", new Integer(0)});
+            /*mv.visitInvokeDynamicInsn("getProperty",
+                    "(Ljava/lang/Object;)Ljava/lang/Object;",
+                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
+                            "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
+                    new Object[]{"myField", new Integer(0)});*/
             mv.visitVarInsn(ASTORE, 1);
 
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -52,7 +64,7 @@ public class DynamicFieldGetterConsumerGen implements Opcodes {
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "toString", "()Ljava/lang/String;", false);
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
             mv.visitInsn(RETURN);
-            mv.visitMaxs(2, 2);
+            mv.visitMaxs(3, 2);
             mv.visitEnd();
         }
         {
@@ -69,29 +81,6 @@ public class DynamicFieldGetterConsumerGen implements Opcodes {
             mv.visitEnd();
         }
 
-        {
-            mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "msain", "([Ljava/lang/String;)V", null, null);
-            mv.visitCode();
-            mv.visitTypeInsn(NEW, "FGetter");
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, "FGetter", "<init>", "()V", false);
-            mv.visitVarInsn(ASTORE, 1);
-            mv.visitVarInsn(ALOAD, 1);
-            mv.visitInvokeDynamicInsn("getProperty", "(Ljava/lang/Object;)Ljava/lang/Object;", new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic", "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"), new Object[]{"myStringField", new Integer(0)});
-            //mv.visitFieldInsn(GETFIELD, "FGetter", "myField", "I");
-            mv.visitVarInsn(ASTORE, 2);
-
-
-            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitVarInsn(ALOAD, 2);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I", false);
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
-
-
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(2, 4);
-            mv.visitEnd();
-        }
         cw.visitEnd();
 
         return cw.toByteArray();

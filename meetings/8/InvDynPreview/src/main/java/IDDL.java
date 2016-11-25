@@ -6,7 +6,8 @@ public class IDDL {
         System.out.println(obj.hashCode());
     }
 
-    public static void doWorkString(Object obj){
+    public static void doWorkString(TargetClass obj){
+        obj.myStringField = "eewwe";
         System.out.println(obj.toString());
     }
 
