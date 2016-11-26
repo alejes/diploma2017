@@ -58,7 +58,13 @@ public class DynamicMetaFactory {
     private static Object fieldGetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
-        selector.setCallSite();
+        try {
+            selector.setCallSite();
+        }
+        catch (BindException e){
+            name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            return invokeProxy(mc, caller, type, name, arguments);
+        }
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
