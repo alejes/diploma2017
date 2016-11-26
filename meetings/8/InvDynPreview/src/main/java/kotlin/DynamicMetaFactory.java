@@ -29,16 +29,13 @@ public class DynamicMetaFactory {
             throws IllegalAccessException, NoSuchMethodException, BindException {
         MutableCallSite mc = new MutableCallSite(type);
         INVOKE_TYPE it;
-        if (query.equals(INVOKE_TYPE.GET.type)){
+        if (query.equals(INVOKE_TYPE.GET.type)) {
             it = INVOKE_TYPE.GET;
-        }
-        else if (query.equals(INVOKE_TYPE.SET.type)) {
+        } else if (query.equals(INVOKE_TYPE.SET.type)) {
             it = INVOKE_TYPE.SET;
-        }
-        else if (query.equals(INVOKE_TYPE.METHOD.type)) {
+        } else if (query.equals(INVOKE_TYPE.METHOD.type)) {
             it = INVOKE_TYPE.METHOD;
-        }
-        else{
+        } else {
             throw new UnsupportedOperationException("unknown invoke query");
         }
 
@@ -60,8 +57,7 @@ public class DynamicMetaFactory {
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         try {
             selector.setCallSite();
-        }
-        catch (BindException e){
+        } catch (BindException e) {
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
             return invokeProxy(mc, caller, type, name, arguments);
         }
@@ -74,7 +70,12 @@ public class DynamicMetaFactory {
     private static Object fieldSetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
-        selector.setCallSite();
+        try {
+            selector.setCallSite();
+        } catch (BindException e) {
+            name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            return invokeProxy(mc, caller, type, name, arguments);
+        }
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
