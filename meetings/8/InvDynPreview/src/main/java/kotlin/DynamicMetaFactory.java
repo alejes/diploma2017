@@ -92,7 +92,7 @@ public class DynamicMetaFactory {
         return call.invokeExact(arguments);
     }
 
-    public static enum INVOKE_TYPE {
+    public enum INVOKE_TYPE {
         GET("getField", FIELD_GET),
         SET("setField", FIELD_SET),
         METHOD("invoke", INVOKE_METHOD);
