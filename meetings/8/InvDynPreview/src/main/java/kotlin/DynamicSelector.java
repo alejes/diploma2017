@@ -12,6 +12,9 @@ import java.net.BindException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
+import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
+
 public abstract class DynamicSelector {
     protected final String name;
     protected final Object[] arguments;
@@ -49,9 +52,22 @@ public abstract class DynamicSelector {
         return handle;
     }
 
+    private enum TYPE_COMPARE_RESULT {
+        BETTER(0),
+        EQUAL(1),
+        BOXING(2),
+        WORSE(3);
+        int index;
+
+        TYPE_COMPARE_RESULT(int index) {
+            this.index = index;
+        }
+
+    }
+
     private static class MethodSelector extends DynamicSelector {
         private MethodSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
-            super(arguments, mc, caller, type, name, arguments[0] instanceof Class);
+            super(arguments, mc, caller, type, name, /* isStaticCall*/ arguments[0] instanceof Class);
         }
 
         private static Method findMostSpecific(@NotNull List<Method> methods) throws BindException {
@@ -70,26 +86,51 @@ public abstract class DynamicSelector {
             return null;
         }
 
-        private static boolean isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
-            return b.isAssignableFrom(a) && !a.isAssignableFrom(b);
+        private static TYPE_COMPARE_RESULT isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
+            if (a == b) {
+                return TYPE_COMPARE_RESULT.EQUAL;
+            }
+            Class<?> first = prepareClassForCompare(a);
+            Class<?> second = prepareClassForCompare(b);
+            if (first == second) {
+                return TYPE_COMPARE_RESULT.BOXING;
+            }
+
+            if (second.isAssignableFrom(first)) {
+                return TYPE_COMPARE_RESULT.BETTER;
+            } else {
+                return TYPE_COMPARE_RESULT.WORSE;
+            }
         }
 
         private static boolean isMoreSpecific(@NotNull Method a, @NotNull Method b) {
-            if (isTypeMoreSpecific(a.getReturnType(), b.getReturnType()))
+            if (a == b)
                 return true;
+
+            switch (isTypeMoreSpecific(a.getReturnType(), b.getReturnType())) {
+                case BETTER:
+                    return true;
+                case WORSE:
+                    return false;
+            }
+
 
             /**
              * [TODO] isVisibilityMoreSpecific
              */
             Class<?>[] aParameters = a.getParameterTypes();
             Class<?>[] bParameters = b.getParameterTypes();
+
+            int minimumCompareResult = TYPE_COMPARE_RESULT.WORSE.index;
             for (int i = 0; i < aParameters.length; ++i) {
-                if (!isTypeMoreSpecific(aParameters[i], bParameters[i])) {
+                TYPE_COMPARE_RESULT compareResult = isTypeMoreSpecific(aParameters[i], bParameters[i]);
+                if (compareResult == TYPE_COMPARE_RESULT.WORSE) {
                     return false;
                 }
+                minimumCompareResult = Math.min(minimumCompareResult, compareResult.index);
             }
 
-            return true;
+            return minimumCompareResult <= TYPE_COMPARE_RESULT.BETTER.index;
         }
 
         private static boolean isMoreSpecificThenAllOf(@NotNull Method candidate, @NotNull Collection<Method> descriptors) {
@@ -101,6 +142,10 @@ public abstract class DynamicSelector {
                 }
             }
             return true;
+        }
+
+        private static Class<?> prepareClassForCompare(Class<?> clazz) {
+            return getJavaObjectType(getKotlinClass(clazz));
         }
 
         @Override
@@ -136,7 +181,8 @@ public abstract class DynamicSelector {
 
             Class<?>[] requiredMethodParameters = method.getParameterTypes();
             for (int i = 0; i < requiredMethodParameters.length; ++i) {
-                if (!requiredMethodParameters[i].isAssignableFrom(arguments[i+1].getClass())) {
+                if (isTypeMoreSpecific(arguments[i + 1].getClass(), requiredMethodParameters[i]).index >=
+                        TYPE_COMPARE_RESULT.WORSE.index) {
                     return false;
                 }
             }
