@@ -52,14 +52,14 @@ public abstract class DynamicSelector {
         return handle;
     }
 
-    private enum TYPE_COMPARE_RESULT {
+    private enum TypeCompareResult {
         BETTER(0),
         EQUAL(1),
         BOXING(2),
         WORSE(3);
         int index;
 
-        TYPE_COMPARE_RESULT(int index) {
+        TypeCompareResult(int index) {
             this.index = index;
         }
 
@@ -86,20 +86,20 @@ public abstract class DynamicSelector {
             return null;
         }
 
-        private static TYPE_COMPARE_RESULT isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
+        private static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
             if (a == b) {
-                return TYPE_COMPARE_RESULT.EQUAL;
+                return TypeCompareResult.EQUAL;
             }
             Class<?> first = prepareClassForCompare(a);
             Class<?> second = prepareClassForCompare(b);
             if (first == second) {
-                return TYPE_COMPARE_RESULT.BOXING;
+                return TypeCompareResult.BOXING;
             }
 
             if (second.isAssignableFrom(first)) {
-                return TYPE_COMPARE_RESULT.BETTER;
+                return TypeCompareResult.BETTER;
             } else {
-                return TYPE_COMPARE_RESULT.WORSE;
+                return TypeCompareResult.WORSE;
             }
         }
 
@@ -121,16 +121,16 @@ public abstract class DynamicSelector {
             Class<?>[] aParameters = a.getParameterTypes();
             Class<?>[] bParameters = b.getParameterTypes();
 
-            int minimumCompareResult = TYPE_COMPARE_RESULT.WORSE.index;
+            int minimumCompareResult = TypeCompareResult.WORSE.index;
             for (int i = 0; i < aParameters.length; ++i) {
-                TYPE_COMPARE_RESULT compareResult = isTypeMoreSpecific(aParameters[i], bParameters[i]);
-                if (compareResult == TYPE_COMPARE_RESULT.WORSE) {
+                TypeCompareResult compareResult = isTypeMoreSpecific(aParameters[i], bParameters[i]);
+                if (compareResult == TypeCompareResult.WORSE) {
                     return false;
                 }
                 minimumCompareResult = Math.min(minimumCompareResult, compareResult.index);
             }
 
-            return minimumCompareResult <= TYPE_COMPARE_RESULT.BETTER.index;
+            return minimumCompareResult <= TypeCompareResult.BETTER.index;
         }
 
         private static boolean isMoreSpecificThenAllOf(@NotNull Method candidate, @NotNull Collection<Method> descriptors) {
@@ -182,7 +182,7 @@ public abstract class DynamicSelector {
             Class<?>[] requiredMethodParameters = method.getParameterTypes();
             for (int i = 0; i < requiredMethodParameters.length; ++i) {
                 if (isTypeMoreSpecific(arguments[i + 1].getClass(), requiredMethodParameters[i]).index >=
-                        TYPE_COMPARE_RESULT.WORSE.index) {
+                        TypeCompareResult.WORSE.index) {
                     return false;
                 }
             }
