@@ -5,15 +5,14 @@ import java.net.BindException;
 
 
 public class DynamicMetaFactory {
-    private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
-    private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     /*
      * Method handles for guards
      */
     public static final MethodHandle IS_INSTANCE;
-
     public static final MethodType
-        CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class);
+            CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class);
+    private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
+    private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);

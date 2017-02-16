@@ -157,7 +157,7 @@ public abstract class DynamicSelector {
             processSetCallSite();
         }
 
-        private void prepareMetaHandlers(){
+        private void prepareMetaHandlers() {
             //cached in groovy
             if (isStaticCall) {
                 MethodType staticType = type.dropParameterTypes(0, 1);
@@ -171,13 +171,13 @@ public abstract class DynamicSelector {
         private void changeTargetGuard() {
             MethodHandle fallback = DynamicMetaFactory.makeFallBack(mc, caller, type, name, DynamicMetaFactory.INVOKE_TYPE.METHOD);
             Class<?>[] handleParameters = handle.type().parameterArray();
-            for (int i = 0; i < arguments.length; ++i){
+            for (int i = 0; i < arguments.length; ++i) {
                 MethodHandle guard = IS_INSTANCE
                         .bindTo(arguments[i].getClass())
                         .asType(MethodType.methodType(boolean.class, handleParameters[i]));
                 //MethodHandle sub1 = MethodHandles.permuteArguments(handle, CLASS_INSTANCE_MTYPE, i);
-                Class[] dropTypes=  new Class[i];
-                for (int j=0; j< dropTypes.length; ++j){
+                Class[] dropTypes = new Class[i];
+                for (int j = 0; j < dropTypes.length; ++j) {
                     dropTypes[j] = handleParameters[j];
                 }
                 guard = MethodHandles.dropArguments(guard, 0, dropTypes);
