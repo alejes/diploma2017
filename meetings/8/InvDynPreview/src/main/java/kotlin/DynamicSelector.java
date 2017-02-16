@@ -12,6 +12,7 @@ import java.net.BindException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static kotlin.DynamicMetaFactory.IS_INSTANCE;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
 import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
@@ -151,10 +152,12 @@ public abstract class DynamicSelector {
         @Override
         public void setCallSite() throws BindException {
             genMethodClass();
+            prepareMetaHandlers();
+            changeTargetGuard();
             processSetCallSite();
         }
 
-        private void processSetCallSite() {
+        private void prepareMetaHandlers(){
             //cached in groovy
             if (isStaticCall) {
                 MethodType staticType = type.dropParameterTypes(0, 1);
@@ -163,7 +166,26 @@ public abstract class DynamicSelector {
             } else {
                 handle = MethodHandles.explicitCastArguments(handle, type);
             }
+        }
 
+        private void changeTargetGuard() {
+            MethodHandle fallback = DynamicMetaFactory.makeFallBack(mc, caller, type, name, DynamicMetaFactory.INVOKE_TYPE.METHOD);
+            Class<?>[] handleParameters = handle.type().parameterArray();
+            for (int i = 0; i < arguments.length; ++i){
+                MethodHandle guard = IS_INSTANCE
+                        .bindTo(arguments[i].getClass())
+                        .asType(MethodType.methodType(boolean.class, handleParameters[i]));
+                //MethodHandle sub1 = MethodHandles.permuteArguments(handle, CLASS_INSTANCE_MTYPE, i);
+                Class[] dropTypes=  new Class[i];
+                for (int j=0; j< dropTypes.length; ++j){
+                    dropTypes[j] = handleParameters[j];
+                }
+                guard = MethodHandles.dropArguments(guard, 0, dropTypes);
+                handle = MethodHandles.guardWithTest(guard, handle, fallback);
+            }
+        }
+
+        private void processSetCallSite() {
             mc.setTarget(handle);
         }
 

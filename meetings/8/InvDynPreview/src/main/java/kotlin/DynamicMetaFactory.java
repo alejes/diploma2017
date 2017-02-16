@@ -6,9 +6,14 @@ import java.net.BindException;
 
 public class DynamicMetaFactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
-    private static final MethodHandle FIELD_GET;
-    private static final MethodHandle FIELD_SET;
-    private static final MethodHandle INVOKE_METHOD;
+    private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
+    /*
+     * Method handles for guards
+     */
+    public static final MethodHandle IS_INSTANCE;
+
+    public static final MethodType
+        CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class);
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);
@@ -16,6 +21,7 @@ public class DynamicMetaFactory {
             FIELD_GET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldGetProxy", mt);
             FIELD_SET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldSetProxy", mt);
             INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mt);
+            IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
         } catch (IllegalAccessException | NoSuchMethodException e) {
             //[TODO] chose exception
             throw new RuntimeException(e.getMessage());
@@ -27,7 +33,7 @@ public class DynamicMetaFactory {
                                             MethodType type,
                                             String name, int flags)
             throws IllegalAccessException, NoSuchMethodException, BindException {
-        MutableCallSite mc = new MutableCallSite(type);
+        MutableCallSite mc = new DynamicCallSite(type);
         INVOKE_TYPE it;
         if (query.equals(INVOKE_TYPE.GET.type)) {
             it = INVOKE_TYPE.GET;
@@ -45,7 +51,8 @@ public class DynamicMetaFactory {
         return mc;
     }
 
-    private static MethodHandle makeFallBack(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, INVOKE_TYPE it) {
+    public static MethodHandle makeFallBack(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, INVOKE_TYPE it) {
+        System.out.println("calculate target");
         MethodHandle mh = MethodHandles.insertArguments(it.getHandler(), 0, mc, caller, type, name);
         mh = mh.asCollector(Object[].class, type.parameterCount())
                 .asType(type);
