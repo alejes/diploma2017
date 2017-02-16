@@ -33,7 +33,7 @@ public class DynamicMetaFactory {
                                             MethodType type,
                                             String name, int flags)
             throws IllegalAccessException, NoSuchMethodException, BindException {
-        MutableCallSite mc = new DynamicCallSite(type);
+        MutableCallSite mc = new MutableCallSite(type);
         INVOKE_TYPE it;
         if (query.equals(INVOKE_TYPE.GET.type)) {
             it = INVOKE_TYPE.GET;
