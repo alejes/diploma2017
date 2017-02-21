@@ -41,5 +41,5 @@ fun box(): String {
     return "OK"
 }
 ```
-/home/user/Diplom/projectForAnal/src/main.kt:18:34: error: type checking has run into a recursive problem. Easiest workaround: specify types of your declarations explicitly
+error: type checking has run into a recursive problem. Easiest workaround: specify types of your declarations explicitly
     fun fooInClass(s: String) =  s.fooInClass().bar
