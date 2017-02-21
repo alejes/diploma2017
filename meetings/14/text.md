@@ -240,3 +240,133 @@ TestRunner.benchmarkMethod   20  avgt    5  165.761 ±  7.378  ns/op
 TestRunner.benchmarkMethod   30  avgt    5  250.688 ± 13.147  ns/op
 TestRunner.benchmarkMethod   50  avgt    5  405.541 ± 22.527  ns/op
 ```
+- static
+```
+# JMH 1.6 (released 739 days ago, please consider updating!)
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.jetbrains.benchmarks.TestRunner.benchmarkMethod
+# Parameters: (n = 10)
+
+# Run progress: 0.00% complete, ETA 00:00:40
+# Fork: 1 of 1
+# Warmup Iteration   1: 6.596 ns/op
+# Warmup Iteration   2: 6.617 ns/op
+# Warmup Iteration   3: 6.496 ns/op
+# Warmup Iteration   4: 6.503 ns/op
+# Warmup Iteration   5: 6.566 ns/op
+Iteration   1: 6.583 ns/op
+Iteration   2: 6.492 ns/op
+Iteration   3: 6.513 ns/op
+Iteration   4: 6.436 ns/op
+Iteration   5: 6.466 ns/op
+
+
+Result: 6.498 ±(99.9%) 0.214 ns/op [Average]
+  Statistics: (min, avg, max) = (6.436, 6.498, 6.583), stdev = 0.055
+  Confidence interval (99.9%): [6.284, 6.712]
+
+
+# JMH 1.6 (released 739 days ago, please consider updating!)
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.jetbrains.benchmarks.TestRunner.benchmarkMethod
+# Parameters: (n = 20)
+
+# Run progress: 25.00% complete, ETA 00:00:31
+# Fork: 1 of 1
+# Warmup Iteration   1: 6.530 ns/op
+# Warmup Iteration   2: 6.603 ns/op
+# Warmup Iteration   3: 6.587 ns/op
+# Warmup Iteration   4: 6.401 ns/op
+# Warmup Iteration   5: 6.536 ns/op
+Iteration   1: 6.544 ns/op
+Iteration   2: 6.458 ns/op
+Iteration   3: 6.423 ns/op
+Iteration   4: 6.425 ns/op
+Iteration   5: 6.434 ns/op
+
+
+Result: 6.457 ±(99.9%) 0.196 ns/op [Average]
+  Statistics: (min, avg, max) = (6.423, 6.457, 6.544), stdev = 0.051
+  Confidence interval (99.9%): [6.261, 6.652]
+
+
+# JMH 1.6 (released 739 days ago, please consider updating!)
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.jetbrains.benchmarks.TestRunner.benchmarkMethod
+# Parameters: (n = 30)
+
+# Run progress: 50.00% complete, ETA 00:00:21
+# Fork: 1 of 1
+# Warmup Iteration   1: 6.465 ns/op
+# Warmup Iteration   2: 6.527 ns/op
+# Warmup Iteration   3: 6.549 ns/op
+# Warmup Iteration   4: 6.564 ns/op
+# Warmup Iteration   5: 6.439 ns/op
+Iteration   1: 6.448 ns/op
+Iteration   2: 6.462 ns/op
+Iteration   3: 6.375 ns/op
+Iteration   4: 6.448 ns/op
+Iteration   5: 6.450 ns/op
+
+
+Result: 6.437 ±(99.9%) 0.134 ns/op [Average]
+  Statistics: (min, avg, max) = (6.375, 6.437, 6.462), stdev = 0.035
+  Confidence interval (99.9%): [6.302, 6.571]
+
+
+# JMH 1.6 (released 739 days ago, please consider updating!)
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.jetbrains.benchmarks.TestRunner.benchmarkMethod
+# Parameters: (n = 50)
+
+# Run progress: 75.00% complete, ETA 00:00:10
+# Fork: 1 of 1
+# Warmup Iteration   1: 6.497 ns/op
+# Warmup Iteration   2: 6.447 ns/op
+# Warmup Iteration   3: 6.540 ns/op
+# Warmup Iteration   4: 6.467 ns/op
+# Warmup Iteration   5: 6.462 ns/op
+Iteration   1: 6.632 ns/op
+Iteration   2: 6.406 ns/op
+Iteration   3: 6.392 ns/op
+Iteration   4: 6.413 ns/op
+Iteration   5: 6.494 ns/op
+
+
+Result: 6.467 ±(99.9%) 0.385 ns/op [Average]
+  Statistics: (min, avg, max) = (6.392, 6.467, 6.632), stdev = 0.100
+  Confidence interval (99.9%): [6.082, 6.853]
+
+
+# Run complete. Total time: 00:00:41
+
+Benchmark                   (n)  Mode  Cnt  Score   Error  Units
+TestRunner.benchmarkMethod   10  avgt    5  6.498 ± 0.214  ns/op
+TestRunner.benchmarkMethod   20  avgt    5  6.457 ± 0.196  ns/op
+TestRunner.benchmarkMethod   30  avgt    5  6.437 ± 0.134  ns/op
+TestRunner.benchmarkMethod   50  avgt    5  6.467 ± 0.385  ns/op
+```
