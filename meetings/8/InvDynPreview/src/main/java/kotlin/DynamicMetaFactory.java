@@ -51,7 +51,7 @@ public class DynamicMetaFactory {
     }
 
     public static MethodHandle makeFallBack(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, INVOKE_TYPE it) {
-        System.out.println("calculate target");
+        //System.out.println("calculate target");
         MethodHandle mh = MethodHandles.insertArguments(it.getHandler(), 0, mc, caller, type, name);
         mh = mh.asCollector(Object[].class, type.parameterCount())
                 .asType(type);
