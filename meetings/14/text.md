@@ -375,3 +375,4 @@ TestRunner.benchmarkMethod   50  avgt    5  6.467 ± 0.385  ns/op
 - ConstantExprEval
 - 1::minus<>
 - Написать про не собирающиеся box тесты
+- Проверить js бекенд резолвинг
