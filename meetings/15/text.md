@@ -39,6 +39,7 @@ fun main(args: Array<String>) {
 ```
 5
 ```
+
 ```
 Так, а теперь добавим новых перегрузок
 fun function1(x: Int): Int {
