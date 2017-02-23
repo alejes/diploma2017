@@ -1,4 +1,5 @@
 - К вопросу о перегрузках в JS
+- Исходные данные: http://try.kotlinlang.org . JavaScipt, v1.1RC
 ```
 fun function1(x: Int): Int {
     return 5
