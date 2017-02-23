@@ -61,3 +61,10 @@ fun main(args: Array<String>) {
     println(z)
 }
 ```
+
+```
+Error:(16, 12) Overload resolution ambiguity: 
+public fun function1(x: dynamic): Int defined in root package
+public fun function1(x: Int): Int defined in root package
+public fun function1(x: String): Int defined in root package
+```
