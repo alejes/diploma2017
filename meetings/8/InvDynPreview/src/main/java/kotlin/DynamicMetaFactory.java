@@ -63,7 +63,7 @@ public class DynamicMetaFactory {
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         try {
             selector.setCallSite();
-        } catch (BindException e) {
+        } catch (DynamicBindException e) {
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
             return invokeProxy(mc, caller, type, name, arguments);
         }
@@ -78,7 +78,7 @@ public class DynamicMetaFactory {
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
         try {
             selector.setCallSite();
-        } catch (BindException e) {
+        } catch (DynamicBindException e) {
             name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
             return invokeProxy(mc, caller, type, name, arguments);
         }

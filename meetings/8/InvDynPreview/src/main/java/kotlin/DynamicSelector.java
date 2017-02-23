@@ -8,9 +8,9 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.BindException;
 import java.util.*;
 import java.util.stream.Collectors;
+import kotlin.builtins.*;
 
 import static kotlin.DynamicMetaFactory.IS_INSTANCE;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
@@ -47,7 +47,7 @@ public abstract class DynamicSelector {
         }
     }
 
-    public abstract void setCallSite() throws BindException;
+    public abstract void setCallSite() throws DynamicBindException;
 
     public MethodHandle getMethodHandle() {
         return handle;
@@ -67,11 +67,13 @@ public abstract class DynamicSelector {
     }
 
     private static class MethodSelector extends DynamicSelector {
+        private int builtinClassId = -1;
+
         private MethodSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
             super(arguments, mc, caller, type, name, /* isStaticCall*/ arguments[0] instanceof Class);
         }
 
-        private static Method findMostSpecific(@NotNull List<Method> methods) throws BindException {
+        private static Method findMostSpecific(@NotNull List<Method> methods) {
             if (methods.isEmpty()) {
                 return null;
             } else if (methods.size() == 1) {
@@ -150,7 +152,7 @@ public abstract class DynamicSelector {
         }
 
         @Override
-        public void setCallSite() throws BindException {
+        public void setCallSite()  {
             genMethodClass();
             prepareMetaHandlers();
             changeTargetGuard();
@@ -189,7 +191,12 @@ public abstract class DynamicSelector {
             mc.setTarget(handle);
         }
 
-        private boolean isMethodSuitable(@NotNull Method method) {
+        private boolean isMethodSuitable(@NotNull Method method, boolean skipReceiverCheck) {
+            int offset = 0;
+            if (skipReceiverCheck) {
+                offset = 1;
+            }
+
             if (method.isVarArgs()) {
                 /*
                 * arguments already includes receiver and we processed empty vararg case
@@ -197,13 +204,13 @@ public abstract class DynamicSelector {
                 if (method.getParameterCount() > arguments.length) {
                     return false;
                 }
-            } else if (method.getParameterCount() != arguments.length - 1) {
+            } else if (method.getParameterCount() - offset != arguments.length - 1) {
                 return false;
             }
 
             Class<?>[] requiredMethodParameters = method.getParameterTypes();
             for (int i = 0; i < requiredMethodParameters.length; ++i) {
-                if (isTypeMoreSpecific(arguments[i + 1].getClass(), requiredMethodParameters[i]).index >=
+                if (isTypeMoreSpecific(arguments[i + 1 - offset].getClass(), requiredMethodParameters[i]).index >=
                         TypeCompareResult.WORSE.index) {
                     return false;
                 }
@@ -214,10 +221,59 @@ public abstract class DynamicSelector {
 
         @NotNull
         private List<Method> filterSuitableMethods(@NotNull List<Method> methods) {
-            return methods.stream().filter(this::isMethodSuitable).collect(Collectors.toList());
+            return filterSuitableMethods(methods, false);
         }
 
-        private void genMethodClass() throws BindException {
+        @NotNull
+        private List<Method> filterSuitableMethods(@NotNull List<Method> methods, boolean skipReceiverCheck) {
+            return methods.stream().filter(it -> isMethodSuitable(it, skipReceiverCheck)).collect(Collectors.toList());
+        }
+
+        private static Object[] builtinClasses = new Object[]{
+                IntBuiltins.Companion,
+                DoubleBuiltins.Companion,
+                LongBuiltins.Companion,
+                FloatBuiltins.Companion,
+                ByteBuiltins.Companion,
+                ShortBuiltins.Companion
+        };
+
+        @NotNull
+        private List<Method> findBuiltins(@NotNull Class methodClass){
+            if (methodClass.equals(java.lang.Integer.class)){
+                builtinClassId = 0;
+            }
+            else if (methodClass.equals(java.lang.Double.class)){
+                builtinClassId = 1;
+            }
+            else if (methodClass.equals(java.lang.Long.class)){
+                builtinClassId = 2;
+            }
+            else if (methodClass.equals(java.lang.Float.class)){
+                builtinClassId = 3;
+            }
+            else if (methodClass.equals(java.lang.Byte.class)){
+                builtinClassId = 4;
+            }
+            else if (methodClass.equals(java.lang.Short.class)){
+                builtinClassId = 5;
+            }
+            else {
+                return Collections.emptyList();
+            }
+
+            return fastMethodFilter(Arrays.asList(builtinClasses[builtinClassId].getClass().getDeclaredMethods()));
+        }
+
+        @NotNull
+        private List<Method> fastMethodFilter(@NotNull List<Method> methods) {
+            return methods.stream()
+                    .filter(it -> it.getName().equals(name))
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        private void genMethodClass() {
             Object receiver = arguments[0];
             if (receiver == null) {
                 throw new UnsupportedOperationException("null");
@@ -231,25 +287,29 @@ public abstract class DynamicSelector {
                 List<Method> methods = new ArrayList<>(Arrays.asList(methodClass.getDeclaredMethods()));
                 Collections.addAll(methods, receiver.getClass().getMethods());
 
-                List<Method> targetMethodList = methods.stream()
-                        .distinct()
-                        .filter(it -> it.getName().equals(name))
-                        .collect(Collectors.toList());
+                List<Method> targetMethodList = fastMethodFilter(methods);
 
                 targetMethodList = filterSuitableMethods(targetMethodList);
+
+                if (targetMethodList.isEmpty()){
+                    targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
+                }
 
                 Method targetMethod = findMostSpecific(targetMethodList);
 
                 if (targetMethod == null) {
-                    throw new BindException("Runtime: cannot find target method " + name);
+                    throw new DynamicBindException("Runtime: cannot find target method " + name);
                 }
 
                 targetMethod.setAccessible(true);
 
                 try {
                     handle = caller.unreflect(targetMethod);
+                    if (builtinClassId >= 0) {
+                        handle = handle.bindTo(builtinClasses[builtinClassId]);
+                    }
                 } catch (IllegalAccessException e) {
-                    throw new BindException(e.getMessage());
+                    throw new DynamicBindException(e.getMessage());
                 }
             }
         }
@@ -264,7 +324,7 @@ public abstract class DynamicSelector {
             this.it = it;
         }
 
-        public void setCallSite() throws BindException {
+        public void setCallSite() {
             genMethodClass();
             processSetCallSite();
         }
@@ -276,7 +336,7 @@ public abstract class DynamicSelector {
             mc.setTarget(handle);
         }
 
-        private void genMethodClass() throws BindException {
+        private void genMethodClass() {
             Object receiver = arguments[0];
             if (receiver == null) {
                 throw new UnsupportedOperationException("null");
@@ -296,7 +356,7 @@ public abstract class DynamicSelector {
                     }
 
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new BindException(e.getMessage());
+                    throw new DynamicBindException(e);
                 }
             }
         }
