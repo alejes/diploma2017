@@ -69,3 +69,15 @@ public fun function1(x: dynamic): Int defined in root package
 public fun function1(x: Int): Int defined in root package
 public fun function1(x: String): Int defined in root package
 ```
+
+- Отсутствующие методы
+```
+fun kotlin.Int.plus(kotlin.Int): kotlin.Int
+Exception in thread "main" kotlin.reflect.jvm.internal.KotlinReflectionInternalError: Call is not yet supported for this function: public final operator fun plus(other: kotlin.Int): kotlin.Int defined in kotlin.Int[DeserializedSimpleFunctionDescriptor@5f683daf] (member = null)
+	at kotlin.reflect.jvm.internal.KFunctionImpl$caller$2.invoke(KFunctionImpl.kt:96)
+	at kotlin.reflect.jvm.internal.KFunctionImpl$caller$2.invoke(KFunctionImpl.kt:36)
+	at kotlin.reflect.jvm.internal.ReflectProperties$LazySoftVal.invoke(ReflectProperties.java:93)
+	at kotlin.reflect.jvm.internal.ReflectProperties$Val.getValue(ReflectProperties.java:32)
+	at kotlin.reflect.jvm.internal.KFunctionImpl.getCaller(KFunctionImpl.kt)
+	at kotlin.reflect.jvm.internal.KCallableImpl.call(KCallableImpl.kt:107)
+```
