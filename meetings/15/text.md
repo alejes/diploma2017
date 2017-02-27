@@ -81,3 +81,20 @@ Exception in thread "main" kotlin.reflect.jvm.internal.KotlinReflectionInternalE
 	at kotlin.reflect.jvm.internal.KFunctionImpl.getCaller(KFunctionImpl.kt)
 	at kotlin.reflect.jvm.internal.KCallableImpl.call(KCallableImpl.kt:107)
 ```
+
+
+
+```
+class A {
+    fun work(x: Int){
+        println("All works:" + x)
+    }
+}
+fun main(args: Array<String>) {
+	val x: dynamic = A();
+    x.work(15);
+}
+```
+```
+Unhandled JavaScript exception
+```
