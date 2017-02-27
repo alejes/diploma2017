@@ -1,5 +1,6 @@
 package kotlin;
 
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
@@ -67,8 +68,6 @@ public abstract class DynamicSelector {
     }
 
     private static class MethodSelector extends DynamicSelector {
-        private int builtinClassId = -1;
-
         private MethodSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
             super(arguments, mc, caller, type, name, /* isStaticCall*/ arguments[0] instanceof Class);
         }
@@ -179,9 +178,7 @@ public abstract class DynamicSelector {
                         .asType(MethodType.methodType(boolean.class, handleParameters[i]));
                 //MethodHandle sub1 = MethodHandles.permuteArguments(handle, CLASS_INSTANCE_MTYPE, i);
                 Class[] dropTypes = new Class[i];
-                for (int j = 0; j < dropTypes.length; ++j) {
-                    dropTypes[j] = handleParameters[j];
-                }
+                System.arraycopy(handleParameters, 0, dropTypes, 0, dropTypes.length);
                 guard = MethodHandles.dropArguments(guard, 0, dropTypes);
                 handle = MethodHandles.guardWithTest(guard, handle, fallback);
             }
@@ -229,40 +226,32 @@ public abstract class DynamicSelector {
             return methods.stream().filter(it -> isMethodSuitable(it, skipReceiverCheck)).collect(Collectors.toList());
         }
 
-        private static Object[] builtinClasses = new Object[]{
-                IntBuiltins.Companion,
-                DoubleBuiltins.Companion,
-                LongBuiltins.Companion,
-                FloatBuiltins.Companion,
-                ByteBuiltins.Companion,
-                ShortBuiltins.Companion
-        };
+        @NotNull
+        private static Map<Class, Class> builtinClasses = new HashMap<>();
+        static {
+            builtinClasses.put(java.lang.Byte.class, ByteBuiltins.class);
+            builtinClasses.put(java.lang.Double.class, DoubleBuiltins.class);
+            builtinClasses.put(java.lang.Float.class, FloatBuiltins.class);
+            builtinClasses.put(java.lang.Integer.class, IntBuiltins.class);
+            builtinClasses.put(java.lang.Long.class, LongBuiltins.class);
+            builtinClasses.put(java.lang.Short.class, ShortBuiltins.class);
+            builtinClasses.put(boolean[].class, BooleanArrayBuiltins.class);
+            builtinClasses.put(byte[].class, ByteArrayBuiltins.class);
+            builtinClasses.put(char[].class, CharArrayBuiltins.class);
+            builtinClasses.put(double[].class, DoubleArrayBuiltins.class);
+            builtinClasses.put(float[].class, FloatArrayBuiltins.class);
+            builtinClasses.put(int[].class, IntArrayBuiltins.class);
+            builtinClasses.put(long[].class, LongArrayBuiltins.class);
+            builtinClasses.put(short[].class, ShortArrayBuiltins.class);
+        }
 
         @NotNull
         private List<Method> findBuiltins(@NotNull Class methodClass){
-            if (methodClass.equals(java.lang.Integer.class)){
-                builtinClassId = 0;
-            }
-            else if (methodClass.equals(java.lang.Double.class)){
-                builtinClassId = 1;
-            }
-            else if (methodClass.equals(java.lang.Long.class)){
-                builtinClassId = 2;
-            }
-            else if (methodClass.equals(java.lang.Float.class)){
-                builtinClassId = 3;
-            }
-            else if (methodClass.equals(java.lang.Byte.class)){
-                builtinClassId = 4;
-            }
-            else if (methodClass.equals(java.lang.Short.class)){
-                builtinClassId = 5;
-            }
-            else {
+            Class builtinClass = builtinClasses.get(methodClass);
+            if (builtinClass == null) {
                 return Collections.emptyList();
             }
-
-            return fastMethodFilter(Arrays.asList(builtinClasses[builtinClassId].getClass().getDeclaredMethods()));
+            return fastMethodFilter(Arrays.asList(builtinClass.getDeclaredMethods()));
         }
 
         @NotNull
@@ -305,9 +294,6 @@ public abstract class DynamicSelector {
 
                 try {
                     handle = caller.unreflect(targetMethod);
-                    if (builtinClassId >= 0) {
-                        handle = handle.bindTo(builtinClasses[builtinClassId]);
-                    }
                 } catch (IllegalAccessException e) {
                     throw new DynamicBindException(e.getMessage());
                 }
