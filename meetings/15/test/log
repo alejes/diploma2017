@@ -1,0 +1,27 @@
+# JMH 1.15 (released 46 days ago)
+# VM version: JDK 1.8.0_101, VM 25.101-b13
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 20 iterations, 1 s each
+# Measurement: 10 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.sample.MyBenchmark.boxedStaticInlinedJava
+
+# Run progress: 0.00% complete, ETA 00:04:30
+# Fork: 1 of 1
+# Warmup Iteration   1: 307.767 us/op
+# Warmup Iteration   2: 377.596 us/op
+# Warmup Iteration   3: 362.459 us/op
+# Warmup Iteration   4: 270.056 us/op
+# Warmup Iteration   5: 288.052 us/op
+# Warmup Iteration   6: 267.720 us/op
+# Warmup Iteration   7: 278.111 us/op
+# Warmup Iteration   8: 275.220 us/op
+# Warmup Iteration   9: 260.343 us/op
+# Warmup Iteration  10: 267.798 us/op
+# Warmup Iteration  11: 291.336 us/op
+# Warmup Iteration  12: 292.485 us/op
+# Warmup Iteration  13: 363.579 us/op
+# Warmup Iteration  14: <failure: VM prematurely exited before JMH had finished with it, explicit System.exit was called?>
