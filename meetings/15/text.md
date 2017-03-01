@@ -204,3 +204,4 @@ class KotlinRunnerInt {
 
 - сравниться с груви и этот fib
 - написать тесты
+- _this
