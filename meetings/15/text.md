@@ -180,10 +180,11 @@ class KotlinRunnerInt {
 -  Результаты
 # Run complete. Total time: 00:40:17
 
-Benchmark                  (n)  Mode  Cnt     Score     Error  Units
-MyBenchmark.kotlinDynamic   10  avgt  200     0,564 ±   0,017  us/op
-MyBenchmark.kotlinDynamic   20  avgt  200    77,245 ±   0,792  us/op
-MyBenchmark.kotlinDynamic   30  avgt  200  9450,560 ± 100,461  us/op
-MyBenchmark.kotlinInt       10  avgt  200     0,244 ±   0,003  us/op
-MyBenchmark.kotlinInt       20  avgt  200    29,049 ±   0,294  us/op
-MyBenchmark.kotlinInt       30  avgt  200  3645,606 ±  37,995  us/op
+|Benchmark                  |(n)|  Mode|  Cnt|     Score|     Error|  Units|
+|---|---|---|---|---|---|---|
+|MyBenchmark.kotlinDynamic  |10 |  avgt|  200|     0,564| ±   0,017|  us/op|
+|MyBenchmark.kotlinDynamic  |20 |  avgt|  200|    77,245| ±   0,792|  us/op|
+|MyBenchmark.kotlinDynamic  |30 |  avgt|  200|  9450,560| ± 100,461|  us/op|
+|MyBenchmark.kotlinInt      |10 |  avgt|  200|     0,244| ±   0,003|  us/op|
+|MyBenchmark.kotlinInt      |20 |  avgt|  200|    29,049| ±   0,294|  us/op|
+|MyBenchmark.kotlinInt      |30 |  avgt|  200|  3645,606| ±  37,995|  us/op|
