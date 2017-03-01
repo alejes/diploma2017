@@ -59,6 +59,24 @@ fun main(args: Array<String>) {
 ```
 67890
 ```
+А если мы туда передадим не String? Хотелось бы чтобы появился dynamic.
+```
+fun function1(x: String): Int {
+    return 67890
+}
+fun function1(x: dynamic): Int {
+    return 83
+}
+
+
+fun main(args: Array<String>) {
+    //val x: dynamic = "ww"
+    val x: dynamic = 22121
+    val z = function1(x)
+    println(z)
+}
+```
+
 Так, а теперь добавим новых перегрузок
 ```
 fun function1(x: Int): Int {
