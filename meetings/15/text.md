@@ -40,9 +40,27 @@ fun main(args: Array<String>) {
 ```
 5
 ```
+Если у нас есть перегрузка ```String``` и ```dynamic```.
+```
+fun function1(x: String): Int {
+    return 67890
+}
+fun function1(x: dynamic): Int {
+    return 83
+}
 
+
+fun main(args: Array<String>) {
+    val x: dynamic = "ww"
+    val z = function1(x)
+    println(z)
+}
+```
+```
+67890
 ```
 Так, а теперь добавим новых перегрузок
+```
 fun function1(x: Int): Int {
     return 5
 }
