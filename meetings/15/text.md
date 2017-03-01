@@ -178,7 +178,7 @@ class KotlinRunnerInt {
 }
 ```
 -  Результаты
-# Run complete. Total time: 00:40:17
+```# Run complete. Total time: 00:40:17```
 
 |Benchmark                  |(n)|  Mode|  Cnt|     Score|     Error|  Units|
 |---|---|---|---|---|---|---|
