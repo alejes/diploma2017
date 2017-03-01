@@ -201,3 +201,6 @@ class KotlinRunnerInt {
 |Fibonacci.Int      |30 |  avgt|  200|  3645,606| ±  37,995|  us/op|
 
 - Текущая пролема - ```public int java.lang.Long.compareTo(java.lang.Object)```
+
+- сравниться с груви и этот fib
+- написать тесты
