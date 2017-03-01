@@ -179,7 +179,18 @@ class KotlinRunnerInt {
 ```
 -  Результаты
 ```# Run complete. Total time: 00:40:17```
-
+```
+# JMH 1.15 (released 152 days ago)
+# VM version: JDK 1.8.0_121, VM 25.121-b13
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 20 iterations, 1 s each
+# Measurement: 20 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Forks: 10
+```
 |Benchmark                  |(n)|  Mode|  Cnt|     Score|     Error|  Units|
 |---|---|---|---|---|---|---|
 |MyBenchmark.kotlinDynamic  |10 |  avgt|  200|     0,564| ±   0,017|  us/op|
