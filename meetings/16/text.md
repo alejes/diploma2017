@@ -24,17 +24,4 @@ error: overload resolution ambiguity:
 @InlineOnly public inline fun println(message: Int): Unit defined in kotlin.io
 @InlineOnly public inline fun println(message: Long): Unit defined in kotlin.io
 @InlineOnly public inline fun println(message: Short): Unit defined in kotlin.io
-
-```
-error: overload resolution ambiguity: 
-@InlineOnly public inline fun println(message: Any?): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Boolean): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Byte): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Char): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: CharArray): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Double): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Float): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Int): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Long): Unit defined in kotlin.io
-@InlineOnly public inline fun println(message: Short): Unit defined in kotlin.io
 ```
