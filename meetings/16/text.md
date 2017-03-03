@@ -25,3 +25,20 @@ error: overload resolution ambiguity:
 @InlineOnly public inline fun println(message: Long): Unit defined in kotlin.io
 @InlineOnly public inline fun println(message: Short): Unit defined in kotlin.io
 ```
+
+
+### Сейчас ломается
+private fun getChainOrNull(): dynamic {
+    val chain: dynamic = 5
+    return chain.takeIf { it != 5 }
+}
+
+/*
+private fun InternalHashCodeMap::getChainOrNull(hashCode: Int): Array<MutableEntry<K, V>>? {
+    val chain = backingMap[hashCode].unsafeCast<Array<MutableEntry<K, V>>?>()
+    return chain.takeIf { it !== undefined }
+}*/
+
+fun main(args: Array<String>) {
+
+}
