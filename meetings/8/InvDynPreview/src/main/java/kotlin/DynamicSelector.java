@@ -258,6 +258,7 @@ public abstract class DynamicSelector {
         private List<Method> fastMethodFilter(@NotNull List<Method> methods) {
             return methods.stream()
                     .filter(it -> it.getName().equals(name))
+                    .filter(it -> !it.isBridge())
                     .distinct()
                     .collect(Collectors.toList());
         }
