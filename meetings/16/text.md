@@ -44,3 +44,24 @@ fun main(args: Array<String>) {
 
 }
 ```
+
+### Fork
+
+#### Run complete. Total time: 00:30:12
+
+Benchmark                           (n)  Mode  Cnt      Score     Error  Units
+MyBenchmark.groovyIntDynamic         10  avgt   60      1.832 ±   0.020  us/op
+MyBenchmark.groovyIntDynamic         20  avgt   60    229.138 ±   0.923  us/op
+MyBenchmark.groovyIntDynamic         30  avgt   60  27971.273 ± 118.367  us/op
+MyBenchmark.groovyIntInvokeDynamic   10  avgt   60      0.432 ±   0.001  us/op
+MyBenchmark.groovyIntInvokeDynamic   20  avgt   60     59.054 ±   0.150  us/op
+MyBenchmark.groovyIntInvokeDynamic   30  avgt   60   6693.889 ±  77.381  us/op
+MyBenchmark.groovyIntStaticDynamic   10  avgt   60      0.173 ±   0.001  us/op
+MyBenchmark.groovyIntStaticDynamic   20  avgt   60     21.394 ±   0.280  us/op
+MyBenchmark.groovyIntStaticDynamic   30  avgt   60   2629.358 ±  33.723  us/op
+MyBenchmark.kotlinDynamic            10  avgt   60      0.394 ±   0.001  us/op
+MyBenchmark.kotlinDynamic            20  avgt   60     59.363 ±   0.147  us/op
+MyBenchmark.kotlinDynamic            30  avgt   60   7397.113 ±  54.862  us/op
+MyBenchmark.kotlinInt                10  avgt   60      0.212 ±   0.001  us/op
+MyBenchmark.kotlinInt                20  avgt   60     26.265 ±   0.020  us/op
+MyBenchmark.kotlinInt                30  avgt   60   3087.734 ±  93.085  us/op
