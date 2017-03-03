@@ -28,6 +28,7 @@ error: overload resolution ambiguity:
 
 
 ### Сейчас ломается
+```
 private fun getChainOrNull(): dynamic {
     val chain: dynamic = 5
     return chain.takeIf { it != 5 }
@@ -42,3 +43,4 @@ private fun InternalHashCodeMap::getChainOrNull(hashCode: Int): Array<MutableEnt
 fun main(args: Array<String>) {
 
 }
+```
