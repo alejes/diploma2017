@@ -66,3 +66,24 @@ fun main(args: Array<String>) {
 |MyBenchmark.kotlinInt               | 10 | avgt |  60 |     0.212| ±   0.001 | us/op |
 |MyBenchmark.kotlinInt               | 20 | avgt |  60 |    26.265| ±   0.020 | us/op |
 |MyBenchmark.kotlinInt               | 30 |  avgt|   60|   3087.73|4 ±  93.085| us/op |
+
+
+
+### InlineOnly
+```
+fun main(args: Array<String>) {
+    val n = 5
+    val z = MutableList(n   , {_->46})
+}
+```
+
+```
+Exception in thread "main" kotlin.DynamicBindException: Runtime: cannot find target method MutableList
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:291)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:155)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at MainKt.main(main.kt:286)
+```
+```
+Exception in thread "main" java.lang.UnsupportedOperationException: Packages and file facades are not yet supported in Kotlin reflection. Meanwhile please use Java reflection to inspect this class: class kotlin.collections.CollectionsKt
+```
