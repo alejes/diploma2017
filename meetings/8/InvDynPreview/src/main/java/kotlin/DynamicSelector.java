@@ -331,7 +331,10 @@ public abstract class DynamicSelector {
                 throw new UnsupportedOperationException("static");
             } else {
                 try {
-                    Field field = receiver.getClass().getField(name);
+                    Field field = receiver.getClass().getDeclaredField(name);
+                    if (!field.isAccessible()) {
+                        field.setAccessible(true);
+                    }
                     switch (it) {
                         case GET:
                             // handle = caller.findGetter(receiver.getClass(), name, ???type)
