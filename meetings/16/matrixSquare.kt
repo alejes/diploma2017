@@ -1,12 +1,26 @@
 class KotlinRunner {
     companion object {
         @JvmStatic
-        fun matrixSquare(n: dynamic): dynamic {
-            val x: MutableList<List<Int>> = mutableListOf<List<Int>>();
-            for (i in 0..n.size-1) {
-                x.add(MutableList(n.size, { _ -> 46  }))
+        fun matrixSquare(source: dynamic): dynamic {
+            val destination: MutableList<MutableList<Int>> = mutableListOf<MutableList<Int>>();
+            for (i in 0..source.size-1) {
+                destination.add(mutableListOf<Int>())
+                for (j in 0..source.size-1) {
+                    destination[i].add(j, 0)
+                }
             }
-            return x;
+
+
+            for (i in 0..source.size-1) {
+                for (j in 0..source.size-1) {
+                    for (k in 0..source.size-1) {
+                        val temp = source[i][k] + source[k][j];
+                        destination[i][j] = destination[i][j] + temp;
+                    }
+                }
+            }
+
+            return destination;
         }
 
         @JvmStatic
