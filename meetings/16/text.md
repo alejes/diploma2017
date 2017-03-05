@@ -95,3 +95,12 @@ this class: class kotlin.collections.CollectionsKt
 
 ### TODO
 - += IntrinsicCallable.genDynamicInstruction
+- Exception in thread "main" kotlin.DynamicBindException: Runtime: cannot find target method plusAssign
+
+```
+fun main(args: Array<String>) {
+    var x: dynamic = 5;
+    x += 5;
+    println(x);
+}
+```
