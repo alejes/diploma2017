@@ -281,12 +281,19 @@ public abstract class DynamicSelector {
 
                 targetMethodList = filterSuitableMethods(targetMethodList);
 
-                if (targetMethodList.isEmpty()){
+                boolean isMixedWithBuiltins = targetMethodList.isEmpty();
+                if (isMixedWithBuiltins){
                     targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
                 }
 
                 Method targetMethod = findMostSpecific(targetMethodList);
 
+                // since we have Int.compareTo(Long) together with Integer.compareTo(Integer) and similar,
+                // we must mix with builtins if failed
+                if ((targetMethod == null) && !isMixedWithBuiltins){
+                    targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
+                    targetMethod = findMostSpecific(targetMethodList);
+                }
                 if (targetMethod == null) {
                     throw new DynamicBindException("Runtime: cannot find target method " + name);
                 }
