@@ -65,7 +65,7 @@ fun main(args: Array<String>) {
 |kotlinDynamic           | 30 | avgt |  60 |  7397.113| ±  54.862 | us/op |
 |kotlinInt               | 10 | avgt |  60 |     0.212| ±   0.001 | us/op |
 |kotlinInt               | 20 | avgt |  60 |    26.265| ±   0.020 | us/op |
-|kotlinInt               | 30 | avgt |   60|   3087.73|4 ±  93.085| us/op |
+|kotlinInt               | 30 | avgt |   60|  3087.734| ±  93.085 | us/op |
 
 
 ### Перемножение матриц
