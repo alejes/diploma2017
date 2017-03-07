@@ -67,6 +67,41 @@ fun main(args: Array<String>) {
 |MyBenchmark.kotlinInt               | 20 | avgt |  60 |    26.265| ±   0.020 | us/op |
 |MyBenchmark.kotlinInt               | 30 |  avgt|   60|   3087.73|4 ±  93.085| us/op |
 
+### Перемножение матриц
+```
+class KotlinRunner {
+    companion object {
+        @JvmStatic
+        fun matrixSquare(source: dynamic): dynamic {
+            val destination: dynamic = mutableListOf<MutableList<Int>>();
+            for (i in 0..source.size-1) {
+                destination.add(mutableListOf<Int>())
+                for (j in 0..source.size-1) {
+                    destination[i].add(j, 0)
+                }
+            }
+
+
+            for (i in 0..source.size-1) {
+                for (j in 0..source.size-1) {
+                    for (k in 0..source.size-1) {
+			val temp = source[i][k] * source[k][j];
+                        destination[i][j] = temp + destination[i][j];
+                    }
+                }
+            }
+
+            return destination;
+        }
+
+        @JvmStatic
+        fun matrixSquareProxy(source: List<List<Int>>): List<List<Int>> {
+            //return MutableList<List<Int>>(5, { _ -> MutableList(5, { _ -> 5 }) });
+            return matrixSquare(source)
+        }
+    }
+}
+```
 
 
 ### InlineOnly
