@@ -104,3 +104,13 @@ fun main(args: Array<String>) {
     println(x);
 }
 ```
+- exception: org.jetbrains.kotlin.codegen.CompilationException: Back-end (JVM) Internal error: no setter specified Cause: no setter specified
+	- org.jetbrains.kotlin.codegen.StackValue$CollectionElement.storeSelector(StackValue.java:1090)
+```
+fun main(args: Array<String>) {
+    var x: dynamic = 5;
+    val a: dynamic = mutableListOf<Int>();
+    a[0] += x;
+    println(a[0]);
+}
+```
