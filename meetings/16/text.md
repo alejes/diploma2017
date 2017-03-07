@@ -104,7 +104,8 @@ class KotlinRunner {
 }
 ```
 __target__: notebook
-|Benchmark            |(n) | Mode|  Cnt|     Score |   Error | Units|
+
+|Benchmark            |(n) | Mode|  Cnt|     Score |   Error | Units |
 |---|---|---|---|---|---|---|
 |kotlinInt            |  10|  avgt|   60|   18,094 |±  0,335 | us/op |
 |kotlinInt            |  20|  avgt|   60|  138,086 |±  3,387 | us/op |
