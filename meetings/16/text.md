@@ -49,23 +49,24 @@ fun main(args: Array<String>) {
 
 #### Run complete. Total time: 00:30:12
 
-|Benchmark                           |(n) | Mode | Cnt |     Score|     Error | Units |
+|Benchmark               |(n) | Mode | Cnt |     Score|     Error | Units |
 |---|---|---|---|---|---|---|
-|MyBenchmark.groovyIntDynamic        | 10 | avgt |  60 |     1.832| ±   0.020 | us/op |
-|MyBenchmark.groovyIntDynamic        | 20 | avgt |  60 |   229.138| ±   0.923 | us/op |
-|MyBenchmark.groovyIntDynamic        | 30 | avgt |  60 | 27971.273| ± 118.367 | us/op |
-|MyBenchmark.groovyIntInvokeDynamic  | 10 | avgt |  60 |     0.432| ±   0.001 | us/op |
-|MyBenchmark.groovyIntInvokeDynamic  | 20 | avgt |  60 |    59.054| ±   0.150 | us/op |
-|MyBenchmark.groovyIntInvokeDynamic  | 30 | avgt |  60 |  6693.889| ±  77.381 | us/op |
-|MyBenchmark.groovyIntStaticDynamic  | 10 | avgt |  60 |     0.173| ±   0.001 | us/op |
-|MyBenchmark.groovyIntStaticDynamic  | 20 | avgt |  60 |    21.394| ±   0.280 | us/op |
-|MyBenchmark.groovyIntStaticDynamic  | 30 | avgt |  60 |  2629.358| ±  33.723 | us/op |
-|MyBenchmark.kotlinDynamic           | 10 | avgt |  60 |     0.394| ±   0.001 | us/op |
-|MyBenchmark.kotlinDynamic           | 20 | avgt |  60 |    59.363| ±   0.147 | us/op |
-|MyBenchmark.kotlinDynamic           | 30 | avgt |  60 |  7397.113| ±  54.862 | us/op |
-|MyBenchmark.kotlinInt               | 10 | avgt |  60 |     0.212| ±   0.001 | us/op |
-|MyBenchmark.kotlinInt               | 20 | avgt |  60 |    26.265| ±   0.020 | us/op |
-|MyBenchmark.kotlinInt               | 30 |  avgt|   60|   3087.73|4 ±  93.085| us/op |
+|groovyIntDynamic        | 10 | avgt |  60 |     1.832| ±   0.020 | us/op |
+|groovyIntDynamic        | 20 | avgt |  60 |   229.138| ±   0.923 | us/op |
+|groovyIntDynamic        | 30 | avgt |  60 | 27971.273| ± 118.367 | us/op |
+|groovyIntInvokeDynamic  | 10 | avgt |  60 |     0.432| ±   0.001 | us/op |
+|groovyIntInvokeDynamic  | 20 | avgt |  60 |    59.054| ±   0.150 | us/op |
+|groovyIntInvokeDynamic  | 30 | avgt |  60 |  6693.889| ±  77.381 | us/op |
+|groovyIntStaticDynamic  | 10 | avgt |  60 |     0.173| ±   0.001 | us/op |
+|groovyIntStaticDynamic  | 20 | avgt |  60 |    21.394| ±   0.280 | us/op |
+|groovyIntStaticDynamic  | 30 | avgt |  60 |  2629.358| ±  33.723 | us/op |
+|kotlinDynamic           | 10 | avgt |  60 |     0.394| ±   0.001 | us/op |
+|kotlinDynamic           | 20 | avgt |  60 |    59.363| ±   0.147 | us/op |
+|kotlinDynamic           | 30 | avgt |  60 |  7397.113| ±  54.862 | us/op |
+|kotlinInt               | 10 | avgt |  60 |     0.212| ±   0.001 | us/op |
+|kotlinInt               | 20 | avgt |  60 |    26.265| ±   0.020 | us/op |
+|kotlinInt               | 30 | avgt |   60|   3087.73|4 ±  93.085| us/op |
+
 
 ### Перемножение матриц
 ```
@@ -102,6 +103,27 @@ class KotlinRunner {
     }
 }
 ```
+__target__: notebook
+|Benchmark            |(n) | Mode|  Cnt|     Score |   Error | Units|
+|---|---|---|---|---|---|---|
+|kotlinInt            |  10|  avgt|   60|   18,094 |±  0,335 | us/op |
+|kotlinInt            |  20|  avgt|   60|  138,086 |±  3,387 | us/op |
+|kotlinInt            |  30|  avgt|   60|  461,519 |± 10,596 | us/op |
+|groovyIntStatic      | 10 | avgt | 200 |   33,076 |±  1,074 | us/op |
+|groovyIntStatic      | 20 | avgt | 200 |  171,737 |±  2,081 | us/op |
+|groovyIntStatic      | 30 | avgt | 200 |  563,543 |±  6,341 | us/op |
+|groovyInvokeDynamic  | 10 | avgt | 200 |   93,196 |±  1,304 | us/op |
+|groovyInvokeDynamic  | 20 | avgt | 200 |  691,998 |±  8,044 | us/op |
+|groovyInvokeDynamic  | 30 | avgt | 200 | 2304,544 |± 27,708 | us/op |
+|groovyTraditional    | 10 | avgt | 200 |  103,212 |±  0,803 | us/op |
+|groovyTraditional    | 20 | avgt | 200 |  775,888 |±  1,975 | us/op |
+|groovyTraditional    | 30 | avgt | 200 | 2943,794 |± 20,273 | us/op |
+|kotlinDynamic        | 10 | avgt | 200 |   25,433 |±  0,174 | us/op |
+|kotlinDynamic        | 20 | avgt | 200 |  190,027 |±  2,143 | us/op |
+|kotlinDynamic        | 30 | avgt | 200 |  644,265 |±  6,764 | us/op |
+|kotlinInt            | 10 | avgt | 200 |   25,294 |±  0,128 | us/op |
+|kotlinInt            | 20 | avgt | 200 |  190,048 |±  1,074 | us/op |
+|kotlinInt            | 30 | avgt | 200 |  642,529 |±  5,661 | us/op |
 
 
 ### InlineOnly
