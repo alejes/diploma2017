@@ -147,7 +147,7 @@ Meanwhile please use Java reflection to inspect
 this class: class kotlin.collections.CollectionsKt
 ```
 
-- ~Ломается += IntrinsicCallable.genDynamicInstruction~
+- ~~Ломается += IntrinsicCallable.genDynamicInstruction~~
 Исправлено
 
 ### TODO
