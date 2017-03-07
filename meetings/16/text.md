@@ -130,6 +130,30 @@ this class: class kotlin.collections.CollectionsKt
 ### Разное
 - ~~Ломается += IntrinsicCallable.genDynamicInstruction~~
 Исправлено
+-  Должен ли резолвится implicit parameter?
+```
+private fun getChainOrNull(): dynamic {
+    val chain: dynamic = 5
+    return chain.takeIf { it != 5 }
+}
+```
+Сейчас в JS: ```Error:(3, 26) Unresolved reference: it```
+
+```
+private fun InternalHashCodeMap::getChainOrNull(hashCode: Int): Array<MutableEntry<K, V>>? {
+    val chain = backingMap[hashCode].unsafeCast<Array<MutableEntry<K, V>>?>()
+    return chain.takeIf { it !== undefined }
+}
+```
+
+И нужно ли портировать из package kotlin.js
+```
+@kotlin.internal.InlineOnly
+public inline fun Any?.asDynamic(): dynamic = this
+public inline fun <T> Any?.unsafeCast(): @kotlin.internal.NoInfer T = this.asDynamic()
+public inline fun <T> dynamic.unsafeCast(): @kotlin.internal.NoInfer T = this
+public operator fun dynamic.iterator(): Iterator<dynamic> 
+```
 
 ### TODO
 
