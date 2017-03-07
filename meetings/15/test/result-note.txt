@@ -1,0 +1,958 @@
+# JMH 1.15 (released 152 days ago)
+# VM version: JDK 1.8.0_121, VM 25.121-b13
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 20 iterations, 1 s each
+# Measurement: 20 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.sample.MyBenchmark.kotlinDynamic
+# Parameters: (n = 10)
+
+# Run progress: 0,00% complete, ETA 00:40:00
+# Fork: 1 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 1,67% complete, ETA 00:00:15
+# Fork: 2 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 3,33% complete, ETA 00:00:14
+# Fork: 3 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 5,00% complete, ETA 00:00:13
+# Fork: 4 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 6,67% complete, ETA 00:00:13
+# Fork: 5 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 8,33% complete, ETA 00:00:12
+# Fork: 6 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 10,00% complete, ETA 00:00:12
+# Fork: 7 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 11,67% complete, ETA 00:00:12
+# Fork: 8 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 13,33% complete, ETA 00:00:12
+# Fork: 9 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 15,00% complete, ETA 00:00:11
+# Fork: 10 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+
+# JMH 1.15 (released 152 days ago)
+# VM version: JDK 1.8.0_121, VM 25.121-b13
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 20 iterations, 1 s each
+# Measurement: 20 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.sample.MyBenchmark.kotlinDynamic
+# Parameters: (n = 20)
+
+# Run progress: 16,67% complete, ETA 00:00:11
+# Fork: 1 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 18,33% complete, ETA 00:00:11
+# Fork: 2 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 20,00% complete, ETA 00:00:11
+# Fork: 3 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 21,67% complete, ETA 00:00:11
+# Fork: 4 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 23,33% complete, ETA 00:00:10
+# Fork: 5 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 25,00% complete, ETA 00:00:10
+# Fork: 6 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 26,67% complete, ETA 00:00:10
+# Fork: 7 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 28,33% complete, ETA 00:00:09
+# Fork: 8 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 30,00% complete, ETA 00:00:09
+# Fork: 9 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 31,67% complete, ETA 00:00:09
+# Fork: 10 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+
+# JMH 1.15 (released 152 days ago)
+# VM version: JDK 1.8.0_121, VM 25.121-b13
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 20 iterations, 1 s each
+# Measurement: 20 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.sample.MyBenchmark.kotlinDynamic
+# Parameters: (n = 30)
+
+# Run progress: 33,33% complete, ETA 00:00:09
+# Fork: 1 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 35,00% complete, ETA 00:00:09
+# Fork: 2 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 36,67% complete, ETA 00:00:08
+# Fork: 3 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 38,33% complete, ETA 00:00:08
+# Fork: 4 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 40,00% complete, ETA 00:00:08
+# Fork: 5 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 41,67% complete, ETA 00:00:08
+# Fork: 6 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 43,33% complete, ETA 00:00:07
+# Fork: 7 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 45,00% complete, ETA 00:00:07
+# Fork: 8 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 46,67% complete, ETA 00:00:07
+# Fork: 9 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+# Run progress: 48,33% complete, ETA 00:00:07
+# Fork: 10 of 10
+# Warmup Iteration   1: <failure>
+
+java.net.BindException: Runtime: cannot find target method minus
+	at kotlin.DynamicSelector$MethodSelector.genMethodClass(DynamicSelector.java:248)
+	at kotlin.DynamicSelector$MethodSelector.setCallSite(DynamicSelector.java:154)
+	at kotlin.DynamicMetaFactory.invokeProxy(DynamicMetaFactory.java:94)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fib(main.kt:42)
+	at org.sample.kotlin.KotlinRunnerDynamic$Companion.fibProxy(main.kt:47)
+	at org.sample.MyBenchmark.kotlinDynamic(MyBenchmark.java:30)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_avgt_jmhStub(MyBenchmark_kotlinDynamic_jmhTest.java:182)
+	at org.sample.generated.MyBenchmark_kotlinDynamic_jmhTest.kotlinDynamic_AverageTime(MyBenchmark_kotlinDynamic_jmhTest.java:146)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:464)
+	at org.openjdk.jmh.runner.BenchmarkHandler$BenchmarkTask.call(BenchmarkHandler.java:448)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+
+
+
+# JMH 1.15 (released 152 days ago)
+# VM version: JDK 1.8.0_121, VM 25.121-b13
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 20 iterations, 1 s each
+# Measurement: 20 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+# Benchmark: org.sample.MyBenchmark.kotlinInt
+# Parameters: (n = 10)
+
+# Run progress: 50,00% complete, ETA 00:00:06
+# Fork: 1 of 10
+# Warmup Iteration   1: 0,233 us/op
+# Warmup Iteration   2: 0,232 us/op
+# Warmup Iteration   3: 0,230 us/op
+# Warmup Iteration   4: 0,234 us/op
+# Warmup Iteration   5: 0,231 us/op
+# Warmup Iteration   6: 0,232 us/op
+# Warmup Iteration   7: 0,231 us/op
+# Warmup Iteration   8: 0,230 us/op
+# Warmup Iteration   9: 0,231 us/op
+# Warmup Iteration  10: 0,231 us/op
+# Warmup Iteration  11: 0,232 us/op
+# Warmup Iteration  12: 0,232 us/op
+# Warmup Iteration  13: 0,232 us/op
+# Warmup Iteration  14: 0,231 us/op
+# Warmup Iteration  15: 0,231 us/op
+# Warmup Iteration  16: 0,231 us/op
+# Warmup Iteration  17: 0,231 us/op
+# Warmup Iteration  18: 0,232 us/op
+# Warmup Iteration  19: 0,231 us/op
+# Warmup Iteration  20: 0,232 us/op
+Iteration   1: 0,234 us/op
+Iteration   2: 0,231 us/op
+Iteration   3: 0,232 us/op
+Iteration   4: 0,231 us/op
+Iteration   5: 0,232 us/op
+Iteration   6: 0,234 us/op
+Iteration   7: 0,232 us/op
+Iteration   8: 0,234 us/op
+Iteration   9: 0,231 us/op
+Iteration  10: 0,231 us/op
+Iteration  11: 0,231 us/op
+Iteration  12: 0,232 us/op
+Iteration  13: 0,233 us/op
+Iteration  14: 0,231 us/op
+Iteration  15: 0,231 us/op
+Iteration  16: 0,232 us/op
+Iteration  17: 0,230 us/op
+Iteration  18: 0,231 us/op
+Iteration  19: 0,231 us/op
+Iteration  20: 0,231 us/op
+
+# Run progress: 51,67% complete, ETA 00:00:44
+# Fork: 2 of 10
+# Warmup Iteration   1: 0,233 us/op
+# Warmup Iteration   2: 0,231 us/op
+# Warmup Iteration   3: 0,230 us/op
+# Warmup Iteration   4: 0,231 us/op
+# Warmup Iteration   5: 0,233 us/op
+# Warmup Iteration   6: 0,233 us/op
+# Warmup Iteration   7: 0,231 us/op
+# Warmup Iteration   8: 0,231 us/op
+# Warmup Iteration   9: 0,231 us/op
+# Warmup Iteration  10: 0,231 us/op
+# Warmup Iteration  11: 0,231 us/op
+# Warmup Iteration  12: 0,230 us/op
+# Warmup Iteration  13: 0,231 us/op
+# Warmup Iteration  14: 0,232 us/op
+# Warmup Iteration  15: 0,231 us/op
+# Warmup Iteration  16: 0,235 us/op
+# Warmup Iteration  17: 0,235 us/op
+# Warmup Iteration  18: 0,232 us/op
+# Warmup Iteration  19: 0,238 us/op
+# Warmup Iteration  20: 0,233 us/op
+Iteration   1: 0,233 us/op
+Iteration   2: 
