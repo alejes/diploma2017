@@ -107,9 +107,6 @@ __target__: notebook
 
 |Benchmark            |(n) | Mode|  Cnt|     Score |   Error | Units |
 |---|---|---|---|---|---|---|
-|kotlinInt            |  10|  avgt|   60|   18,094 |±  0,335 | us/op |
-|kotlinInt            |  20|  avgt|   60|  138,086 |±  3,387 | us/op |
-|kotlinInt            |  30|  avgt|   60|  461,519 |± 10,596 | us/op |
 |groovyIntStatic      | 10 | avgt | 200 |   33,076 |±  1,074 | us/op |
 |groovyIntStatic      | 20 | avgt | 200 |  171,737 |±  2,081 | us/op |
 |groovyIntStatic      | 30 | avgt | 200 |  563,543 |±  6,341 | us/op |
@@ -122,9 +119,9 @@ __target__: notebook
 |kotlinDynamic        | 10 | avgt | 200 |   25,433 |±  0,174 | us/op |
 |kotlinDynamic        | 20 | avgt | 200 |  190,027 |±  2,143 | us/op |
 |kotlinDynamic        | 30 | avgt | 200 |  644,265 |±  6,764 | us/op |
-|kotlinInt            | 10 | avgt | 200 |   25,294 |±  0,128 | us/op |
-|kotlinInt            | 20 | avgt | 200 |  190,048 |±  1,074 | us/op |
-|kotlinInt            | 30 | avgt | 200 |  642,529 |±  5,661 | us/op |
+|kotlinInt            |  10|  avgt|   60|   18,094 |±  0,335 | us/op |
+|kotlinInt            |  20|  avgt|   60|  138,086 |±  3,387 | us/op |
+|kotlinInt            |  30|  avgt|   60|  461,519 |± 10,596 | us/op |
 
 
 ### InlineOnly
