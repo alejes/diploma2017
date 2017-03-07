@@ -177,6 +177,7 @@ fun main(args: Array<String>) {
 }
 ```
 - varargs проверить
+- default args
 
 
 ### Сейчас ломается
