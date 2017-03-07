@@ -84,6 +84,7 @@ class KotlinRunner {
 }
 ```
 __target__: notebook
+#### Run complete. Total time: 01:45:15
 
 |Benchmark            |(n) | Mode|  Cnt|     Score |   Error | Units |
 |---|---|---|---|---|---|---|
