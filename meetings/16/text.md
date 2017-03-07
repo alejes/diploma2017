@@ -146,7 +146,7 @@ Packages and file facades are not yet supported in Kotlin reflection.
 Meanwhile please use Java reflection to inspect 
 this class: class kotlin.collections.CollectionsKt
 ```
-
+### Разное
 - ~~Ломается += IntrinsicCallable.genDynamicInstruction~~
 Исправлено
 
