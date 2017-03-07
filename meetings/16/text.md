@@ -78,7 +78,6 @@ class KotlinRunner {
 
         @JvmStatic
         fun matrixSquareProxy(source: List<List<Int>>): List<List<Int>> {
-            //return MutableList<List<Int>>(5, { _ -> MutableList(5, { _ -> 5 }) });
             return matrixSquare(source)
         }
     }
