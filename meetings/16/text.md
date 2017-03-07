@@ -147,9 +147,11 @@ Meanwhile please use Java reflection to inspect
 this class: class kotlin.collections.CollectionsKt
 ```
 
+- ~Ломается += IntrinsicCallable.genDynamicInstruction~
+Исправлено
 
 ### TODO
-- += IntrinsicCallable.genDynamicInstruction
+
 - Exception in thread "main" kotlin.DynamicBindException: Runtime: cannot find target method plusAssign
 
 ```
