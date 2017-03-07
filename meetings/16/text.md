@@ -169,3 +169,4 @@ fun main(args: Array<String>) {
     println(a[0]);
 }
 ```
+- varargs проверить
