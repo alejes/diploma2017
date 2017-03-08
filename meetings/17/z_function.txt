@@ -1,0 +1,29 @@
+class KotlinRunnerInteger {
+    companion object {
+        @JvmStatic
+        fun z_function (s: String): List<Int> {
+            val n = s.length;
+            val z: MutableList<Int> = MutableList(n, { _ -> 0})
+            var l = 0
+            var r = 0
+            for (i in 1 until n) {
+                if (i <= r)
+                    z[i] = minOf(r-i+1, z[i-l]);
+                while (i+z[i] < n && s[z[i]] == s[i+z[i]])
+                    z[i].inc()
+                if (i+z[i]-1 > r)
+                    l = i
+                    r = i+z[i]-1;
+            }
+
+            return z;
+        }
+
+        @JvmStatic
+        fun matrixSquareProxy(str: String): Int {
+            val z = z_function(str)
+            return matrixSquare(source)
+        }
+    }
+}
+
