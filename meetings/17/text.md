@@ -10,10 +10,11 @@ fun main(args: Array<String>) {
     println(z.toString())
 }
 ```
-
+Обычная ситуация:
 ```
 kotlin.Unit
 ```
+dynamic:
 ```
 Exception in thread "main" java.lang.NullPointerException
 ```
