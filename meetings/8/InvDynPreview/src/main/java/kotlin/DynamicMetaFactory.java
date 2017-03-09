@@ -2,6 +2,8 @@ package kotlin;
 
 import java.lang.invoke.*;
 import java.net.BindException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class DynamicMetaFactory {
@@ -13,6 +15,7 @@ public class DynamicMetaFactory {
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
+    private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);
@@ -25,7 +28,13 @@ public class DynamicMetaFactory {
             //[TODO] chose exception
             throw new RuntimeException(e.getMessage());
         }
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("plusAssign", "plus");
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("minusAssign", "minus");
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("timesAssign", "times");
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("divAssign", "div");
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("modAssign", "mod"); // rem assign?!
     }
+
 
     public static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
                                             String query,
@@ -90,12 +99,29 @@ public class DynamicMetaFactory {
 
     private static Object invokeProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
+        boolean assignmentOperatorConversion = false;
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.METHOD);
-        selector.setCallSite();
+        try {
+            selector.setCallSite();
+        } catch (DynamicBindException e) {
+            String operator = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
+            if (operator == null) {
+                throw e;
+            }
+            assignmentOperatorConversion = true;
+            selector.changeName(operator);
+            selector.setCallSite();
+        }
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
-        return call.invokeExact(arguments);
+
+        Object result = call.invokeExact(arguments);
+
+        if (ASSIGNMENT_OPERATION_COUNTERPARTS.containsKey(name) && !assignmentOperatorConversion) {
+            return arguments[0];
+        }
+        return result;
     }
 
     public enum INVOKE_TYPE {

@@ -1,6 +1,6 @@
 package kotlin;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
+import kotlin.builtins.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
@@ -11,14 +11,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
-import kotlin.builtins.*;
 
 import static kotlin.DynamicMetaFactory.IS_INSTANCE;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
 import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
 public abstract class DynamicSelector {
-    protected final String name;
+    protected String name;
     protected final Object[] arguments;
     protected final MethodHandles.Lookup caller;
     protected final MutableCallSite mc;
@@ -50,6 +49,10 @@ public abstract class DynamicSelector {
 
     public abstract void setCallSite() throws DynamicBindException;
 
+    public void changeName(String name) {
+        this.name = name;
+    }
+
     public MethodHandle getMethodHandle() {
         return handle;
     }
@@ -68,6 +71,27 @@ public abstract class DynamicSelector {
     }
 
     private static class MethodSelector extends DynamicSelector {
+        @NotNull
+        private static final Map<Class, Class> BUILTIN_CLASSES = new HashMap<>();
+
+        static {
+            BUILTIN_CLASSES.put(java.lang.Byte.class, ByteBuiltins.class);
+            BUILTIN_CLASSES.put(java.lang.Double.class, DoubleBuiltins.class);
+            BUILTIN_CLASSES.put(java.lang.Float.class, FloatBuiltins.class);
+            BUILTIN_CLASSES.put(java.lang.Integer.class, IntBuiltins.class);
+            BUILTIN_CLASSES.put(java.lang.Long.class, LongBuiltins.class);
+            BUILTIN_CLASSES.put(java.lang.Short.class, ShortBuiltins.class);
+            BUILTIN_CLASSES.put(boolean[].class, BooleanArrayBuiltins.class);
+            BUILTIN_CLASSES.put(byte[].class, ByteArrayBuiltins.class);
+            BUILTIN_CLASSES.put(char[].class, CharArrayBuiltins.class);
+            BUILTIN_CLASSES.put(double[].class, DoubleArrayBuiltins.class);
+            BUILTIN_CLASSES.put(float[].class, FloatArrayBuiltins.class);
+            BUILTIN_CLASSES.put(int[].class, IntArrayBuiltins.class);
+            BUILTIN_CLASSES.put(long[].class, LongArrayBuiltins.class);
+            BUILTIN_CLASSES.put(short[].class, ShortArrayBuiltins.class);
+        }
+
+
         private MethodSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
             super(arguments, mc, caller, type, name, /* isStaticCall*/ arguments[0] instanceof Class);
         }
@@ -151,7 +175,7 @@ public abstract class DynamicSelector {
         }
 
         @Override
-        public void setCallSite()  {
+        public void setCallSite() {
             genMethodClass();
             prepareMetaHandlers();
             changeTargetGuard();
@@ -227,27 +251,8 @@ public abstract class DynamicSelector {
         }
 
         @NotNull
-        private static Map<Class, Class> builtinClasses = new HashMap<>();
-        static {
-            builtinClasses.put(java.lang.Byte.class, ByteBuiltins.class);
-            builtinClasses.put(java.lang.Double.class, DoubleBuiltins.class);
-            builtinClasses.put(java.lang.Float.class, FloatBuiltins.class);
-            builtinClasses.put(java.lang.Integer.class, IntBuiltins.class);
-            builtinClasses.put(java.lang.Long.class, LongBuiltins.class);
-            builtinClasses.put(java.lang.Short.class, ShortBuiltins.class);
-            builtinClasses.put(boolean[].class, BooleanArrayBuiltins.class);
-            builtinClasses.put(byte[].class, ByteArrayBuiltins.class);
-            builtinClasses.put(char[].class, CharArrayBuiltins.class);
-            builtinClasses.put(double[].class, DoubleArrayBuiltins.class);
-            builtinClasses.put(float[].class, FloatArrayBuiltins.class);
-            builtinClasses.put(int[].class, IntArrayBuiltins.class);
-            builtinClasses.put(long[].class, LongArrayBuiltins.class);
-            builtinClasses.put(short[].class, ShortArrayBuiltins.class);
-        }
-
-        @NotNull
-        private List<Method> findBuiltins(@NotNull Class methodClass){
-            Class builtinClass = builtinClasses.get(methodClass);
+        private List<Method> findBuiltins(@NotNull Class methodClass) {
+            Class builtinClass = BUILTIN_CLASSES.get(methodClass);
             if (builtinClass == null) {
                 return Collections.emptyList();
             }
@@ -282,7 +287,7 @@ public abstract class DynamicSelector {
                 targetMethodList = filterSuitableMethods(targetMethodList);
 
                 boolean isMixedWithBuiltins = targetMethodList.isEmpty();
-                if (isMixedWithBuiltins){
+                if (isMixedWithBuiltins) {
                     targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
                 }
 
@@ -290,11 +295,14 @@ public abstract class DynamicSelector {
 
                 // since we have Int.compareTo(Long) together with Integer.compareTo(Integer) and similar,
                 // we must mix with builtins if failed
-                if ((targetMethod == null) && !isMixedWithBuiltins){
+                if ((targetMethod == null) && !isMixedWithBuiltins) {
                     targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
                     targetMethod = findMostSpecific(targetMethodList);
                 }
                 if (targetMethod == null) {
+                    /*
+                     * avoid exceptions! return boolean
+                     */
                     throw new DynamicBindException("Runtime: cannot find target method " + name);
                 }
 
