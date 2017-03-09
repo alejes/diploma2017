@@ -6,7 +6,7 @@ class A {
 }
 fun main(args: Array<String>) {
     val x: dynamic = A()
-    val z =x.runner();
+    val z = x.runner();
     println(z.toString())
 }
 ```
