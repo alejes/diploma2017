@@ -18,3 +18,4 @@ dynamic:
 ```
 Exception in thread "main" java.lang.NullPointerException
 ```
+- Стоит ли заморачиваться с передачей именнованных параметров?
