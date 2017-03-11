@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static kotlin.DynamicMetaFactory.IS_INSTANCE;
+import static kotlin.DynamicMetaFactory.bootstrapDynamic;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
 import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
@@ -47,7 +48,7 @@ public abstract class DynamicSelector {
         }
     }
 
-    public abstract void setCallSite() throws DynamicBindException;
+    public abstract boolean setCallSite() throws DynamicBindException;
 
     public void changeName(String name) {
         this.name = name;
@@ -57,7 +58,7 @@ public abstract class DynamicSelector {
         return handle;
     }
 
-    private enum TypeCompareResult {
+    /* package */ enum TypeCompareResult {
         BETTER(0),
         EQUAL(1),
         BOXING(2),
@@ -69,6 +70,28 @@ public abstract class DynamicSelector {
         }
 
     }
+
+    /* package */ static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
+        if (a == b) {
+            return TypeCompareResult.EQUAL;
+        }
+        Class<?> first = prepareClassForCompare(a);
+        Class<?> second = prepareClassForCompare(b);
+        if (first == second) {
+            return TypeCompareResult.BOXING;
+        }
+
+        if (second.isAssignableFrom(first)) {
+            return TypeCompareResult.BETTER;
+        } else {
+            return TypeCompareResult.WORSE;
+        }
+    }
+
+    private static Class<?> prepareClassForCompare(Class<?> clazz) {
+        return getJavaObjectType(getKotlinClass(clazz));
+    }
+
 
     private static class MethodSelector extends DynamicSelector {
         @NotNull
@@ -112,23 +135,6 @@ public abstract class DynamicSelector {
             return null;
         }
 
-        private static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
-            if (a == b) {
-                return TypeCompareResult.EQUAL;
-            }
-            Class<?> first = prepareClassForCompare(a);
-            Class<?> second = prepareClassForCompare(b);
-            if (first == second) {
-                return TypeCompareResult.BOXING;
-            }
-
-            if (second.isAssignableFrom(first)) {
-                return TypeCompareResult.BETTER;
-            } else {
-                return TypeCompareResult.WORSE;
-            }
-        }
-
         private static boolean isMoreSpecific(@NotNull Method a, @NotNull Method b) {
             if (a == b)
                 return true;
@@ -141,7 +147,7 @@ public abstract class DynamicSelector {
             }
 
 
-            /**
+            /*
              * [TODO] isVisibilityMoreSpecific
              */
             Class<?>[] aParameters = a.getParameterTypes();
@@ -170,16 +176,15 @@ public abstract class DynamicSelector {
             return true;
         }
 
-        private static Class<?> prepareClassForCompare(Class<?> clazz) {
-            return getJavaObjectType(getKotlinClass(clazz));
-        }
-
         @Override
-        public void setCallSite() {
-            genMethodClass();
+        public boolean setCallSite() {
+            if (!genMethodClass()){
+                return false;
+            }
             prepareMetaHandlers();
             changeTargetGuard();
             processSetCallSite();
+            return true;
         }
 
         private void prepareMetaHandlers() {
@@ -212,34 +217,6 @@ public abstract class DynamicSelector {
             mc.setTarget(handle);
         }
 
-        private boolean isMethodSuitable(@NotNull Method method, boolean skipReceiverCheck) {
-            int offset = 0;
-            if (skipReceiverCheck) {
-                offset = 1;
-            }
-
-            if (method.isVarArgs()) {
-                /*
-                * arguments already includes receiver and we processed empty vararg case
-                 */
-                if (method.getParameterCount() > arguments.length) {
-                    return false;
-                }
-            } else if (method.getParameterCount() - offset != arguments.length - 1) {
-                return false;
-            }
-
-            Class<?>[] requiredMethodParameters = method.getParameterTypes();
-            for (int i = 0; i < requiredMethodParameters.length; ++i) {
-                if (isTypeMoreSpecific(arguments[i + 1 - offset].getClass(), requiredMethodParameters[i]).index >=
-                        TypeCompareResult.WORSE.index) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         @NotNull
         private List<Method> filterSuitableMethods(@NotNull List<Method> methods) {
             return filterSuitableMethods(methods, false);
@@ -247,7 +224,7 @@ public abstract class DynamicSelector {
 
         @NotNull
         private List<Method> filterSuitableMethods(@NotNull List<Method> methods, boolean skipReceiverCheck) {
-            return methods.stream().filter(it -> isMethodSuitable(it, skipReceiverCheck)).collect(Collectors.toList());
+            return methods.stream().filter(it -> DynamicUtilsKt.isMethodSuitable(it, arguments, skipReceiverCheck)).collect(Collectors.toList());
         }
 
         @NotNull
@@ -262,13 +239,12 @@ public abstract class DynamicSelector {
         @NotNull
         private List<Method> fastMethodFilter(@NotNull List<Method> methods) {
             return methods.stream()
-                    .filter(it -> it.getName().equals(name))
-                    .filter(it -> !it.isBridge())
+                    .filter(it -> it.getName().equals(name) && !it.isBridge())
                     .distinct()
                     .collect(Collectors.toList());
         }
 
-        private void genMethodClass() {
+        private boolean genMethodClass() {
             Object receiver = arguments[0];
             if (receiver == null) {
                 throw new UnsupportedOperationException("null");
@@ -300,12 +276,10 @@ public abstract class DynamicSelector {
                     targetMethod = findMostSpecific(targetMethodList);
                 }
                 if (targetMethod == null) {
-                    /*
-                     * avoid exceptions! return boolean
-                     */
-                    throw new DynamicBindException("Runtime: cannot find target method " + name);
+                    return false;
                 }
 
+                targetMethod = DynamicUtilsKt.transformMethodIfRequired(targetMethod, methodClass,arguments.length - 1);
                 targetMethod.setAccessible(true);
 
                 try {
@@ -313,6 +287,9 @@ public abstract class DynamicSelector {
                 } catch (IllegalAccessException e) {
                     throw new DynamicBindException(e.getMessage());
                 }
+                handle = DynamicUtilsKt.insertDefaultArguments(handle, targetMethod, methodClass, arguments.length - 1);
+
+                return true;
             }
         }
     }
@@ -326,9 +303,10 @@ public abstract class DynamicSelector {
             this.it = it;
         }
 
-        public void setCallSite() {
+        public boolean setCallSite() {
             genMethodClass();
             processSetCallSite();
+            return true;
         }
 
 

@@ -70,9 +70,7 @@ public class DynamicMetaFactory {
     private static Object fieldGetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
-        try {
-            selector.setCallSite();
-        } catch (DynamicBindException e) {
+        if (!selector.setCallSite()) {
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
             return invokeProxy(mc, caller, type, name, arguments);
         }
@@ -85,9 +83,7 @@ public class DynamicMetaFactory {
     private static Object fieldSetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
-        try {
-            selector.setCallSite();
-        } catch (DynamicBindException e) {
+        if (!selector.setCallSite()) {
             name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
             return invokeProxy(mc, caller, type, name, arguments);
         }
@@ -101,16 +97,16 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         boolean assignmentOperatorConversion = false;
         DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.METHOD);
-        try {
-            selector.setCallSite();
-        } catch (DynamicBindException e) {
+        if (!selector.setCallSite()) {
             String operator = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
             if (operator == null) {
-                throw e;
+                throw new DynamicBindException("Runtime: cannot find target method " + name);
             }
             assignmentOperatorConversion = true;
             selector.changeName(operator);
-            selector.setCallSite();
+            if (!selector.setCallSite()) {
+                throw new DynamicBindException("Runtime: cannot find target method " + name);
+            }
         }
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
