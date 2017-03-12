@@ -4,15 +4,14 @@ import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Type
-import kotlin.DynamicSelector.TypeCompareResult
-import kotlin.DynamicSelector.isTypeMoreSpecific
-import kotlin.reflect.full.valueParameters
-import kotlin.reflect.jvm.kotlinFunction
+import java.util.ArrayList
+import kotlin.DynamicSelector.*
 
 
 internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceiverCheck: Boolean): Boolean {
+    val isDefaultArgumentCaller = method.name.endsWith(DEFAULT_CALLER_SUFFIX)
     val requiredMethodParameters =
-            if (skipReceiverCheck) method.parameterTypes.slice(1..method.parameterCount)
+            if (skipReceiverCheck || isDefaultArgumentCaller) method.parameterTypes.slice(1..method.parameterCount - 1)
             else method.parameterTypes.toList()
 
 
@@ -23,14 +22,8 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceive
         if (requiredMethodParameters.size > arguments.size) {
             return false
         }
-    } else if (requiredMethodParameters.size < arguments.size - 1) {
-        return false
-    } else if (requiredMethodParameters.size > arguments.size - 1) {
-        //check for default arguments
-        if (method.kotlinFunction
-                ?.valueParameters
-                ?.slice(arguments.size - 1 until method.parameterCount)
-                ?.any { !it.isOptional } ?: true) {
+    } else if (requiredMethodParameters.size != arguments.size - 1) {
+        if (!isDefaultArgumentCaller || (requiredMethodParameters.size - 1 < arguments.size)) {
             return false
         }
     }
@@ -40,45 +33,42 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceive
                 >= TypeCompareResult.WORSE.index) {
             return false
         }
-    }/*
-    requiredMethodParameters.indices.forEach {
-        if (isTypeMoreSpecific(arguments[it + 1]::class.java, requiredMethodParameters[it]).index
-                >= TypeCompareResult.WORSE.index) {
-            return false
-        }
-    }*/
+    }
 
     return true
 }
 
-internal fun transformMethodIfRequired(targetMethod: Method, methodClass: Class<Any>, argumentsCount: Int): Method {
-    if (targetMethod.isVarArgs || targetMethod.parameterCount == argumentsCount) {
-        return targetMethod
-    }
-    val defaultMethodCaller = methodClass.declaredMethods
-            .filter { it.isBridge && it.name == "${targetMethod.name}\$default" }
-    if (defaultMethodCaller.size != 1) {
-        throw DynamicBindException("Cannot find default method caller")
-    }
-
-    return defaultMethodCaller.first()
-}
-
 internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, methodClass: Class<Any>, argumentsCount: Int): MethodHandle {
-    if (targetMethod.isVarArgs || targetMethod.parameterCount == argumentsCount) {
-        return handle
+    if (!targetMethod.name.endsWith(DynamicSelector.DEFAULT_CALLER_SUFFIX)) {
+        return handle;
     }
 
     var mask = 0
+    val masks = ArrayList<Int>(1)
+
     val fixedArguments = mutableListOf<Any?>()
+    var index = argumentsCount
+    for (i in 1..argumentsCount.div(Integer.SIZE)) {
+        masks.add(mask)
+    }
     targetMethod.parameterTypes
             .drop(argumentsCount + 1)
             .dropLast(2)
-            .forEachIndexed { index, parameter ->
+            .forEach { parameter ->
+                if (index != 0 && index % Integer.SIZE == 0) {
+                    masks.add(mask)
+                    mask = 0
+                }
                 fixedArguments.add(defaultPrimitiveValue(parameter))
                 mask = mask or (1 shl (index % Integer.SIZE))
+                ++index
             }
-    fixedArguments.add(mask)
+
+    if (mask == 0 && masks.isEmpty()) {
+        return MethodHandles.insertArguments(handle, argumentsCount + 1, *fixedArguments.toTypedArray());
+    }
+    masks.add(mask)
+    fixedArguments.addAll(masks)
     fixedArguments.add(null)
 
     return MethodHandles.insertArguments(handle, argumentsCount + 1, *fixedArguments.toTypedArray());
