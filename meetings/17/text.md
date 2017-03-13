@@ -24,12 +24,12 @@ Exception in thread "main" java.lang.NullPointerException
 ```
 class A {
     fun function1(x: Int, y: Int = 54, z: Int = 59): Int {
-        return x + y + z    ;
+        return x + y + z
     }
 }
 fun main(args: Array<String>) {
-    val a: dynamic = A();
-    println(a.function1(10).toString());
+    val a: dynamic = A()
+    println(a.function1(10).toString())
 }
 ```
 ```
