@@ -2,9 +2,10 @@ package kotlin
 
 import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
+import java.lang.invoke.MethodType
 import java.lang.reflect.Method
 import java.lang.reflect.Type
-import java.util.ArrayList
+import java.util.*
 import kotlin.DynamicSelector.*
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.kotlinFunction
@@ -40,13 +41,21 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceive
     return true
 }
 
-internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, owner: Method?, namedArguments: Array<String>?, argumentsCount: Int): MethodHandle {
-    if (!targetMethod.name.endsWith(DynamicSelector.DEFAULT_CALLER_SUFFIX)) {
+fun insertDefaultArgumentsAndNamedParameters(handle: MethodHandle, targetMethod: Method, owner: Method?, namedArguments: Array<String>?, arguments: Array<Any>): MethodHandle {
+    val isDefaultCaller = targetMethod.name.endsWith(DynamicSelector.DEFAULT_CALLER_SUFFIX)
+    if ((namedArguments?.isEmpty() ?: false) && !isDefaultCaller) {
         return handle;
     }
 
-    val realArgumentNames = owner?.kotlinFunction?.valueParameters?.map { it.name } ?: listOf<String>()
+    val methodNamedArguments = owner?.kotlinFunction?.valueParameters?.mapNotNull { it.name } ?: listOf<String>()
 
+    if (namedArguments == null || namedArguments.isEmpty())
+        return insertDefaultArguments(handle, targetMethod, arguments.size - 1)
+    else
+        return insertNamedArguments(handle, targetMethod, namedArguments, methodNamedArguments, arguments, isDefaultCaller)
+}
+
+internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, argumentsCount: Int): MethodHandle {
     var mask = 0
     val masks = ArrayList<Int>(1)
 
@@ -76,6 +85,91 @@ internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, 
     fixedArguments.add(null)
 
     return MethodHandles.insertArguments(handle, argumentsCount + 1, *fixedArguments.toTypedArray());
+}
+
+/*internal fun permuteMethodType(type: MethodType, from: Int, to: Int): MethodType {
+    if (from == to) {
+        return type
+    }
+
+    //var newType = MethodType.methodType(type.returnType())
+    *//*
+    type.parameterArray().forEachIndexed { index, clazz ->
+        if (index == from) {
+            newType = newType.appendParameterTypes(type.parameterType(to))
+        }
+        else if (index == to) {
+            newType = newType.appendParameterTypes(type.parameterType(from))
+        }
+        else
+            newType = newType.appendParameterTypes(clazz)
+    }*//*
+    val newType = type.changeParameterType(from, type.parameterType(to))
+    return newType.changeParameterType(to, type.parameterType(from))
+}*/
+
+internal fun permuteMethodType(type: MethodType, permutation: ArrayList<Int>): MethodType {
+    val newType: MethodType = MethodType.methodType(type.returnType())
+
+    return newType.appendParameterTypes(
+            permutation.map { type.parameterType(it) }
+    )
+}
+
+internal fun insertNamedArguments(handle: MethodHandle, targetMethod: Method, currentNamedArguments: Array<String>, methodNamedArguments: List<String>, arguments: Array<Any>, defaultCaller: Boolean): MethodHandle {
+    var mask = 0
+    val masks = ArrayList<Int>(1)
+
+    val fixedArguments = mutableListOf<Any?>()
+    var currentHandle = handle
+    val argumentsCount = arguments.size - 1 - currentNamedArguments.size
+    //val namedSlice = arguments.slice((argumentsCount+1).rangeTo(arguments.size - 1))
+    var insertPosition = 1
+    var argumentPosition = 0
+    val permutation = ArrayList<Int>(1)
+    permutation.add(0)
+
+
+    targetMethod.parameterTypes
+            .dropLast(if (defaultCaller) 2 else 0)
+            .drop(if (defaultCaller) 1 else 0)
+            .forEach { parameter ->
+                val namedIndex = currentNamedArguments.indexOf(methodNamedArguments[argumentPosition])
+                if (namedIndex >= 0) {
+                    val newPosition = argumentsCount + namedIndex
+                    //val methodType = permuteMethodType(currentHandle.type(), insertPosition, newPosition)
+                    //currentHandle = MethodHandles.permuteArguments(currentHandle, methodType, insertPosition, newPosition)
+                    //val eee = 34;
+                    permutation.add(1 + newPosition)
+                    ++insertPosition
+
+                } else if (argumentPosition < argumentsCount) {
+                    //currentHandle = MethodHandles.insertArguments(currentHandle, 0, arguments[argumentPosition])
+                    permutation.add(insertPosition)
+                    ++insertPosition
+                } else {
+                    if (argumentPosition != 0 && argumentPosition % Integer.SIZE == 0) {
+                        masks.add(mask)
+                        mask = 0
+                    }
+                    currentHandle = MethodHandles.insertArguments(currentHandle, insertPosition, defaultPrimitiveValue(parameter))
+                    mask = mask or (1 shl (argumentPosition % Integer.SIZE))
+                }
+                ++argumentPosition
+            }
+
+    if (mask == 0 && masks.isEmpty()) {
+        val newType = permuteMethodType(currentHandle.type(), permutation);
+        return MethodHandles.permuteArguments(currentHandle, newType, *permutation.toIntArray())
+    }
+    masks.add(mask)
+    fixedArguments.addAll(masks)
+    fixedArguments.add(null)
+
+    currentHandle = MethodHandles.insertArguments(currentHandle, insertPosition, *fixedArguments.toTypedArray());
+
+    val newType = permuteMethodType(currentHandle.type(), permutation);
+    return MethodHandles.permuteArguments(currentHandle, newType, *permutation.toIntArray())
 }
 
 private fun defaultPrimitiveValue(type: Type): Any? =

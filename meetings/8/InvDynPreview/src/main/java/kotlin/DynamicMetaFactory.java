@@ -39,7 +39,7 @@ public class DynamicMetaFactory {
     }
 
 
-    static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
+    public static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
                                             String query,
                                             MethodType type,
                                             String name,

@@ -1,7 +1,6 @@
 package kotlin;
 
 import kotlin.builtins.*;
-import kotlin.reflect.jvm.internal.impl.descriptors.SupertypeLoopChecker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +10,6 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -276,20 +274,6 @@ public abstract class DynamicSelector {
             return true;
         }
 
-        private List<String> findArgumentNames(Method targetMethod, List<Method> listForSearchOriginalForBridge) {
-            Method method = targetMethod;
-            if (targetMethod.isBridge()) {
-                Optional<Method> candidate = listForSearchOriginalForBridge.stream()
-                        .filter(it -> !it.isBridge() && (it != targetMethod) && !it.getName().endsWith(DEFAULT_CALLER_SUFFIX))
-                        .filter(it -> isBridgeForMethod(targetMethod, it)).findFirst();
-                if (!candidate.isPresent()) {
-                    return Collections.emptyList();
-                }
-                method = candidate.get();
-            }
-            return Arrays.stream(method.getParameters()).map(Parameter::getName).collect(Collectors.toList());
-        }
-
         private Method resolveBridgeOwner(Method targetMethod, List<Method> listForSearchOriginalForBridge) {
             Method method = targetMethod;
             if (targetMethod.isBridge()) {
@@ -339,12 +323,12 @@ public abstract class DynamicSelector {
                     return false;
                 }
 
-                /*List<String> argumentsNames = Collections.emptyList();
-                if (targetMethod.isBridge()) {
-                    argumentsNames = findArgumentNames(targetMethod, methods);
-                }*/
+                Method owner = null;
+                boolean requireOwner = namedArguments != null && namedArguments.length > 0;
+                if (requireOwner) {
+                    owner = resolveBridgeOwner(targetMethod, methods);
+                }
 
-                Method owner = resolveBridgeOwner(targetMethod, methods);
 
                 targetMethod.setAccessible(true);
 
@@ -353,7 +337,7 @@ public abstract class DynamicSelector {
                 } catch (IllegalAccessException e) {
                     throw new DynamicBindException(e.getMessage());
                 }
-                handle = DynamicUtilsKt.insertDefaultArguments(handle, targetMethod, owner, namedArguments, arguments.length - 1);
+                handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
 
                 return true;
             }
