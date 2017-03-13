@@ -6,6 +6,8 @@ import java.lang.reflect.Method
 import java.lang.reflect.Type
 import java.util.ArrayList
 import kotlin.DynamicSelector.*
+import kotlin.reflect.full.valueParameters
+import kotlin.reflect.jvm.kotlinFunction
 
 
 internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceiverCheck: Boolean): Boolean {
@@ -38,10 +40,12 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceive
     return true
 }
 
-internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, methodClass: Class<Any>, argumentsCount: Int): MethodHandle {
+internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, owner: Method?, namedArguments: Array<String>?, argumentsCount: Int): MethodHandle {
     if (!targetMethod.name.endsWith(DynamicSelector.DEFAULT_CALLER_SUFFIX)) {
         return handle;
     }
+
+    val realArgumentNames = owner?.kotlinFunction?.valueParameters?.map { it.name } ?: listOf<String>()
 
     var mask = 0
     val masks = ArrayList<Int>(1)

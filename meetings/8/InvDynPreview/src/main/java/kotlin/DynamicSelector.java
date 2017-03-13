@@ -1,7 +1,9 @@
 package kotlin;
 
 import kotlin.builtins.*;
+import kotlin.reflect.jvm.internal.impl.descriptors.SupertypeLoopChecker;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -9,11 +11,11 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static kotlin.DynamicMetaFactory.IS_INSTANCE;
-import static kotlin.DynamicMetaFactory.bootstrapDynamic;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
 import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
@@ -36,21 +38,25 @@ public abstract class DynamicSelector {
         this.isStaticCall = isStaticCall;
     }
 
-    public static DynamicSelector getSelector(MutableCallSite mc,
+    /* package */ static DynamicSelector getFieldSelector(MutableCallSite mc,
                                               MethodHandles.Lookup caller,
                                               MethodType type,
                                               String name,
                                               Object[] arguments,
                                               DynamicMetaFactory.INVOKE_TYPE it) {
-        if (it == DynamicMetaFactory.INVOKE_TYPE.METHOD) {
-            return new MethodSelector(mc, caller, type, name, arguments);
-        } else {
-            return new FieldSelector(mc, caller, type, name, arguments, it);
-        }
+        return new FieldSelector(mc, caller, type, name, arguments, it);
     }
 
-    /* package */
-    static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
+    /* package */ static DynamicSelector getMethodSelector(MutableCallSite mc,
+                                            MethodHandles.Lookup caller,
+                                            MethodType type,
+                                            String name,
+                                            Object[] arguments,
+                                            @Nullable String[] namedArguments) {
+        return new MethodSelector(mc, caller, type, name, arguments, namedArguments);
+    }
+
+    /* package */ static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
         if (a == b) {
             return TypeCompareResult.EQUAL;
         }
@@ -71,13 +77,13 @@ public abstract class DynamicSelector {
         return getJavaObjectType(getKotlinClass(clazz));
     }
 
-    public abstract boolean setCallSite() throws DynamicBindException;
+    /* package */ abstract boolean setCallSite() throws DynamicBindException;
 
-    public void changeName(String name) {
+    /* package */ void changeName(String name) {
         this.name = name;
     }
 
-    public MethodHandle getMethodHandle() {
+    /* package */ MethodHandle getMethodHandle() {
         return handle;
     }
 
@@ -115,9 +121,16 @@ public abstract class DynamicSelector {
             BUILTIN_CLASSES.put(short[].class, ShortArrayBuiltins.class);
         }
 
-
-        private MethodSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) {
+        @Nullable
+        private String[] namedArguments;
+        private MethodSelector(MutableCallSite mc,
+                               MethodHandles.Lookup caller,
+                               MethodType type,
+                               String name,
+                               Object[] arguments,
+                               @Nullable String[] namedArguments) {
             super(arguments, mc, caller, type, name, /* isStaticCall*/ arguments[0] instanceof Class);
+            this.namedArguments = namedArguments;
         }
 
         private static Method findMostSpecific(@NotNull List<Method> methods) {
@@ -191,7 +204,7 @@ public abstract class DynamicSelector {
         }
 
         @Override
-        public boolean setCallSite() {
+        /* package */ boolean setCallSite() {
             if (!genMethodClass()) {
                 return false;
             }
@@ -213,7 +226,7 @@ public abstract class DynamicSelector {
         }
 
         private void changeTargetGuard() {
-            MethodHandle fallback = DynamicMetaFactory.makeFallBack(mc, caller, type, name, DynamicMetaFactory.INVOKE_TYPE.METHOD);
+            MethodHandle fallback = DynamicMetaFactory.makeFallBack(mc, caller, type, name, null, DynamicMetaFactory.INVOKE_TYPE.METHOD);
             Class<?>[] handleParameters = handle.type().parameterArray();
             for (int i = 0; i < arguments.length; ++i) {
                 MethodHandle guard = IS_INSTANCE
@@ -250,6 +263,47 @@ public abstract class DynamicSelector {
             return fastMethodFilter(Arrays.asList(builtinClass.getDeclaredMethods()), name);
         }
 
+        private boolean isBridgeForMethod(Method bridge, Method candidateMethod) {
+            Class<?>[] parameterTypes = bridge.getParameterTypes();
+            if (!parameterTypes[0].equals(candidateMethod.getDeclaringClass()))
+                return false;
+
+            int index = 1;
+            for (Class<?> candidateType : candidateMethod.getParameterTypes()) {
+                if (!candidateType.equals(parameterTypes[index]))
+                    return false;
+            }
+            return true;
+        }
+
+        private List<String> findArgumentNames(Method targetMethod, List<Method> listForSearchOriginalForBridge) {
+            Method method = targetMethod;
+            if (targetMethod.isBridge()) {
+                Optional<Method> candidate = listForSearchOriginalForBridge.stream()
+                        .filter(it -> !it.isBridge() && (it != targetMethod) && !it.getName().endsWith(DEFAULT_CALLER_SUFFIX))
+                        .filter(it -> isBridgeForMethod(targetMethod, it)).findFirst();
+                if (!candidate.isPresent()) {
+                    return Collections.emptyList();
+                }
+                method = candidate.get();
+            }
+            return Arrays.stream(method.getParameters()).map(Parameter::getName).collect(Collectors.toList());
+        }
+
+        private Method resolveBridgeOwner(Method targetMethod, List<Method> listForSearchOriginalForBridge) {
+            Method method = targetMethod;
+            if (targetMethod.isBridge()) {
+                Optional<Method> candidate = listForSearchOriginalForBridge.stream()
+                        .filter(it -> !it.isBridge() && (it != targetMethod) && !it.getName().endsWith(DEFAULT_CALLER_SUFFIX))
+                        .filter(it -> isBridgeForMethod(targetMethod, it)).findFirst();
+                if (!candidate.isPresent()) {
+                    return null;
+                }
+                method = candidate.get();
+            }
+            return method;
+        }
+
         private boolean genMethodClass() {
             Object receiver = arguments[0];
             if (receiver == null) {
@@ -264,9 +318,9 @@ public abstract class DynamicSelector {
                 List<Method> methods = new ArrayList<>(Arrays.asList(methodClass.getDeclaredMethods()));
                 Collections.addAll(methods, receiver.getClass().getMethods());
 
-                List<Method> targetMethodList = fastMethodFilter(methods, name);
+                methods = fastMethodFilter(methods, name);
 
-                targetMethodList = filterSuitableMethods(targetMethodList);
+                List<Method> targetMethodList = filterSuitableMethods(methods);
 
                 boolean isMixedWithBuiltins = targetMethodList.isEmpty();
                 if (isMixedWithBuiltins) {
@@ -285,6 +339,13 @@ public abstract class DynamicSelector {
                     return false;
                 }
 
+                /*List<String> argumentsNames = Collections.emptyList();
+                if (targetMethod.isBridge()) {
+                    argumentsNames = findArgumentNames(targetMethod, methods);
+                }*/
+
+                Method owner = resolveBridgeOwner(targetMethod, methods);
+
                 targetMethod.setAccessible(true);
 
                 try {
@@ -292,7 +353,7 @@ public abstract class DynamicSelector {
                 } catch (IllegalAccessException e) {
                     throw new DynamicBindException(e.getMessage());
                 }
-                handle = DynamicUtilsKt.insertDefaultArguments(handle, targetMethod, methodClass, arguments.length - 1);
+                handle = DynamicUtilsKt.insertDefaultArguments(handle, targetMethod, owner, namedArguments, arguments.length - 1);
 
                 return true;
             }
@@ -308,7 +369,8 @@ public abstract class DynamicSelector {
             this.it = it;
         }
 
-        public boolean setCallSite() {
+        @Override
+        /* package */  boolean setCallSite() {
             genMethodClass();
             processSetCallSite();
             return true;

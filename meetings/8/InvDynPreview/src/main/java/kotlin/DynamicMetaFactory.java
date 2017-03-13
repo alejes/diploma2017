@@ -1,5 +1,7 @@
 package kotlin;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.invoke.*;
 import java.net.BindException;
 import java.util.HashMap;
@@ -10,8 +12,8 @@ public class DynamicMetaFactory {
     /*
      * Method handles for guards
      */
-    public static final MethodHandle IS_INSTANCE;
-    public static final MethodType
+    /* package */ static final MethodHandle IS_INSTANCE;
+    private static final MethodType
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
@@ -19,10 +21,11 @@ public class DynamicMetaFactory {
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);
+        MethodType mtInvoke = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class, String[].class);
         try {
             FIELD_GET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldGetProxy", mt);
             FIELD_SET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldSetProxy", mt);
-            INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mt);
+            INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
         } catch (IllegalAccessException | NoSuchMethodException e) {
             //[TODO] chose exception
@@ -36,10 +39,12 @@ public class DynamicMetaFactory {
     }
 
 
-    public static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
+    static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
                                             String query,
                                             MethodType type,
-                                            String name, int flags)
+                                            String name,
+                                            int flags,
+                                            String... namedArguments)
             throws IllegalAccessException, NoSuchMethodException, BindException {
         MutableCallSite mc = new MutableCallSite(type);
         INVOKE_TYPE it;
@@ -53,15 +58,23 @@ public class DynamicMetaFactory {
             throw new UnsupportedOperationException("unknown invoke query");
         }
 
-        MethodHandle mh = makeFallBack(mc, caller, type, name, it);
+        MethodHandle mh = makeFallBack(mc, caller, type, name, namedArguments, it);
         mc.setTarget(mh);
 
         return mc;
     }
 
-    public static MethodHandle makeFallBack(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, INVOKE_TYPE it) {
+    /* package */ static MethodHandle makeFallBack(MutableCallSite mc,
+                                            MethodHandles.Lookup caller,
+                                            MethodType type,
+                                            String name,
+                                            String[] namedArguments,
+                                            INVOKE_TYPE it) {
         //System.out.println("calculate target");
         MethodHandle mh = MethodHandles.insertArguments(it.getHandler(), 0, mc, caller, type, name);
+        if (it == INVOKE_TYPE.METHOD) {
+            mh = MethodHandles.insertArguments(mh, 1, new Object[]{namedArguments});
+        }
         mh = mh.asCollector(Object[].class, type.parameterCount())
                 .asType(type);
         return mh;
@@ -69,10 +82,10 @@ public class DynamicMetaFactory {
 
     private static Object fieldGetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
+        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         if (!selector.setCallSite()) {
             name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
-            return invokeProxy(mc, caller, type, name, arguments);
+            return invokeProxy(mc, caller, type, name, arguments, null);
         }
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
@@ -82,10 +95,10 @@ public class DynamicMetaFactory {
 
     private static Object fieldSetProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
+        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
         if (!selector.setCallSite()) {
             name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
-            return invokeProxy(mc, caller, type, name, arguments);
+            return invokeProxy(mc, caller, type, name, arguments, null);
         }
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
@@ -93,10 +106,10 @@ public class DynamicMetaFactory {
         return call.invokeExact(arguments);
     }
 
-    private static Object invokeProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments) throws Throwable {
+    private static Object invokeProxy(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, @Nullable String[] namedArguments) throws Throwable {
         //[TODO] Selector
         boolean assignmentOperatorConversion = false;
-        DynamicSelector selector = DynamicSelector.getSelector(mc, caller, type, name, arguments, INVOKE_TYPE.METHOD);
+        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
         if (!selector.setCallSite()) {
             String operator = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
             if (operator == null) {
