@@ -113,6 +113,7 @@ public abstract class DynamicSelector {
             BUILTIN_CLASSES.put(java.lang.Integer.class, IntBuiltins.class);
             BUILTIN_CLASSES.put(java.lang.Long.class, LongBuiltins.class);
             BUILTIN_CLASSES.put(java.lang.Short.class, ShortBuiltins.class);
+            BUILTIN_CLASSES.put(java.lang.String.class, StringBuiltins.class);
             BUILTIN_CLASSES.put(boolean[].class, BooleanArrayBuiltins.class);
             BUILTIN_CLASSES.put(byte[].class, ByteArrayBuiltins.class);
             BUILTIN_CLASSES.put(char[].class, CharArrayBuiltins.class);
@@ -360,7 +361,9 @@ public abstract class DynamicSelector {
 
         @Override
         /* package */  boolean setCallSite() {
-            genMethodClass();
+            if (!genMethodClass()) {
+                return false;
+            }
             processSetCallSite();
             return true;
         }
@@ -372,7 +375,7 @@ public abstract class DynamicSelector {
             mc.setTarget(handle);
         }
 
-        private void genMethodClass() {
+        private boolean genMethodClass() {
             Object receiver = arguments[0];
             if (receiver == null) {
                 throw new UnsupportedOperationException("null");
@@ -395,9 +398,10 @@ public abstract class DynamicSelector {
                     }
 
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    throw new DynamicBindException(e);
+                   return false;
                 }
             }
+            return true;
         }
     }
 
