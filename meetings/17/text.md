@@ -160,3 +160,20 @@ class KotlinRunnerDynamic {
     }
 }
 ```
+
+|Benchmark|(n)|Mode|Cnt|Score|Error|Units|
+|kotlinString|100|avgt|60|0.713|±  0.004|us/op|
+|kotlinStringDynamic|100|avgt|60|1.214|±  0.002|us/op|
+|kotlinString|500|avgt|60|2.873|±  0.011|us/op|
+|groovyStringStatic|100|avgt|60|3.968|±  0.030|us/op|
+|kotlinString|1500|avgt|60|9.394|±  0.299|us/op|
+|groovyStringInvokeDynamic|100|avgt|60|10.101|±  0.079|us/op|
+|kotlinStringDynamic|500|avgt|60|13.143|±  0.025|us/op|
+|groovyStringTraditional|100|avgt|60|14.891|±  0.082|us/op|
+|groovyStringStatic|500|avgt|60|28.835|±  0.166|us/op|
+|kotlinStringDynamic|1500|avgt|60|42.863|±  0.719|us/op|
+|groovyStringInvokeDynamic|500|avgt|60|50.195|±  3.471|us/op|
+|groovyStringTraditional|500|avgt|60|76.456|±  0.480|us/op|
+|groovyStringStatic|1500|avgt|60|87.023|±  0.772|us/op|
+|groovyStringInvokeDynamic|1500|avgt|60|137.542|± 10.908|us/op|
+|groovyStringTraditional|1500|avgt|60|233.468|±  0.914|us/op|
