@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static kotlin.DynamicMetaFactory.IS_INSTANCE;
+import static kotlin.DynamicMetaFactory.*;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
 import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
@@ -36,25 +36,28 @@ public abstract class DynamicSelector {
         this.isStaticCall = isStaticCall;
     }
 
-    /* package */ static DynamicSelector getFieldSelector(MutableCallSite mc,
-                                              MethodHandles.Lookup caller,
-                                              MethodType type,
-                                              String name,
-                                              Object[] arguments,
-                                              DynamicMetaFactory.INVOKE_TYPE it) {
-        return new FieldSelector(mc, caller, type, name, arguments, it);
-    }
-
-    /* package */ static DynamicSelector getMethodSelector(MutableCallSite mc,
+    /* package */
+    static DynamicSelector getFieldSelector(MutableCallSite mc,
                                             MethodHandles.Lookup caller,
                                             MethodType type,
                                             String name,
                                             Object[] arguments,
-                                            @Nullable String[] namedArguments) {
+                                            INVOKE_TYPE it) {
+        return new FieldSelector(mc, caller, type, name, arguments, it);
+    }
+
+    /* package */
+    static DynamicSelector getMethodSelector(MutableCallSite mc,
+                                             MethodHandles.Lookup caller,
+                                             MethodType type,
+                                             String name,
+                                             Object[] arguments,
+                                             @Nullable String[] namedArguments) {
         return new MethodSelector(mc, caller, type, name, arguments, namedArguments);
     }
 
-    /* package */ static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
+    /* package */
+    static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
         if (a == b) {
             return TypeCompareResult.EQUAL;
         }
@@ -75,7 +78,8 @@ public abstract class DynamicSelector {
         return getJavaObjectType(getKotlinClass(clazz));
     }
 
-    /* package */ abstract boolean setCallSite() throws DynamicBindException;
+    /* package */
+    abstract boolean setCallSite() throws DynamicBindException;
 
     /* package */ void changeName(String name) {
         this.name = name;
@@ -121,6 +125,7 @@ public abstract class DynamicSelector {
 
         @Nullable
         private String[] namedArguments;
+
         private MethodSelector(MutableCallSite mc,
                                MethodHandles.Lookup caller,
                                MethodType type,
@@ -224,7 +229,7 @@ public abstract class DynamicSelector {
         }
 
         private void changeTargetGuard() {
-            MethodHandle fallback = DynamicMetaFactory.makeFallBack(mc, caller, type, name, null, DynamicMetaFactory.INVOKE_TYPE.METHOD);
+            MethodHandle fallback = makeFallBack(mc, caller, type, name, null, INVOKE_TYPE.METHOD);
             Class<?>[] handleParameters = handle.type().parameterArray();
             for (int i = 0; i < arguments.length; ++i) {
                 MethodHandle guard = IS_INSTANCE
@@ -345,9 +350,9 @@ public abstract class DynamicSelector {
     }
 
     private static class FieldSelector extends DynamicSelector {
-        private final DynamicMetaFactory.INVOKE_TYPE it;
+        private final INVOKE_TYPE it;
 
-        private FieldSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, DynamicMetaFactory.INVOKE_TYPE it) {
+        private FieldSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, INVOKE_TYPE it) {
             // [TODO] static call for fields
             super(arguments, mc, caller, type, name, /* isStaticCall */ false);
             this.it = it;

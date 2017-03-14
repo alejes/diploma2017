@@ -87,27 +87,6 @@ internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, 
     return MethodHandles.insertArguments(handle, argumentsCount + 1, *fixedArguments.toTypedArray());
 }
 
-/*internal fun permuteMethodType(type: MethodType, from: Int, to: Int): MethodType {
-    if (from == to) {
-        return type
-    }
-
-    //var newType = MethodType.methodType(type.returnType())
-    *//*
-    type.parameterArray().forEachIndexed { index, clazz ->
-        if (index == from) {
-            newType = newType.appendParameterTypes(type.parameterType(to))
-        }
-        else if (index == to) {
-            newType = newType.appendParameterTypes(type.parameterType(from))
-        }
-        else
-            newType = newType.appendParameterTypes(clazz)
-    }*//*
-    val newType = type.changeParameterType(from, type.parameterType(to))
-    return newType.changeParameterType(to, type.parameterType(from))
-}*/
-
 internal fun permuteMethodType(type: MethodType, permutation: ArrayList<Int>): MethodType {
     val newType: MethodType = MethodType.methodType(type.returnType())
 
@@ -123,7 +102,6 @@ internal fun insertNamedArguments(handle: MethodHandle, targetMethod: Method, cu
     val fixedArguments = mutableListOf<Any?>()
     var currentHandle = handle
     val argumentsCount = arguments.size - 1 - currentNamedArguments.size
-    //val namedSlice = arguments.slice((argumentsCount+1).rangeTo(arguments.size - 1))
     var insertPosition = 1
     var argumentPosition = 0
     val permutation = ArrayList<Int>(1)
@@ -137,14 +115,10 @@ internal fun insertNamedArguments(handle: MethodHandle, targetMethod: Method, cu
                 val namedIndex = currentNamedArguments.indexOf(methodNamedArguments[argumentPosition])
                 if (namedIndex >= 0) {
                     val newPosition = argumentsCount + namedIndex
-                    //val methodType = permuteMethodType(currentHandle.type(), insertPosition, newPosition)
-                    //currentHandle = MethodHandles.permuteArguments(currentHandle, methodType, insertPosition, newPosition)
-                    //val eee = 34;
                     permutation.add(1 + newPosition)
                     ++insertPosition
 
                 } else if (argumentPosition < argumentsCount) {
-                    //currentHandle = MethodHandles.insertArguments(currentHandle, 0, arguments[argumentPosition])
                     permutation.add(insertPosition)
                     ++insertPosition
                 } else {

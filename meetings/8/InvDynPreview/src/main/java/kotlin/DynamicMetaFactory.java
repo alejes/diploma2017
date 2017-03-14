@@ -1,5 +1,6 @@
 package kotlin;
 
+import kotlin.text.StringsKt;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.*;
@@ -28,8 +29,7 @@ public class DynamicMetaFactory {
             INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
         } catch (IllegalAccessException | NoSuchMethodException e) {
-            //[TODO] chose exception
-            throw new RuntimeException(e.getMessage());
+            throw new DynamicBindException(e);
         }
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("plusAssign", "plus");
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("minusAssign", "minus");
@@ -64,13 +64,13 @@ public class DynamicMetaFactory {
         return mc;
     }
 
-    /* package */ static MethodHandle makeFallBack(MutableCallSite mc,
-                                            MethodHandles.Lookup caller,
-                                            MethodType type,
-                                            String name,
-                                            String[] namedArguments,
-                                            INVOKE_TYPE it) {
-        //System.out.println("calculate target");
+    /* package */
+    static MethodHandle makeFallBack(MutableCallSite mc,
+                                     MethodHandles.Lookup caller,
+                                     MethodType type,
+                                     String name,
+                                     String[] namedArguments,
+                                     INVOKE_TYPE it) {
         MethodHandle mh = MethodHandles.insertArguments(it.getHandler(), 0, mc, caller, type, name);
         if (it == INVOKE_TYPE.METHOD) {
             mh = MethodHandles.insertArguments(mh, 1, new Object[]{namedArguments});
@@ -84,7 +84,8 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         if (!selector.setCallSite()) {
-            name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            //name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            name = "get" + StringsKt.capitalize(name);
             return invokeProxy(mc, caller, type, name, arguments, null);
         }
         MethodHandle call = selector.getMethodHandle()
@@ -97,7 +98,8 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
         if (!selector.setCallSite()) {
-            name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            //name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
+            name = "set" + StringsKt.capitalize(name);
             return invokeProxy(mc, caller, type, name, arguments, null);
         }
         MethodHandle call = selector.getMethodHandle()
