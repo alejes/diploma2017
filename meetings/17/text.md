@@ -272,6 +272,13 @@ class GroovyRunnerStaticCompiler {
 
 - fft
 ```
+class MyComplex(val re: Double, val im: Double) {
+    operator fun times(other: MyComplex): MyComplex
+    operator fun plus(other: MyComplex): MyComplex
+    operator fun minus(other: MyComplex): MyComplex
+    operator fun div(other: MyComplex): MyComplex
+}
+
 class KotlinRunnerStatic {
     companion object {
         @JvmStatic
