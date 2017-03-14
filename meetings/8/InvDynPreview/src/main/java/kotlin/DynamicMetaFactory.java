@@ -84,7 +84,6 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         if (!selector.setCallSite()) {
-            //name = "get" + name.substring(0, 1).toUpperCase() + name.substring(1);
             name = "get" + StringsKt.capitalize(name);
             return invokeProxy(mc, caller, type, name, arguments, null);
         }
@@ -98,7 +97,6 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
         if (!selector.setCallSite()) {
-            //name = "set" + name.substring(0, 1).toUpperCase() + name.substring(1);
             name = "set" + StringsKt.capitalize(name);
             return invokeProxy(mc, caller, type, name, arguments, null);
         }
