@@ -36,6 +36,28 @@ fun main(args: Array<String>) {
 123
 ```
 
+
+- Иногда бывают хорошие неявные касты
+```Math.cos(dynamic)``` - ```implicit cast to double```
+Иногда нет:
+```
+val i: dynamic = 5
+val z: dynamic = 5
+i = 0
+if (i < z)
+```
+
+```
+error: overload resolution ambiguity: 
+public final operator fun compareTo(other: Byte): Int defined in kotlin.Int
+public final operator fun compareTo(other: Double): Int defined in kotlin.Int
+public final operator fun compareTo(other: Float): Int defined in kotlin.Int
+public open fun compareTo(other: Int): Int defined in kotlin.Int
+public final operator fun compareTo(other: Long): Int defined in kotlin.Int
+public final operator fun compareTo(other: Short): Int defined in kotlin.Int
+            if (i < z) {
+```
+
 - Именнованные аргументы
     - Вопросы:
         - Нужны ли вообще? Только из-за них появляется зависимость на kotlin-reflect для узнавания имени аргументов.
