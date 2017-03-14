@@ -46,6 +46,7 @@ fun main(args: Array<String>) {
         
 - Замеры
 - Фибоначчи
+
 |Benchmark|(n)|Mode|Cnt|Score|Error|Units|
 |---|---|---|---|---|---|---|
 |groovyFibLongStatic|10|avgt|60|0.169|±   0.001|us/op|
@@ -66,6 +67,7 @@ fun main(args: Array<String>) {
 
 
 - Квадрат матрицы
+
 |Benchmark|(n)|Mode|Cnt|Score|Error|Units|
 |kotlinInt|10|avgt|60|11.349|±  0.064|us/op|
 |kotlinDynamic|10|avgt|60|21.204|±  0.096|us/op|
