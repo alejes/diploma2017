@@ -45,6 +45,7 @@ fun main(args: Array<String>) {
         
         
 - Замеры
+- target: Intel(R) Core(TM) i7-6700 CPU @ 3.40GHz; java version "1.8.0_121"
 - Фибоначчи
 
 |Benchmark|(n)|Mode|Cnt|Score|Error|Units|
