@@ -39,6 +39,7 @@ fun main(args: Array<String>) {
 
 - Иногда бывают хорошие неявные касты
 ```Math.cos(dynamic)``` - ```implicit cast to double```
+
 Иногда нет:
 ```
 val i: dynamic = 5
