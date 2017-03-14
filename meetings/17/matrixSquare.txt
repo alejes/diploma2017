@@ -1,0 +1,71 @@
+package org.sample.kotlin
+
+
+class KotlinDynamicRunner {
+    companion object {
+        @JvmStatic
+        fun matrixSquare(source: dynamic): dynamic {
+            //val destination: MutableList<MutableList<Int>> = mutableListOf<MutableList<Int>>();
+            val destination: dynamic = mutableListOf<MutableList<Int>>();
+            for (i in 0..source.size-1) {
+                destination.add(mutableListOf<Int>())
+                for (j in 0..source.size-1) {
+                    destination[i].add(j, 0)
+                }
+            }
+
+
+            for (i in 0..source.size-1) {
+                for (j in 0..source.size-1) {
+                    for (k in 0..source.size-1) {
+                        val temp = source[i][k] * source[k][j];
+                        destination[i][j] = destination[i][j] + temp
+                    }
+                }
+            }
+
+            return destination;
+        }
+
+        @JvmStatic
+        fun matrixSquareProxy(source: List<List<Int>>): List<List<Int>> {
+            //return MutableList<List<Int>>(5, { _ -> MutableList(5, { _ -> 5 }) });
+            return matrixSquare(source)
+        }
+    }
+}
+
+
+class KotlinIntegerRunner {
+    companion object {
+        @JvmStatic
+        fun matrixSquare(source: List<List<Int>>): List<List<Int>> {
+            //val destination: MutableList<MutableList<Int>> = mutableListOf<MutableList<Int>>();
+            val destination = mutableListOf<MutableList<Int>>();
+            for (i in 0..source.size-1) {
+                destination.add(mutableListOf<Int>())
+                for (j in 0..source.size-1) {
+                    destination[i].add(j, 0)
+                }
+            }
+
+
+            for (i in 0..source.size-1) {
+                for (j in 0..source.size-1) {
+                    for (k in 0..source.size-1) {
+                        val temp = source[i][k] * source[k][j];
+                        destination[i][j] = destination[i][j] + temp
+                    }
+                }
+            }
+
+            return destination;
+        }
+
+        @JvmStatic
+        fun matrixSquareProxy(source: List<List<Int>>): List<List<Int>> {
+            //return MutableList<List<Int>>(5, { _ -> MutableList(5, { _ -> 5 }) });
+            return matrixSquare(source)
+        }
+    }
+}

@@ -2,7 +2,7 @@ package org.sample.groovy
 
 import java.util.stream.Collectors
 
-import groovy.transform.CompileStatic
+/*import groovy.transform.CompileStatic
 
 @CompileStatic
 class GroovyRunnerStaticCompiler {
@@ -31,7 +31,37 @@ class GroovyRunnerStaticCompiler {
     static List<List<Integer>> matrixSquareProxy(List<List<Integer>> source) {
         return matrixSquare(source)
     }
+}*/
+
+
+class GroovyRunnerInvokeDynamicCompiler {
+    static matrixSquare(source) {
+        def destination = new ArrayList<ArrayList<Integer>>();
+        for (i in 0..source.size()-1) {
+            destination.add(new ArrayList<Integer>())
+            for (j in 0..source.size()-1) {
+                destination[i].add(j, 0)
+            }
+        }
+
+
+        for (i in 0..source.size()-1) {
+            for (j in 0..source.size()-1) {
+                for (k in 0..source.size()-1) {
+                    def temp = source[i][k] * source[k][j];
+                    destination[i][j] = temp + destination[i][j];
+                }
+            }
+        }
+
+        return destination;
+    }
+
+    static List<List<Integer>> matrixSquareProxy(List<List<Integer>> source) {
+        return matrixSquare(source)
+    }
 }
+
 
 static main(String[] args) {
     int n = 5;
@@ -42,6 +72,6 @@ static main(String[] args) {
         list.add(temp);
     }
     println(list)
-    def result = GroovyRunnerStaticCompiler.matrixSquareProxy(list)
+    def result = GroovyRunnerInvokeDynamicCompiler.matrixSquareProxy(list)
     println(result)
 }

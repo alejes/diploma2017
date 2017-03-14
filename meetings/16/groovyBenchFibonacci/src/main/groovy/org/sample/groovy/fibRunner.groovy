@@ -2,9 +2,9 @@ package org.sample.groovy
 
 import groovy.transform.CompileStatic
 
-
-class GroovyRunnerIntInvokeDynamic {
-    static fib(n) {
+@CompileStatic
+class GroovyRunnerLongStatic {
+    static long fib(long n) {
         if (n < 2) {
             return n
         } else {
@@ -12,7 +12,7 @@ class GroovyRunnerIntInvokeDynamic {
         }
     }
 
-    static int fibProxy(int n) {
-        return (int)fib(n)
+    static long fibProxy(long n) {
+        return (long)fib(n)
     }
 }

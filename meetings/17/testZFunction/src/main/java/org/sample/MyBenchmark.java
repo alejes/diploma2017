@@ -9,59 +9,61 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.sample.groovy.GroovyRunnerDynamicCompiler;
 import org.sample.groovy.GroovyRunnerInvokeDynamicCompiler;
 import org.sample.groovy.GroovyRunnerStaticCompiler;
-import org.sample.kotlin.KotlinDynamicRunner;
-import org.sample.kotlin.KotlinIntegerRunner;
+import org.sample.kotlin.KotlinRunnerDynamic;
+import org.sample.kotlin.KotlinRunnerString;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class MyBenchmark {
 
-    @Param({"10", "20", "30"})
+    @Param({"100", "500", "1500"})
     private int n = 0;
 
-    private List<List<Integer>> list;
-    private Random rnd = new Random();
+    private String str = "";
+
+    private Random rnd;
+
 
     @Setup(Level.Trial)
     public void prepare() {
+        rnd = new Random(42);
         //System.out.println("list prepared");
-        list = new ArrayList<>(n);
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i =0; i < n; ++i) {
-            list.add(rnd.ints().limit(n).boxed().collect(Collectors.toList()));
+            stringBuilder.append((char) ('A' + rnd.nextInt('Z'-'A')));
         }
+        str = stringBuilder.toString();
     }
 
 
     @Benchmark
-    public List<List<Integer>> kotlinDynamic() {
-        return KotlinDynamicRunner.Companion.matrixSquareProxy(list);
+    public long kotlinStringDynamic() {
+        return KotlinRunnerDynamic.Companion.maxRepeatablePrefix(str);
     }
 
     @Benchmark
-    public List<List<Integer>> kotlinInt() {
-        return KotlinIntegerRunner.Companion.matrixSquareProxy(list);
+    public long kotlinString() {
+        return KotlinRunnerString.Companion.maxRepeatablePrefix(str);
     }
 
     @Benchmark
-    public List<List<Integer>> groovyIntStatic() {
-        return GroovyRunnerStaticCompiler.matrixSquareProxy(list);
+    public long groovyStringStatic() {
+        return GroovyRunnerStaticCompiler.maxRepeatablePrefix(str);
     }
 
     @Benchmark
-    public List<List<Integer>> groovyTraditional() {
-        return GroovyRunnerDynamicCompiler.matrixSquareProxy(list);
+    public long groovyStringTraditional() {
+        return GroovyRunnerDynamicCompiler.maxRepeatablePrefix(str);
     }
 
     @Benchmark
-    public List<List<Integer>> groovyInvokeDynamic() {
-        return GroovyRunnerInvokeDynamicCompiler.matrixSquareProxy(list);
+    public long groovyStringInvokeDynamic() {
+        return GroovyRunnerInvokeDynamicCompiler.maxRepeatablePrefix(str);
     }
 
 /*
