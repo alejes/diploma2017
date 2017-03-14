@@ -162,6 +162,7 @@ class KotlinRunnerDynamic {
 ```
 
 |Benchmark|(n)|Mode|Cnt|Score|Error|Units|
+|---|---|---|---|---|---|---|
 |kotlinString|100|avgt|60|0.713|±  0.004|us/op|
 |kotlinStringDynamic|100|avgt|60|1.214|±  0.002|us/op|
 |kotlinString|500|avgt|60|2.873|±  0.011|us/op|
