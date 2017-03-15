@@ -486,3 +486,13 @@ class GroovyRunnerStatic {
 |groovyFftTraditional|32|avgt|60|118,652|± 2,725|us/op|
 |groovyFftInvokeDynamic|64|avgt|60|127,132|± 2,930|us/op|
 |groovyFftTraditional|64|avgt|60|275,536|± 6,047|us/op|
+
+
+
+
+- plusAssign вернуть маркер
+- тесты на других машинах и на plusAssign
+- записать проблему дизайна с выбором перегрузок между  null типами и не Null
+- unit
+- бенчмарки на много перегрузок
+- почему groovy indy тормозит, на чём.
