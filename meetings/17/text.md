@@ -369,3 +369,26 @@ class KotlinRunnerDynamic {
     }
 }
 ```
+
+|Benchmark|(n)|Mode|Cnt|Score|Error|Units|
+|---|---|---|---|---|---|---|
+|kotlinFft|8|avgt|60|2,020|± 0,038|us/op|
+|kotlinFftDynamic|8|avgt|60|2,182|± 0,026|us/op|
+|kotlinFft|16|avgt|60|4,391|± 0,098|us/op|
+|kotlinFftDynamic|16|avgt|60|4,800|± 0,096|us/op|
+|kotlinFft|32|avgt|60|9,064|± 0,150|us/op|
+|groovyFftInvokeDynamic|8|avgt|60|10,148|± 0,236|us/op|
+|kotlinFftDynamic|32|avgt|60|10,532|± 0,228|us/op|
+|groovyFftStatic|8|avgt|60|11,868|± 0,286|us/op|
+|groovyFftTraditional|8|avgt|60|19,477|± 0,445|us/op|
+|kotlinFft|64|avgt|60|19,635|± 0,425|us/op|
+|kotlinFftDynamic|64|avgt|60|22,510|± 0,516|us/op|
+|groovyFftStatic|16|avgt|60|23,503|± 0,523|us/op|
+|groovyFftInvokeDynamic|16|avgt|60|24,796|± 0,573|us/op|
+|groovyFftStatic|32|avgt|60|45,374|± 1,092|us/op|
+|groovyFftTraditional|16|avgt|60|50,268|± 1,202|us/op|
+|groovyFftInvokeDynamic|32|avgt|60|56,109|± 1,275|us/op|
+|groovyFftStatic|64|avgt|60|94,448|± 1,863|us/op|
+|groovyFftTraditional|32|avgt|60|118,652|± 2,725|us/op|
+|groovyFftInvokeDynamic|64|avgt|60|127,132|± 2,930|us/op|
+|groovyFftTraditional|64|avgt|60|275,536|± 6,047|us/op|
