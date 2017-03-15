@@ -370,6 +370,8 @@ class KotlinRunnerDynamic {
 }
 ```
 
+- target: Intel(R) Core(TM) i7-4710HQ CPU @ 2.50GHz; JDK 1.8.0_121, VM 25.121-b13
+
 |Benchmark|(n)|Mode|Cnt|Score|Error|Units|
 |---|---|---|---|---|---|---|
 |kotlinFft|8|avgt|60|2,020|± 0,038|us/op|
