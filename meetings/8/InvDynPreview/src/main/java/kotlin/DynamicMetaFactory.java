@@ -20,7 +20,7 @@ public class DynamicMetaFactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static AssignmentMarker ASSIGNMENT_MARKER = new AssignmentMarker();
+    private static final AssignmentMarker ASSIGNMENT_MARKER = new AssignmentMarker();
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);
