@@ -233,10 +233,15 @@ public abstract class DynamicSelector {
             MethodHandle fallback = makeFallBack(mc, caller, type, name, null, INVOKE_TYPE.METHOD);
             Class<?>[] handleParameters = handle.type().parameterArray();
             for (int i = 0; i < arguments.length; ++i) {
-                MethodHandle guard = IS_INSTANCE
-                        .bindTo(arguments[i].getClass())
-                        .asType(MethodType.methodType(boolean.class, handleParameters[i]));
-                //MethodHandle sub1 = MethodHandles.permuteArguments(handle, CLASS_INSTANCE_MTYPE, i);
+                MethodHandle guard;
+                if (arguments[i] == null) {
+                    guard = IS_NULL
+                            .asType(MethodType.methodType(boolean.class, handleParameters[i]));
+                } else {
+                    guard = IS_INSTANCE
+                            .bindTo(arguments[i].getClass())
+                            .asType(MethodType.methodType(boolean.class, handleParameters[i]));
+                }
                 Class[] dropTypes = new Class[i];
                 System.arraycopy(handleParameters, 0, dropTypes, 0, dropTypes.length);
                 guard = MethodHandles.dropArguments(guard, 0, dropTypes);
@@ -398,7 +403,7 @@ public abstract class DynamicSelector {
                     }
 
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                   return false;
+                    return false;
                 }
             }
             return true;

@@ -13,12 +13,14 @@ public class DynamicMetaFactory {
     /*
      * Method handles for guards
      */
-    /* package */ static final MethodHandle IS_INSTANCE;
+    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL;
     private static final MethodType
-            CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class);
+            CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class),
+            OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
+    private static AssignmentMarker ASSIGNMENT_MARKER = new AssignmentMarker();
 
     static {
         MethodType mt = MethodType.methodType(Object.class, MutableCallSite.class, MethodHandles.Lookup.class, MethodType.class, String.class, Object[].class);
@@ -28,6 +30,7 @@ public class DynamicMetaFactory {
             FIELD_SET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldSetProxy", mt);
             INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
+            IS_NULL = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isNull", OBJECT_TEST_MTYPE);
         } catch (IllegalAccessException | NoSuchMethodException e) {
             throw new DynamicBindException(e);
         }
@@ -37,7 +40,6 @@ public class DynamicMetaFactory {
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("divAssign", "div");
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("modAssign", "mod"); // rem assign?!
     }
-
 
     public static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
                                             String query,
@@ -110,13 +112,13 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         boolean assignmentOperatorConversion = false;
         DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
+        String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
         if (!selector.setCallSite()) {
-            String operator = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
-            if (operator == null) {
+            if (operatorCounterpart == null) {
                 throw new DynamicBindException("Runtime: cannot find target method " + name);
             }
             assignmentOperatorConversion = true;
-            selector.changeName(operator);
+            selector.changeName(operatorCounterpart);
             if (!selector.setCallSite()) {
                 throw new DynamicBindException("Runtime: cannot find target method " + name);
             }
@@ -127,9 +129,10 @@ public class DynamicMetaFactory {
 
         Object result = call.invokeExact(arguments);
 
-        if (ASSIGNMENT_OPERATION_COUNTERPARTS.containsKey(name) && !assignmentOperatorConversion) {
-            return arguments[0];
+        if ((operatorCounterpart != null) && (!assignmentOperatorConversion)) {
+            return ASSIGNMENT_MARKER;
         }
+
         return result;
     }
 
@@ -150,4 +153,8 @@ public class DynamicMetaFactory {
         }
     }
 
+    public static class AssignmentMarker {
+        private AssignmentMarker() {
+        }
+    }
 }

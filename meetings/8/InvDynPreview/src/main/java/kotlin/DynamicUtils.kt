@@ -11,7 +11,7 @@ import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.kotlinFunction
 
 
-internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceiverCheck: Boolean): Boolean {
+internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiverCheck: Boolean): Boolean {
     val isDefaultArgumentCaller = method.name.endsWith(DEFAULT_CALLER_SUFFIX)
     val requiredMethodParameters =
             if (skipReceiverCheck || isDefaultArgumentCaller) method.parameterTypes.slice(1..method.parameterCount - 1)
@@ -32,8 +32,10 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any>, skipReceive
     }
 
     arguments.drop(1).forEachIndexed { i, argument ->
-        if (isTypeMoreSpecific(argument::class.java, requiredMethodParameters[i]).index
-                >= TypeCompareResult.WORSE.index) {
+        if ((argument != null) &&
+                (requiredMethodParameters[i] != null) &&
+                (isTypeMoreSpecific(argument!!::class.java, requiredMethodParameters[i]).index
+                >= TypeCompareResult.WORSE.index)) {
             return false
         }
     }
