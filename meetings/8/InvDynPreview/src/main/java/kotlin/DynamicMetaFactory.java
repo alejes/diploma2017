@@ -133,6 +133,10 @@ public class DynamicMetaFactory {
             return ASSIGNMENT_MARKER;
         }
 
+        if (selector.getReturnType().equals(void.class)) {
+            return Unit.INSTANCE;
+        }
+
         return result;
     }
 

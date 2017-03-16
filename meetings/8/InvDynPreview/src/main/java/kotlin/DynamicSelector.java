@@ -26,6 +26,7 @@ public abstract class DynamicSelector {
     protected final boolean isStaticCall;
     protected String name;
     protected MethodHandle handle;
+    private Class<?> returnType = null;
 
     private DynamicSelector(Object[] arguments, MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, boolean isStaticCall) {
         this.arguments = arguments;
@@ -76,6 +77,14 @@ public abstract class DynamicSelector {
 
     private static Class<?> prepareClassForCompare(Class<?> clazz) {
         return getJavaObjectType(getKotlinClass(clazz));
+    }
+
+    public Class<?> getReturnType() {
+        return returnType;
+    }
+
+    protected void setReturnType(Class<?> returnType) {
+        this.returnType = returnType;
     }
 
     /* package */
@@ -342,6 +351,7 @@ public abstract class DynamicSelector {
 
 
                 targetMethod.setAccessible(true);
+                setReturnType(targetMethod.getReturnType());
 
                 try {
                     handle = caller.unreflect(targetMethod);
@@ -392,6 +402,7 @@ public abstract class DynamicSelector {
                     if (!field.isAccessible()) {
                         field.setAccessible(true);
                     }
+                    setReturnType(field.getType());
                     switch (it) {
                         case GET:
                             // handle = caller.findGetter(receiver.getClass(), name, ???type)
