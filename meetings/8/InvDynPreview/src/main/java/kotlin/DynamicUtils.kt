@@ -144,10 +144,8 @@ internal fun insertNamedArguments(handle: MethodHandle, targetMethod: Method, cu
     fixedArguments.addAll(masks)
     fixedArguments.add(null)
 
-    currentHandle = MethodHandles.insertArguments(currentHandle, insertPosition, *fixedArguments.toTypedArray());
-
-
-    val newType = permuteMethodType(currentHandle.type(), permutation);
+    currentHandle = MethodHandles.insertArguments(currentHandle, insertPosition, *fixedArguments.toTypedArray())
+    val newType = permuteMethodType(currentHandle.type(), permutation)
 
     return MethodHandles.permuteArguments(currentHandle, newType, *permutation.toIntArray())
 }
