@@ -290,6 +290,7 @@ public abstract class DynamicSelector {
             for (Class<?> candidateType : candidateMethod.getParameterTypes()) {
                 if (!candidateType.equals(parameterTypes[index]))
                     return false;
+                ++index;
             }
             return true;
         }

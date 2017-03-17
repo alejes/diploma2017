@@ -5,7 +5,6 @@ import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
 import java.lang.reflect.Method
 import java.lang.reflect.Type
-import java.util.*
 import kotlin.DynamicSelector.*
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.kotlinFunction
@@ -35,7 +34,7 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiv
         if ((argument != null) &&
                 (requiredMethodParameters[i] != null) &&
                 (isTypeMoreSpecific(argument!!::class.java, requiredMethodParameters[i]).index
-                >= TypeCompareResult.WORSE.index)) {
+                        >= TypeCompareResult.WORSE.index)) {
             return false
         }
     }
@@ -91,9 +90,12 @@ internal fun insertDefaultArguments(handle: MethodHandle, targetMethod: Method, 
 
 internal fun permuteMethodType(type: MethodType, permutation: ArrayList<Int>): MethodType {
     val newType: MethodType = MethodType.methodType(type.returnType())
+    val newTypeParameters = MutableList<Class<*>>(permutation.size, { _ -> Any::class.java })
+
+    permutation.forEachIndexed { index, it -> newTypeParameters[it] = type.parameterType(index) }
 
     return newType.appendParameterTypes(
-            permutation.map { type.parameterType(it) }
+            newTypeParameters
     )
 }
 
@@ -144,7 +146,9 @@ internal fun insertNamedArguments(handle: MethodHandle, targetMethod: Method, cu
 
     currentHandle = MethodHandles.insertArguments(currentHandle, insertPosition, *fixedArguments.toTypedArray());
 
+
     val newType = permuteMethodType(currentHandle.type(), permutation);
+
     return MethodHandles.permuteArguments(currentHandle, newType, *permutation.toIntArray())
 }
 
