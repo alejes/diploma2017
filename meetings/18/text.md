@@ -118,3 +118,5 @@ org.codehaus.groovy.reflection
 * invocation on NullObject instead.
 ```
 ```NullObject.getNullObject()```
+
+- Обрамляем эксепшены через ```MethodHandles.catchException``` ```added GroovyRuntimeException unwrapper```
