@@ -119,4 +119,49 @@ org.codehaus.groovy.reflection
 ```
 ```NullObject.getNullObject()```
 
-- Обрамляем эксепшены через ```MethodHandles.catchException``` ```added GroovyRuntimeException unwrapper```
+- Обрамляем эксепшены через ```MethodHandles.catchException``` 
+
+```added GroovyRuntimeException unwrapper```
+
+```
+* Adds the standard exception handler.  
+         */
+        public void addExceptionHandler() {
+            //TODO: if we would know exactly which paths require the exceptions
+            //      and which paths not, we can sometimes save this guard 
+            if (handle==null || catchException==false) return;
+            Class returnType = handle.type().returnType();
+            if (returnType!=Object.class) {
+                MethodType mtype = MethodType.methodType(returnType, GroovyRuntimeException.class); 
+                handle = MethodHandles.catchException(handle, GroovyRuntimeException.class, UNWRAP_EXCEPTION.asType(mtype));
+            } else {
+                handle = MethodHandles.catchException(handle, GroovyRuntimeException.class, UNWRAP_EXCEPTION);
+            }
+            if (LOG_ENABLED) LOG.info("added GroovyRuntimeException unwrapper");
+        }
+```
+
+
+```
+    //  --------------------------------------------------------
+    //                   exception handling
+    //  --------------------------------------------------------
+    public static Throwable unwrap(GroovyRuntimeException gre) {
+        if (gre.getCause()==null) {
+            if (gre instanceof MissingPropertyExceptionNoStack) {
+                MissingPropertyExceptionNoStack noStack = (MissingPropertyExceptionNoStack) gre;
+                return new MissingPropertyException(noStack.getProperty(), noStack.getType());
+            }
+
+            if (gre instanceof MissingMethodExceptionNoStack) {
+                MissingMethodExceptionNoStack noStack = (MissingMethodExceptionNoStack) gre;
+                return new MissingMethodException(noStack.getMethod(), noStack.getType(), noStack.getArguments(), noStack.isStatic());
+            }
+        }
+
+        Throwable th = gre;
+        if (th.getCause() != null && th.getCause() != gre) th = th.getCause();
+        if (th != gre && (th instanceof GroovyRuntimeException)) return unwrap((GroovyRuntimeException) th);
+        return th;
+    }
+   ```
