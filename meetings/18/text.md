@@ -88,7 +88,7 @@ call plusAssign
 
 ### Groovy
 - Используем org.codehaus.groovy.reflection
-
+- Не мешает ли jmh оптимизации блокировок?
 ```
 org.codehaus.groovy.reflection
     public final MetaClass getMetaClass() {
@@ -112,7 +112,9 @@ org.codehaus.groovy.reflection
 * conversions.
 ```
 - Null receiver
+```
 * Gives a replacement receiver for null.
 * In case of the receiver being null we want to do the method
 * invocation on NullObject instead.
+```
 ```NullObject.getNullObject()```
