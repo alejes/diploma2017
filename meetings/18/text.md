@@ -84,3 +84,35 @@ call plusAssign
 ### Немного вопросов
 - Если мы в рантайме получили именованный аргумент, но не нашли его у целевой функции - надо ли падать с ошибкой?
 - Должно ли имя параметра влиять на разрешение перегрузок
+
+
+### Groovy
+- Используем org.codehaus.groovy.reflection
+
+```
+org.codehaus.groovy.reflection
+    public final MetaClass getMetaClass() {
+        MetaClass answer = getMetaClassForClass();
+        if (answer != null) return answer;
+
+        lock();
+        try {
+            return getMetaClassUnderLock();
+        } finally {
+            unlock();
+        }
+    }
+```
+- Создаём метаклассы внутри для каждого класса. Особенно примечателен там класс FastArray.
+- Обходим всех родителей создавая полный индекс методов
+- Делаем некоторые неявные конверсии
+```
+* There are some conversions we have to do explicitly.
+* These are GString to String, Number to Byte and Number to BigInteger
+* conversions.
+```
+- Null receiver
+* Gives a replacement receiver for null.
+* In case of the receiver being null we want to do the method
+* invocation on NullObject instead.
+```NullObject.getNullObject()```
