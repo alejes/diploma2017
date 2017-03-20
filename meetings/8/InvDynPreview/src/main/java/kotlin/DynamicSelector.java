@@ -350,8 +350,6 @@ public abstract class DynamicSelector {
                     owner = resolveBridgeOwner(targetMethod, methods);
                 }
 
-
-                targetMethod.setAccessible(true);
                 setReturnType(targetMethod.getReturnType());
 
                 try {
@@ -400,9 +398,6 @@ public abstract class DynamicSelector {
             } else {
                 try {
                     Field field = receiver.getClass().getDeclaredField(name);
-                    if (!field.isAccessible()) {
-                        field.setAccessible(true);
-                    }
                     setReturnType(field.getType());
                     switch (it) {
                         case GET:
