@@ -1,6 +1,6 @@
 package kotlin;
 
-public class DynamicGuards {
+public final class DynamicGuards {
     public static boolean isInstance(Class c, Object o) {
         return o != null && o.getClass() == c;
     }

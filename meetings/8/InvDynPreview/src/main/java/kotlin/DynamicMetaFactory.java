@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class DynamicMetaFactory {
+public final class DynamicMetaFactory {
     /*
      * Method handles for guards
      */
@@ -86,7 +86,7 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         if (!selector.setCallSite()) {
-            name = "get" + StringsKt.capitalize(name);
+            name = INVOKE_TYPE.GET.getJavaPrefix() + StringsKt.capitalize(name);
             return invokeProxy(mc, caller, type, name, arguments, null);
         }
         MethodHandle call = selector.getMethodHandle()
@@ -99,7 +99,7 @@ public class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
         if (!selector.setCallSite()) {
-            name = "set" + StringsKt.capitalize(name);
+            name = INVOKE_TYPE.SET.getJavaPrefix() + StringsKt.capitalize(name);
             return invokeProxy(mc, caller, type, name, arguments, null);
         }
         MethodHandle call = selector.getMethodHandle()
@@ -113,16 +113,26 @@ public class DynamicMetaFactory {
         boolean assignmentOperatorConversion = false;
         DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
         String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
-        if (!selector.setCallSite()) {
-            if (operatorCounterpart == null) {
-                throw new DynamicBindException("Runtime: cannot find target method " + name);
-            }
+        boolean callSiteMounted = selector.setCallSite();
+        if (!callSiteMounted && (operatorCounterpart != null)) {
             assignmentOperatorConversion = true;
             selector.changeName(operatorCounterpart);
-            if (!selector.setCallSite()) {
-                throw new DynamicBindException("Runtime: cannot find target method " + name);
-            }
+            callSiteMounted = selector.setCallSite();
         }
+
+        //it can be property with lambda
+        if (!callSiteMounted) {
+            name = INVOKE_TYPE.GET.getJavaPrefix() + StringsKt.capitalize(name);
+            selector.changeName(name);
+            callSiteMounted = selector.setCallSite();
+            //selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
+            throw new DynamicBindException("UNIMPLEMENTED");
+        }
+
+        if (!callSiteMounted) {
+            throw new DynamicBindException("Runtime: cannot find target method " + name);
+        }
+
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
@@ -140,24 +150,31 @@ public class DynamicMetaFactory {
         return result;
     }
 
-    public enum INVOKE_TYPE {
-        GET("getField", FIELD_GET),
-        SET("setField", FIELD_SET),
-        METHOD("invoke", INVOKE_METHOD);
+    /* package */ enum INVOKE_TYPE {
+        GET("getField", "get", FIELD_GET),
+        SET("setField", "set", FIELD_SET),
+        METHOD("invoke", "", INVOKE_METHOD);
+
         private final String type;
+        private final String javaPrefix;
         private final MethodHandle mh;
 
-        private INVOKE_TYPE(String type, MethodHandle mh) {
+        private INVOKE_TYPE(String type, String javaPrefix, MethodHandle mh) {
             this.type = type;
+            this.javaPrefix = javaPrefix;
             this.mh = mh;
         }
 
-        public MethodHandle getHandler() {
+        public final MethodHandle getHandler() {
             return mh;
+        }
+
+        public final String getJavaPrefix() {
+            return javaPrefix;
         }
     }
 
-    public static class AssignmentMarker {
+    public final static class AssignmentMarker {
         private AssignmentMarker() {
         }
     }

@@ -79,11 +79,11 @@ public abstract class DynamicSelector {
         return getJavaObjectType(getKotlinClass(clazz));
     }
 
-    public Class<?> getReturnType() {
+    /* package */ Class<?> getReturnType() {
         return returnType;
     }
 
-    protected void setReturnType(Class<?> returnType) {
+    protected final void setReturnType(Class<?> returnType) {
         this.returnType = returnType;
     }
 
@@ -111,7 +111,7 @@ public abstract class DynamicSelector {
 
     }
 
-    private static class MethodSelector extends DynamicSelector {
+    private final static class MethodSelector extends DynamicSelector {
         @NotNull
         private static final Map<Class, Class> BUILTIN_CLASSES = new HashMap<>();
 
@@ -364,7 +364,7 @@ public abstract class DynamicSelector {
         }
     }
 
-    private static class FieldSelector extends DynamicSelector {
+    private final static class FieldSelector extends DynamicSelector {
         private final INVOKE_TYPE it;
 
         private FieldSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, INVOKE_TYPE it) {
