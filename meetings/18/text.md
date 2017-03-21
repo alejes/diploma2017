@@ -119,7 +119,7 @@ class MyObject (var value: Int) {
 
 fun box(): String {
     val z = ListenerMap<Long, MyObject>()
-    z[5L] = MyObject(15)
+    z.put(5L, MyObject(15))
     z[5L]!! += MyObject(11)
     val result1 = if (z[5L]!!.value == 26) "O" else "FAIL"
     val result2 = if (operationsCount == 201) "K" else "FAIL"
@@ -131,6 +131,16 @@ fun main(args: Array<String>) {
 }
 ```
 
+### А что если
+
+Вместо
+```
+z.put(5L, MyObject(15))
+```
+Будет 
+```
+z[5L] = MyObject(15)
+```
 
 ### Немного вопросов
 - Если мы в рантайме получили именованный аргумент, но не нашли его у целевой функции - надо ли падать с ошибкой?
