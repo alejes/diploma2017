@@ -131,6 +131,37 @@ fun main(args: Array<String>) {
 }
 ```
 
+
+### Сейчас для += и мапы генерируется такой код:
+```
+   L3
+    NEW MyObject
+    DUP
+    BIPUSH 11
+    INVOKESPECIAL MyObject.<init> (I)V
+    INVOKEDYNAMIC invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; [
+      // handle kind 0x6 : INVOKESTATIC
+      kotlin/DynamicMetaFactory.bootstrapDynamic(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I[Ljava/lang/String;)Ljava/lang/invoke/CallSite;
+      // arguments:
+      "plusAssign", 
+      0
+    ]
+    DUP
+    INSTANCEOF kotlin/DynamicMetaFactory$AssignmentMarker
+    IFEQ L4
+    POP
+    GOTO L5
+   L4
+    NEW kotlin/DynamicBindException
+    DUP
+    LDC "Cannot find selector"
+    INVOKESPECIAL kotlin/DynamicBindException.<init> (Ljava/lang/String;)V
+    ATHROW
+   L5
+
+```
+
+
 ### А что если
 
 Вместо
