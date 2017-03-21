@@ -126,7 +126,7 @@ public final class DynamicMetaFactory {
             selector.changeName(name);
             callSiteMounted = selector.setCallSite();
             //selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
-            throw new DynamicBindException("UNIMPLEMENTED");
+            throw new DynamicBindException("UNIMPLEMENTED; cannot find target method " + name);
         }
 
         if (!callSiteMounted) {

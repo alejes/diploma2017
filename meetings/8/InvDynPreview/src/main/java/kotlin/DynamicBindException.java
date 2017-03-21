@@ -1,15 +1,15 @@
 package kotlin;
 
 public final class DynamicBindException extends RuntimeException {
-    /* package */ DynamicBindException(String message) {
+    public DynamicBindException(String message) {
         super(message);
     }
 
-    /* package */ DynamicBindException(String message, Throwable cause) {
+    public DynamicBindException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /* package */ DynamicBindException(Throwable cause) {
+    public DynamicBindException(Throwable cause) {
         super(cause);
     }
 }
