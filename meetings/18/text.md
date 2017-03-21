@@ -46,7 +46,7 @@ call plusAssign
 ```
 
 ```
-         0: aload_0
+ 0: aload_0
          1: ldc           #9                  // String args
          3: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkParameterIsNotNull:(Ljava/lang/Object;Ljava/lang/String;)V
          6: new           #17                 // class ListenerList
@@ -70,14 +70,14 @@ call plusAssign
         46: invokedynamic #50,  0             // InvokeDynamic #2:invoke:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
         51: dup
         52: instanceof    #52                 // class kotlin/DynamicMetaFactory$AssignmentMarker
-        55: ifeq          63
-        58: pop2
+        55: ifeq          64
+        58: pop
         59: pop
-        60: goto          69
-        63: invokedynamic #57,  0             // InvokeDynamic #3:invoke:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-        68: pop
-        69: return
-
+        60: pop
+        61: goto          70
+        64: invokedynamic #57,  0             // InvokeDynamic #3:invoke:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        69: pop
+        70: return
 ```
 
 
