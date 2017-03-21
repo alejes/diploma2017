@@ -393,7 +393,7 @@ class KotlinRunnerDynamic {
 }
 ```
 
-|Benchmark|Arguments count|Mode|Cnt|Score|Error|Units|Units|
+|Benchmark|Arguments_Overloads|Mode|Cnt|Score|Error|Units|Units|
 |---|---|---|---|---|---|---|---|
 |KotlinStaticMethod|0_1|avgt|60|3|±  0,001|us/op|us/op|
 |kotlinDynamicMethod|0_1|avgt|60|3|±  0,001|us/op|us/op|
