@@ -284,3 +284,70 @@ class A {
 
 
 ### Обогатил коллекцию тестов
+Итого 29 штук
+
+### Выбор перегрузок
+
+```
+class KotlinRunnerDynamic {
+    companion object {
+        @JvmStatic
+        fun method0_0Proxy(): String {
+            val x: dynamic = Overloads()
+            return x.method0_1()
+        }
+
+        @JvmStatic
+        fun method3_3Proxy(arg1: Int): String {
+            val x: dynamic = Overloads()
+            return x.method3_3(5, "eew", arg1)
+        }
+
+        @JvmStatic
+        fun method5_5Proxy(arg1: Int): String {
+            val x: dynamic = Overloads()
+            return x.method5_5(11, "33d", 5, "eew", arg1)
+        }
+
+        @JvmStatic
+        fun method5_1_default3Proxy(arg1: Int): String {
+            val x: dynamic = Overloads()
+            return x.method5_1_default3(11, arg1)
+        }
+
+        @JvmStatic
+        fun method5_10Proxy(arg1: Int): String {
+            val x: dynamic = Overloads()
+            return x.method5_10(11, "33d", arg1, "eew", 55)
+        }
+    }
+}
+```
+
+|Benchmark|Mode|Cnt|Score|Error|Units|Units|
+|---|---|---|---|---|---|---|
+|KotlinStaticMethod0_0|avgt|60|3|±  0,001|us/op|us/op|
+|kotlinDynamicMethod0_0|avgt|60|3|±  0,001|us/op|us/op|
+|GroovyStaticMethod0_0|avgt|60|5|±  0,001|us/op|us/op|
+|GroovyInvokeDynamicMethod0_0|avgt|60|7|±  0,001|us/op|us/op|
+|GroovyDynamicMethod0_0|avgt|60|20|±  0,001|us/op|us/op|
+|KotlinStaticMethod3_3|avgt|60|38|±  0,001|us/op|us/op|
+|kotlinDynamicMethod3_3|avgt|60|41|±  0,001|us/op|us/op|
+|GroovyStaticMethod3_3|avgt|60|57|±  0,001|us/op|us/op|
+|kotlinDynamicMethod5Proxy|avgt|60|78|±  0,002|us/op|us/op|
+|kotlinDynamicMethod5_10|avgt|60|80|±  0,002|us/op|us/op|
+|KotlinStaticMethod5Proxy|avgt|60|97|±  0,002|us/op|us/op|
+|KotlinStaticMethod5_10|avgt|60|98|±  0,002|us/op|us/op|
+|GroovyDynamicMethod3_3|avgt|60|106|±  0,002|us/op|us/op|
+|kotlinDynamicMethod5_1_default3Proxy|avgt|60|109|±  0,003|us/op|us/op|
+|GroovyInvokeDynamicMethod3_3|avgt|60|112|±  0,003|us/op|us/op|
+|KotlinStaticMethod5_1_default3Proxy|avgt|60|116|±  0,002|us/op|us/op|
+|GroovyStaticMethod5_10|avgt|60|153|±  0,003|us/op|us/op|
+|GroovyStaticMethod5Proxy|avgt|60|157|±  0,004|us/op|us/op|
+|GroovyInvokeDynamicMethod5Proxy|avgt|60|184|±  0,004|us/op|us/op|
+|GroovyInvokeDynamicMethod5_10|avgt|60|194|±  0,004|us/op|us/op|
+|GroovyStaticMethod5_1_default3Proxy|avgt|60|207|±  0,006|us/op|us/op|
+|GroovyDynamicMethod5Proxy|avgt|60|228|±  0,005|us/op|us/op|
+|GroovyDynamicMethod5_10|avgt|60|230|±  0,005|us/op|us/op|
+|GroovyInvokeDynamicMethod5_1_default3Proxy|avgt|60|235|±  0,006|us/op|us/op|
+|GroovyDynamicMethod5_1_default3Proxy|avgt|60|259|±  0,006|us/op|us/op|
