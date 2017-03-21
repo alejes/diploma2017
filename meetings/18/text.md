@@ -485,3 +485,8 @@ class KotlinRunnerDynamic {
 |GroovyDynamicMethod|5_10|avgt|60|230|±  0,005|us/op|us/op|
 |GroovyInvokeDynamicMethod|5_1 (3 of 5 is default)|avgt|60|235|±  0,006|us/op|us/op|
 |GroovyDynamicMethod|5_1 (3 of 5 is default)|avgt|60|259|±  0,006|us/op|us/op|
+
+
+```
+CompountAssignmentPerform
+```
