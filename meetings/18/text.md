@@ -173,6 +173,13 @@ z.put(5L, MyObject(15))
 z[5L] = MyObject(15)
 ```
 
+Мы в рантайме не сможем найти метод set!
+
+Потому что для мапы генерируется код 
+```
+INVOKEINTERFACE java/util/Map.put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+```
+
 ### А что у нас с mapой и plus//plusAssign
 
 ```
