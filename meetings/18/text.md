@@ -488,5 +488,5 @@ class KotlinRunnerDynamic {
 
 
 ```
-CompountAssignmentPerform
+CompoundAssignmentPerform
 ```
