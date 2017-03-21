@@ -289,6 +289,75 @@ class A {
 ### Выбор перегрузок
 
 ```
+class Overloads {
+    fun method0_1(): String {
+        return "OK"
+    }
+
+    fun method3_3(x: Int, y: Int, z: Int): String {
+        return x.toString() + y.toString() + z.toString()
+    }
+    fun method3_3(x: Int, y: String, z: Int): String {
+        return x.toString() + y.toString() + z.toString()
+    }
+    fun method3_3(x: String, y: String, z: Int): String {
+        return x.toString() + y.toString() + z.toString()
+    }
+
+    fun method5_5(x: Int, y: Int, z: Int, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_5(x: Int, y: String, z: Int, u: String, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_5(x: Int, y: Int, z: String, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_5(x: Int, y: String, z: Int, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_5(x: String, y: Int, z: Int, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+
+    fun method5_1_default3(x: Int, y: Int, z: Int = 654, u: Int = 46, v: Int = 54): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+
+
+    fun method5_10(x: Int, y: Int, z: Int, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: Int, y: String, z: Int, u: String, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: String, y: Int, z: Int, u: Int, v: String): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: Int, y: String, z: Int, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: Int, y: Int, z: String, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: Int, y: Int, z: String, u: String, v: String): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: Int, y: Int, z: Int, u: String, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: Int, y: String, z: Int, u: Int, v: String): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: String, y: Int, z: Int, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+    fun method5_10(x: String, y: String, z: String, u: Int, v: Int): String {
+        return x.toString() + y.toString() + z.toString() + u.toString() + v.toString()
+    }
+}
+```
+```
 class KotlinRunnerDynamic {
     companion object {
         @JvmStatic
