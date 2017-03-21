@@ -394,29 +394,29 @@ class KotlinRunnerDynamic {
 ```
 
 |Benchmark|Mode|Cnt|Score|Error|Units|Units|
-|---|---|---|---|---|---|---|
-|KotlinStaticMethod0_0|avgt|60|3|±  0,001|us/op|us/op|
-|kotlinDynamicMethod0_0|avgt|60|3|±  0,001|us/op|us/op|
-|GroovyStaticMethod0_0|avgt|60|5|±  0,001|us/op|us/op|
-|GroovyInvokeDynamicMethod0_0|avgt|60|7|±  0,001|us/op|us/op|
-|GroovyDynamicMethod0_0|avgt|60|20|±  0,001|us/op|us/op|
-|KotlinStaticMethod3_3|avgt|60|38|±  0,001|us/op|us/op|
-|kotlinDynamicMethod3_3|avgt|60|41|±  0,001|us/op|us/op|
-|GroovyStaticMethod3_3|avgt|60|57|±  0,001|us/op|us/op|
-|kotlinDynamicMethod5Proxy|avgt|60|78|±  0,002|us/op|us/op|
-|kotlinDynamicMethod5_10|avgt|60|80|±  0,002|us/op|us/op|
-|KotlinStaticMethod5Proxy|avgt|60|97|±  0,002|us/op|us/op|
-|KotlinStaticMethod5_10|avgt|60|98|±  0,002|us/op|us/op|
-|GroovyDynamicMethod3_3|avgt|60|106|±  0,002|us/op|us/op|
-|kotlinDynamicMethod5_1_default3Proxy|avgt|60|109|±  0,003|us/op|us/op|
-|GroovyInvokeDynamicMethod3_3|avgt|60|112|±  0,003|us/op|us/op|
-|KotlinStaticMethod5_1_default3Proxy|avgt|60|116|±  0,002|us/op|us/op|
-|GroovyStaticMethod5_10|avgt|60|153|±  0,003|us/op|us/op|
-|GroovyStaticMethod5Proxy|avgt|60|157|±  0,004|us/op|us/op|
-|GroovyInvokeDynamicMethod5Proxy|avgt|60|184|±  0,004|us/op|us/op|
-|GroovyInvokeDynamicMethod5_10|avgt|60|194|±  0,004|us/op|us/op|
-|GroovyStaticMethod5_1_default3Proxy|avgt|60|207|±  0,006|us/op|us/op|
-|GroovyDynamicMethod5Proxy|avgt|60|228|±  0,005|us/op|us/op|
-|GroovyDynamicMethod5_10|avgt|60|230|±  0,005|us/op|us/op|
-|GroovyInvokeDynamicMethod5_1_default3Proxy|avgt|60|235|±  0,006|us/op|us/op|
-|GroovyDynamicMethod5_1_default3Proxy|avgt|60|259|±  0,006|us/op|us/op|
+|---|---|---|---|---|---|---|---|
+|KotlinStaticMethod|0_1|avgt|60|3|±  0,001|us/op|us/op|
+|kotlinDynamicMethod|0_1|avgt|60|3|±  0,001|us/op|us/op|
+|GroovyStaticMethod|0_1|avgt|60|5|±  0,001|us/op|us/op|
+|GroovyInvokeDynamicMethod|0_1|avgt|60|7|±  0,001|us/op|us/op|
+|GroovyDynamicMethod|0_1|avgt|60|20|±  0,001|us/op|us/op|
+|KotlinStaticMethod|3_3|avgt|60|38|±  0,001|us/op|us/op|
+|kotlinDynamicMethod|3_3|avgt|60|41|±  0,001|us/op|us/op|
+|GroovyStaticMethod|3_3|avgt|60|57|±  0,001|us/op|us/op|
+|kotlinDynamicMethod|5_5|avgt|60|78|±  0,002|us/op|us/op|
+|kotlinDynamicMethod|5_10|avgt|60|80|±  0,002|us/op|us/op|
+|KotlinStaticMethod|5_5|avgt|60|97|±  0,002|us/op|us/op|
+|KotlinStaticMethod|5_10|avgt|60|98|±  0,002|us/op|us/op|
+|GroovyDynamicMethod|3_3|avgt|60|106|±  0,002|us/op|us/op|
+|kotlinDynamicMethod|5_1 (3 of 5 is default)|avgt|60|109|±  0,003|us/op|us/op|
+|GroovyInvokeDynamicMethod|3_3|avgt|60|112|±  0,003|us/op|us/op|
+|KotlinStaticMethod|5_1 (3 of 5 is default)|avgt|60|116|±  0,002|us/op|us/op|
+|GroovyStaticMethod|5_10|avgt|60|153|±  0,003|us/op|us/op|
+|GroovyStaticMethod|5_5|avgt|60|157|±  0,004|us/op|us/op|
+|GroovyInvokeDynamicMethod|5_5|avgt|60|184|±  0,004|us/op|us/op|
+|GroovyInvokeDynamicMethod|5_10|avgt|60|194|±  0,004|us/op|us/op|
+|GroovyStaticMethod|5_1 (3 of 5 is default)|avgt|60|207|±  0,006|us/op|us/op|
+|GroovyDynamicMethod|5_5|avgt|60|228|±  0,005|us/op|us/op|
+|GroovyDynamicMethod|5_10|avgt|60|230|±  0,005|us/op|us/op|
+|GroovyInvokeDynamicMethod|5_1 (3 of 5 is default)|avgt|60|235|±  0,006|us/op|us/op|
+|GroovyDynamicMethod|5_1 (3 of 5 is default)|avgt|60|259|±  0,006|us/op|us/op|
