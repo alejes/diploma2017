@@ -21,6 +21,7 @@ public abstract class DynamicSelector {
     protected static final String DEFAULT_CALLER_SUFFIX = "$default";
     protected final Object[] arguments;
     protected final MethodHandles.Lookup caller;
+    @Nullable
     protected final MutableCallSite mc;
     protected final MethodType type;
     protected final boolean isStaticCall;
@@ -28,7 +29,7 @@ public abstract class DynamicSelector {
     protected MethodHandle handle;
     private Class<?> returnType = null;
 
-    private DynamicSelector(Object[] arguments, MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, boolean isStaticCall) {
+    private DynamicSelector(Object[] arguments, @Nullable MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, boolean isStaticCall) {
         this.arguments = arguments;
         this.mc = mc;
         this.caller = caller;
@@ -38,7 +39,7 @@ public abstract class DynamicSelector {
     }
 
     /* package */
-    static DynamicSelector getFieldSelector(MutableCallSite mc,
+    static DynamicSelector getFieldSelector(@Nullable MutableCallSite mc,
                                             MethodHandles.Lookup caller,
                                             MethodType type,
                                             String name,
@@ -90,12 +91,30 @@ public abstract class DynamicSelector {
     /* package */
     abstract boolean setCallSite() throws DynamicBindException;
 
+    /* package */ void addAdditionalReceiverGuards(MethodHandle fallback) {
+        //addAdditionalReferencesGuards(fallback, arguments[0]);
+    }
+
+    /* package */ void addAdditionalReferencesGuards(MethodHandle fallback, Object obj) {
+        MethodHandle guard = IS_REFERENCES_EQUAL
+                .bindTo(obj)
+                .asType(OBJECT_TEST_MTYPE);
+
+        handle = MethodHandles.guardWithTest(guard, handle, fallback);
+    }
+
     /* package */ void changeName(String name) {
         this.name = name;
     }
 
     /* package */ MethodHandle getMethodHandle() {
         return handle;
+    }
+
+    /* package */ void processSetTarget() {
+        if (mc != null) {
+            mc.setTarget(handle);
+        }
     }
 
     /* package */ enum TypeCompareResult {
@@ -136,7 +155,7 @@ public abstract class DynamicSelector {
         @Nullable
         private String[] namedArguments;
 
-        private MethodSelector(MutableCallSite mc,
+        private MethodSelector(@Nullable MutableCallSite mc,
                                MethodHandles.Lookup caller,
                                MethodType type,
                                String name,
@@ -222,8 +241,10 @@ public abstract class DynamicSelector {
                 return false;
             }
             prepareMetaHandlers();
-            changeTargetGuard();
-            processSetCallSite();
+            if (mc != null) {
+                changeTargetGuard();
+                processSetTarget();
+            }
             return true;
         }
 
@@ -256,10 +277,6 @@ public abstract class DynamicSelector {
                 guard = MethodHandles.dropArguments(guard, 0, dropTypes);
                 handle = MethodHandles.guardWithTest(guard, handle, fallback);
             }
-        }
-
-        private void processSetCallSite() {
-            mc.setTarget(handle);
         }
 
         @NotNull
@@ -367,7 +384,7 @@ public abstract class DynamicSelector {
     private final static class FieldSelector extends DynamicSelector {
         private final INVOKE_TYPE it;
 
-        private FieldSelector(MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, INVOKE_TYPE it) {
+        private FieldSelector(@Nullable MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, Object[] arguments, INVOKE_TYPE it) {
             // [TODO] static call for fields
             super(arguments, mc, caller, type, name, /* isStaticCall */ false);
             this.it = it;
@@ -378,15 +395,13 @@ public abstract class DynamicSelector {
             if (!genMethodClass()) {
                 return false;
             }
-            processSetCallSite();
+            prepareMetaHandlers();
+            processSetTarget();
             return true;
         }
 
-
-        private void processSetCallSite() {
-            //cached in groovy
+        private void prepareMetaHandlers() {
             handle = MethodHandles.explicitCastArguments(handle, type);
-            mc.setTarget(handle);
         }
 
         private boolean genMethodClass() {
