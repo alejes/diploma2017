@@ -1,6 +1,5 @@
 package kotlin;
 
-import kotlin.text.StringsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +13,7 @@ public final class DynamicMetaFactory {
     /*
      * Method handles for guards
      */
-    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL, IS_REFERENCES_EQUAL;
+    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL, IS_REFERENCES_EQUAL, PERFORM_INVOKE_METHOD;
     /* package */ static final MethodType
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class),
             OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class),
@@ -46,7 +45,9 @@ public final class DynamicMetaFactory {
             INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
             IS_NULL = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isNull", OBJECT_TEST_MTYPE);
+            // [TODO] Object.equals
             IS_REFERENCES_EQUAL = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isReferencesEqual", TWO_OBJECT_TEST_MTYPE);
+            PERFORM_INVOKE_METHOD = DYNAMIC_LOOKUP.findVirtual(ObjectInvoker.class, "performInvoke", MethodType.methodType(Object.class, Object[].class));
         } catch (IllegalAccessException | NoSuchMethodException e) {
             throw new DynamicBindException(e);
         }
@@ -149,15 +150,26 @@ public final class DynamicMetaFactory {
             //it can be field/property with lambda
             if (!callSiteMounted) {
                 //DynamicSelector temporarySelector = DynamicSelector.getFieldSelector(mc, caller, type, name, , INVOKE_TYPE.GET);
-                Object invokeObject = fieldGetProxy(null, caller, INVOKER_MTYPE, name, new Object[]{arguments[0]});
-                arguments[0] = invokeObject;
-                selector = DynamicSelector.getMethodSelector(mc, caller, type, "invoke", arguments, namedArguments);
-                if (callSiteMounted = selector.setCallSite()) {
-                    MethodHandle fallback = makeFallBack(mc, caller, type, name, namedArguments, INVOKE_TYPE.METHOD);
-                    selector.addAdditionalReceiverGuards(fallback);
-                    allowCacheCallSite = false;
-                    // new ClosureInvoker();
-                }
+
+                selector = DynamicSelector.getInvokerSelector(mc, caller, type, name, arguments, namedArguments);
+                callSiteMounted = selector.setCallSite();
+
+                /*MethodHandle getterHandle = DynamicOverloadResolution.resolveFieldOrPropertyGetter(caller, name, new Object[]{arguments[0]}, *//* isStaticCall *//*false);
+                if (getterHandle != null) {
+                    Object invokeObject = getterHandle
+                            .asType(MethodType.methodType(Object.class, Object.class))
+                            .invokeExact(arguments[0]);
+                    //Object invokeObject = fieldGetProxy(null, caller, INVOKER_MTYPE, name, new Object[]{arguments[0]});
+                    arguments[0] = invokeObject;
+                    selector = DynamicSelector.getMethodSelector(mc, caller, type, "invoke", arguments, namedArguments);
+                    if (callSiteMounted = selector.setCallSite()) {
+                        MethodHandle fallback = makeFallBack(mc, caller, type, name, namedArguments, INVOKE_TYPE.METHOD);
+                        // selector.addAdditionalReceiverGuards(fallback);
+                        allowCacheCallSite = false;
+                        ObjectInvoker objectInvoker = new ObjectInvoker(getterHandle, caller, namedArguments);
+                        PERFORM_INVOKE_METHOD.bindTo(objectInvoker);
+                    }*/
+                //}
                 //selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
                 //throw new DynamicBindException("UNIMPLEMENTED; cannot find target method " + name);
             }
@@ -179,7 +191,7 @@ public final class DynamicMetaFactory {
             return ASSIGNMENT_MARKER;
         }
 
-        if (selector.getReturnType().equals(void.class)) {
+        if (selector.isReturnUnit()) {
             return Unit.INSTANCE;
         }
 
@@ -210,7 +222,7 @@ public final class DynamicMetaFactory {
         }
     }
 
-    private static class ClosureInvoker {
+    /* package */ static class ObjectInvoker {
         boolean isReturnUnit;
         @NotNull
         private MethodHandle getterCall;
@@ -223,11 +235,11 @@ public final class DynamicMetaFactory {
         @NotNull
         private Class[] cachedArguments;
 
-        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments) {
+        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments) {
             this(getterCall, caller, namedArguments, null, new Class[]{});
         }
 
-        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments, @Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments) {
+        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments, @Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments) {
             this.getterCall = getterCall;
             this.caller = caller;
             this.namedArguments = namedArguments;
@@ -246,10 +258,11 @@ public final class DynamicMetaFactory {
             return true;
         }
 
-        public Object invokeClosure(Object[] arguments) throws Throwable {
+        /* package */ Object performInvoke(Object[] arguments) throws Throwable {
             assert arguments.length > 0;
 
-            arguments[0] = getterCall.invokeExact(arguments[0]);
+            Object field = getterCall.invoke(arguments[0]); // getterCall.type().parameterType(0).cast(
+            arguments[0] = field;
 
             if (!checkCache(arguments)) {
                 cachedCall = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, /* isStaticCall */false);

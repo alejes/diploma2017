@@ -1,16 +1,16 @@
 package kotlin;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
-import java.lang.reflect.Field;
 
 import static kotlin.DynamicMetaFactory.*;
 
-public abstract class DynamicSelector {
+/* package */ abstract class DynamicSelector {
     protected final Object[] arguments;
     protected final MethodHandles.Lookup caller;
     @Nullable
@@ -19,7 +19,9 @@ public abstract class DynamicSelector {
     protected final boolean isStaticCall;
     protected String name;
     protected MethodHandle handle;
-    private Class<?> returnType = null;
+    protected Throwable caughtException;
+    protected boolean isReturnUnit = false;
+    protected boolean spreadArguments = false;
 
     private DynamicSelector(Object[] arguments, @Nullable MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, boolean isStaticCall) {
         this.arguments = arguments;
@@ -40,6 +42,12 @@ public abstract class DynamicSelector {
         return new FieldSelector(mc, caller, type, name, arguments, it);
     }
 
+    /* package */ void processCaughtExceptions() throws Throwable {
+        if (caughtException != null) {
+            throw caughtException;
+        }
+    }
+
     /* package */
     static DynamicSelector getMethodSelector(MutableCallSite mc,
                                              MethodHandles.Lookup caller,
@@ -50,28 +58,72 @@ public abstract class DynamicSelector {
         return new MethodSelector(mc, caller, type, name, arguments, namedArguments);
     }
 
-    /* package */ Class<?> getReturnType() {
-        return returnType;
+    /* package */
+    static DynamicSelector getInvokerSelector(MutableCallSite mc,
+                                             MethodHandles.Lookup caller,
+                                             MethodType type,
+                                             String name,
+                                             Object[] arguments,
+                                             @Nullable String[] namedArguments) {
+        return new InvokerSelector(mc, caller, type, name, arguments, namedArguments);
     }
 
-    protected final void setReturnType(Class<?> returnType) {
-        this.returnType = returnType;
+
+    /* package */ boolean isReturnUnit() {
+        return isReturnUnit;
     }
+
+    protected void prepareMetaHandlers() {
+        //cached in groovy
+        if (isStaticCall) {
+            MethodType staticType = type.dropParameterTypes(0, 1);
+            handle = MethodHandles.explicitCastArguments(handle, staticType);
+            handle = MethodHandles.dropArguments(handle, 0, Class.class);
+        } else {
+            //System.out.println(handle.isVarargsCollector());
+            //System.out.println(handle.toString());
+            /*if (spreadArguments) {
+                //handle = handle.a
+//                MethodHandles.reflectAs()
+                //handle = handle.asVarargsCollector (Object[].class, type.parameterCount() - 1);
+            }*/
+            //else {
+                handle = MethodHandles.explicitCastArguments(handle, type);
+            //}
+        }
+    }
+
+    protected void changeTargetGuard() {
+        MethodHandle fallback = makeFallBack(mc, caller, type, name, null, INVOKE_TYPE.METHOD);
+        Class<?>[] handleParameters = handle.type().parameterArray();
+        for (int i = 0; i < arguments.length; ++i) {
+            MethodHandle guard;
+            if (arguments[i] == null) {
+                guard = IS_NULL
+                        .asType(MethodType.methodType(boolean.class, handleParameters[i]));
+            } else {
+                guard = IS_INSTANCE
+                        .bindTo(arguments[i].getClass())
+                        .asType(MethodType.methodType(boolean.class, handleParameters[i]));
+            }
+            Class[] dropTypes = new Class[i];
+            System.arraycopy(handleParameters, 0, dropTypes, 0, dropTypes.length);
+            guard = MethodHandles.dropArguments(guard, 0, dropTypes);
+            handle = MethodHandles.guardWithTest(guard, handle, fallback);
+        }
+    }
+
 
     /* package */
     abstract boolean setCallSite() throws DynamicBindException;
 
-    /* package */ void addAdditionalReceiverGuards(MethodHandle fallback) {
-        //addAdditionalReferencesGuards(fallback, arguments[0]);
-    }
-
-    /* package */ void addAdditionalReferencesGuards(MethodHandle fallback, Object obj) {
+/*    *//* package *//* void addAdditionalReferencesGuards(MethodHandle fallback, Object obj) {
         MethodHandle guard = IS_REFERENCES_EQUAL
                 .bindTo(obj)
                 .asType(OBJECT_TEST_MTYPE);
 
         handle = MethodHandles.guardWithTest(guard, handle, fallback);
-    }
+    }*/
 
     /* package */ void changeName(String name) {
         this.name = name;
@@ -100,6 +152,84 @@ public abstract class DynamicSelector {
 
     }
 
+    private final static class InvokerSelector extends DynamicSelector {
+        @Nullable
+        private String[] namedArguments;
+        private Object realReceiver;
+
+        private InvokerSelector(@Nullable MutableCallSite mc,
+                               MethodHandles.Lookup caller,
+                               MethodType type,
+                               String name,
+                               Object[] arguments,
+                               @Nullable String[] namedArguments) {
+            super(arguments, mc, caller, type, name, /* isStaticCall */ arguments[0] instanceof Class);
+            this.namedArguments = namedArguments;
+        }
+
+        @Override
+        /* package */ boolean setCallSite() {
+            if (!genMethodClass()) {
+                return false;
+            }
+            //spreadArguments = true;
+            prepareMetaHandlers();
+            if (mc != null) {
+                changeTargetGuard();
+                processSetTarget();
+            }
+            return true;
+        }
+
+        private boolean genMethodClass() {
+            MethodHandle getterHandle = DynamicOverloadResolution.resolveFieldOrPropertyGetter(caller, name, new Object[]{arguments[0]}, /* isStaticCall */false);
+            if (getterHandle == null) {
+                return false;
+            }
+            Object invokeObject;
+            realReceiver = arguments[0];
+            try {
+                invokeObject = getterHandle
+                        .asType(MethodType.methodType(Object.class, Object.class))
+                        .invokeExact(realReceiver);
+            }
+            catch (Throwable e) {
+                this.caughtException = e;
+                return false;
+            }
+
+            //Object invokeObject = fieldGetProxy(null, caller, INVOKER_MTYPE, name, new Object[]{arguments[0]});
+            // arguments[0] = invokeObject;
+
+            /*MethodHandle invokeHandle = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, *//* isStaticCall *//*false);
+            if (invokeHandle == null) {
+                return false;
+            }*/
+
+            ObjectInvoker objectInvoker = new ObjectInvoker(getterHandle, caller, namedArguments);
+
+            handle = PERFORM_INVOKE_METHOD.bindTo(objectInvoker).
+                        asCollector(Object[].class, type.parameterCount())
+                    .asType(type);;
+
+            return true;
+        }
+
+        @Override
+        protected void changeTargetGuard() {
+            /*MethodHandle fallback = makeFallBack(mc, caller, type, name, null, INVOKE_TYPE.METHOD);
+            System.out.println("falback: " + fallback.toString());
+
+            MethodHandle guard = IS_REFERENCES_EQUAL
+                    .bindTo(realReceiver)
+                    .asType(OBJECT_TEST_MTYPE);
+
+            handle = MethodHandles.guardWithTest(guard, handle, fallback);*/
+            super.changeTargetGuard();
+        }
+    }
+
+
     private final static class MethodSelector extends DynamicSelector {
         @Nullable
         private String[] namedArguments;
@@ -127,45 +257,13 @@ public abstract class DynamicSelector {
             return true;
         }
 
-        private void prepareMetaHandlers() {
-            //cached in groovy
-            if (isStaticCall) {
-                MethodType staticType = type.dropParameterTypes(0, 1);
-                handle = MethodHandles.explicitCastArguments(handle, staticType);
-                handle = MethodHandles.dropArguments(handle, 0, Class.class);
-            } else {
-                handle = MethodHandles.explicitCastArguments(handle, type);
-            }
-        }
-
-        private void changeTargetGuard() {
-            MethodHandle fallback = makeFallBack(mc, caller, type, name, null, INVOKE_TYPE.METHOD);
-            Class<?>[] handleParameters = handle.type().parameterArray();
-            for (int i = 0; i < arguments.length; ++i) {
-                MethodHandle guard;
-                if (arguments[i] == null) {
-                    guard = IS_NULL
-                            .asType(MethodType.methodType(boolean.class, handleParameters[i]));
-                } else {
-                    guard = IS_INSTANCE
-                            .bindTo(arguments[i].getClass())
-                            .asType(MethodType.methodType(boolean.class, handleParameters[i]));
-                }
-                Class[] dropTypes = new Class[i];
-                System.arraycopy(handleParameters, 0, dropTypes, 0, dropTypes.length);
-                guard = MethodHandles.dropArguments(guard, 0, dropTypes);
-                handle = MethodHandles.guardWithTest(guard, handle, fallback);
-            }
-        }
-
-
 
         private boolean genMethodClass() {
             handle = DynamicOverloadResolution.resolveMethod(caller, name, arguments, namedArguments, isStaticCall);
             if (handle == null) {
                 return false;
             }
-            setReturnType(handle.type().returnType());
+            isReturnUnit = handle.type().returnType().equals(void.class);
             return true;
         }
     }
@@ -185,12 +283,9 @@ public abstract class DynamicSelector {
                 return false;
             }
             prepareMetaHandlers();
+            changeTargetGuard();
             processSetTarget();
             return true;
-        }
-
-        private void prepareMetaHandlers() {
-            handle = MethodHandles.explicitCastArguments(handle, type);
         }
 
         private boolean genMethodClass() {
@@ -207,7 +302,7 @@ public abstract class DynamicSelector {
             if (handle == null) {
                 return false;
             }
-            setReturnType(handle.type().returnType());
+            isReturnUnit = handle.type().returnType().equals(void.class);
             return true;
         }
     }
