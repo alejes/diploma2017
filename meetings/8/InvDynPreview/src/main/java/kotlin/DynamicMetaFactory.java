@@ -2,6 +2,7 @@ package kotlin;
 
 import com.sun.tools.javac.util.ArrayUtils;
 import kotlin.text.StringsKt;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.*;
@@ -138,6 +139,53 @@ public final class DynamicMetaFactory {
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
         return call.invokeExact(arguments);
+    }
+
+    private static class ClosureInvoker {
+        @NotNull private MethodHandle getterCall;
+        @NotNull private MethodHandles.Lookup caller;
+        @Nullable private MethodHandle cachedCall;
+        @NotNull private Class[] cachedArguments;
+        boolean isReturnUnit;
+
+        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller) {
+            this(getterCall, caller, null, new Class[]{});
+        }
+
+        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments) {
+            this.getterCall = getterCall;
+            this.caller = caller;
+            this.cachedCall = cachedCall;
+            this.cachedArguments = cachedArguments;
+            this.isReturnUnit = getterCall.type().returnType().equals(void.class);
+        }
+
+        private boolean checkCache(Object ... arguments) {
+            if (cachedCall == null) return false;
+            if (cachedArguments.length != arguments.length) return false;
+            for (int i = 0; i < cachedArguments.length; ++i) {
+                if (!cachedArguments[i].equals(arguments[i].getClass()))
+                    return false;
+            }
+            return true;
+        }
+
+        public Object invokeClosure(Object ... arguments) throws Throwable {
+            if (!checkCache(arguments)) {
+                //arguments.getClass().getM
+            /*MethodHandle call = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
+                    .asType(MethodType.methodType(Object.class, Object[].class));*/
+            }
+
+            assert cachedCall != null;
+            Object result = cachedCall.invokeExact(arguments);
+            if (isReturnUnit) {
+                return Unit.INSTANCE;
+            }
+
+            return result;
+        }
     }
 
     private static Object invokeProxy(MutableCallSite mc,

@@ -327,7 +327,13 @@ public abstract class DynamicSelector {
         }
 
         private boolean genMethodClass() {
-            Object receiver = arguments[0];
+            handle = DynamicOverloadResolution.resolveMethod(caller, name, arguments, namedArguments, isStaticCall);
+            if (handle == null) {
+                return false;
+            }
+            setReturnType(handle.type().returnType());
+            return true;
+            /*Object receiver = arguments[0];
             if (receiver == null) {
                 throw new UnsupportedOperationException("null");
             } else {
@@ -377,7 +383,7 @@ public abstract class DynamicSelector {
                 handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
 
                 return true;
-            }
+            }*/
         }
     }
 
