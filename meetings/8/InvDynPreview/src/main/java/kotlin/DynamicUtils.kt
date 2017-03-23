@@ -5,6 +5,8 @@ import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
 import java.lang.reflect.Method
 import java.lang.reflect.Type
+import kotlin.DynamicOverloadResolution.DEFAULT_CALLER_SUFFIX
+import kotlin.DynamicOverloadResolution.isTypeMoreSpecific
 import kotlin.DynamicSelector.*
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.kotlinFunction
@@ -43,7 +45,7 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiv
 }
 
 fun insertDefaultArgumentsAndNamedParameters(handle: MethodHandle, targetMethod: Method, owner: Method?, namedArguments: Array<String>?, arguments: Array<Any>): MethodHandle {
-    val isDefaultCaller = targetMethod.name.endsWith(DynamicSelector.DEFAULT_CALLER_SUFFIX)
+    val isDefaultCaller = targetMethod.name.endsWith(DEFAULT_CALLER_SUFFIX)
     if ((namedArguments?.isEmpty() ?: false) && !isDefaultCaller) {
         return handle;
     }

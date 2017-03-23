@@ -1,7 +1,5 @@
 package kotlin;
 
-import kotlin.builtins.*;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
@@ -9,16 +7,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import static kotlin.DynamicMetaFactory.*;
-import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
-import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
 public abstract class DynamicSelector {
-    protected static final String DEFAULT_CALLER_SUFFIX = "$default";
     protected final Object[] arguments;
     protected final MethodHandles.Lookup caller;
     @Nullable
@@ -56,28 +48,6 @@ public abstract class DynamicSelector {
                                              Object[] arguments,
                                              @Nullable String[] namedArguments) {
         return new MethodSelector(mc, caller, type, name, arguments, namedArguments);
-    }
-
-    /* package */
-    static TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
-        if (a == b) {
-            return TypeCompareResult.EQUAL;
-        }
-        Class<?> first = prepareClassForCompare(a);
-        Class<?> second = prepareClassForCompare(b);
-        if (first == second) {
-            return TypeCompareResult.BOXING;
-        }
-
-        if (second.isAssignableFrom(first)) {
-            return TypeCompareResult.BETTER;
-        } else {
-            return TypeCompareResult.WORSE;
-        }
-    }
-
-    private static Class<?> prepareClassForCompare(Class<?> clazz) {
-        return getJavaObjectType(getKotlinClass(clazz));
     }
 
     /* package */ Class<?> getReturnType() {
@@ -131,27 +101,6 @@ public abstract class DynamicSelector {
     }
 
     private final static class MethodSelector extends DynamicSelector {
-        @NotNull
-        private static final Map<Class, Class> BUILTIN_CLASSES = new HashMap<>();
-
-        static {
-            BUILTIN_CLASSES.put(java.lang.Byte.class, ByteBuiltins.class);
-            BUILTIN_CLASSES.put(java.lang.Double.class, DoubleBuiltins.class);
-            BUILTIN_CLASSES.put(java.lang.Float.class, FloatBuiltins.class);
-            BUILTIN_CLASSES.put(java.lang.Integer.class, IntBuiltins.class);
-            BUILTIN_CLASSES.put(java.lang.Long.class, LongBuiltins.class);
-            BUILTIN_CLASSES.put(java.lang.Short.class, ShortBuiltins.class);
-            BUILTIN_CLASSES.put(java.lang.String.class, StringBuiltins.class);
-            BUILTIN_CLASSES.put(boolean[].class, BooleanArrayBuiltins.class);
-            BUILTIN_CLASSES.put(byte[].class, ByteArrayBuiltins.class);
-            BUILTIN_CLASSES.put(char[].class, CharArrayBuiltins.class);
-            BUILTIN_CLASSES.put(double[].class, DoubleArrayBuiltins.class);
-            BUILTIN_CLASSES.put(float[].class, FloatArrayBuiltins.class);
-            BUILTIN_CLASSES.put(int[].class, IntArrayBuiltins.class);
-            BUILTIN_CLASSES.put(long[].class, LongArrayBuiltins.class);
-            BUILTIN_CLASSES.put(short[].class, ShortArrayBuiltins.class);
-        }
-
         @Nullable
         private String[] namedArguments;
 
@@ -163,76 +112,6 @@ public abstract class DynamicSelector {
                                @Nullable String[] namedArguments) {
             super(arguments, mc, caller, type, name, /* isStaticCall*/ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
-        }
-
-        private static Method findMostSpecific(@NotNull List<Method> methods) {
-            if (methods.isEmpty()) {
-                return null;
-            } else if (methods.size() == 1) {
-                return methods.get(0);
-            }
-
-            for (Method method : methods) {
-                if (isMoreSpecificThenAllOf(method, methods)) {
-                    return method;
-                }
-            }
-
-            return null;
-        }
-
-        private static boolean isMoreSpecific(@NotNull Method a, @NotNull Method b) {
-            if (a == b)
-                return true;
-            if (a.getName().endsWith(DEFAULT_CALLER_SUFFIX))
-                return false;
-            if (b.getName().endsWith(DEFAULT_CALLER_SUFFIX))
-                return true;
-
-            switch (isTypeMoreSpecific(a.getReturnType(), b.getReturnType())) {
-                case BETTER:
-                    return true;
-                case WORSE:
-                    return false;
-            }
-
-
-            /*
-             * [TODO] isVisibilityMoreSpecific
-             */
-            Class<?>[] aParameters = a.getParameterTypes();
-            Class<?>[] bParameters = b.getParameterTypes();
-
-            int minimumCompareResult = TypeCompareResult.WORSE.index;
-            for (int i = 0; i < aParameters.length; ++i) {
-                TypeCompareResult compareResult = isTypeMoreSpecific(aParameters[i], bParameters[i]);
-                if (compareResult == TypeCompareResult.WORSE) {
-                    return false;
-                }
-                minimumCompareResult = Math.min(minimumCompareResult, compareResult.index);
-            }
-
-            return minimumCompareResult <= TypeCompareResult.BETTER.index;
-        }
-
-        private static boolean isMoreSpecificThenAllOf(@NotNull Method candidate, @NotNull Collection<Method> descriptors) {
-            // NB subtyping relation in Kotlin is not transitive in presence of flexible types:
-            //  String? <: String! <: String, but not String? <: String
-            for (Method descriptor : descriptors) {
-                if (!isMoreSpecific(candidate, descriptor)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        @NotNull
-        private static List<Method> fastMethodFilter(@NotNull List<Method> methods, String name) {
-            String defaultName = name + DEFAULT_CALLER_SUFFIX;
-            return methods.stream()
-                    .filter(it -> (it.getName().equals(name) && !it.isBridge()) || it.getName().equals(defaultName))
-                    .distinct()
-                    .collect(Collectors.toList());
         }
 
         @Override
@@ -279,52 +158,7 @@ public abstract class DynamicSelector {
             }
         }
 
-        @NotNull
-        private List<Method> filterSuitableMethods(@NotNull List<Method> methods) {
-            return filterSuitableMethods(methods, false);
-        }
 
-        @NotNull
-        private List<Method> filterSuitableMethods(@NotNull List<Method> methods, boolean skipReceiverCheck) {
-            return methods.stream().filter(it -> DynamicUtilsKt.isMethodSuitable(it, arguments, skipReceiverCheck)).collect(Collectors.toList());
-        }
-
-        @NotNull
-        private List<Method> findBuiltins(@NotNull Class methodClass) {
-            Class builtinClass = BUILTIN_CLASSES.get(methodClass);
-            if (builtinClass == null) {
-                return Collections.emptyList();
-            }
-            return fastMethodFilter(Arrays.asList(builtinClass.getDeclaredMethods()), name);
-        }
-
-        private boolean isBridgeForMethod(Method bridge, Method candidateMethod) {
-            Class<?>[] parameterTypes = bridge.getParameterTypes();
-            if (!parameterTypes[0].equals(candidateMethod.getDeclaringClass()))
-                return false;
-
-            int index = 1;
-            for (Class<?> candidateType : candidateMethod.getParameterTypes()) {
-                if (!candidateType.equals(parameterTypes[index]))
-                    return false;
-                ++index;
-            }
-            return true;
-        }
-
-        private Method resolveBridgeOwner(Method targetMethod, List<Method> listForSearchOriginalForBridge) {
-            Method method = targetMethod;
-            if (targetMethod.isBridge()) {
-                Optional<Method> candidate = listForSearchOriginalForBridge.stream()
-                        .filter(it -> !it.isBridge() && (it != targetMethod) && !it.getName().endsWith(DEFAULT_CALLER_SUFFIX))
-                        .filter(it -> isBridgeForMethod(targetMethod, it)).findFirst();
-                if (!candidate.isPresent()) {
-                    return null;
-                }
-                method = candidate.get();
-            }
-            return method;
-        }
 
         private boolean genMethodClass() {
             handle = DynamicOverloadResolution.resolveMethod(caller, name, arguments, namedArguments, isStaticCall);
@@ -333,57 +167,6 @@ public abstract class DynamicSelector {
             }
             setReturnType(handle.type().returnType());
             return true;
-            /*Object receiver = arguments[0];
-            if (receiver == null) {
-                throw new UnsupportedOperationException("null");
-            } else {
-                Class methodClass;
-                if (isStaticCall) {
-                    methodClass = (Class) receiver;
-                } else {
-                    methodClass = receiver.getClass();
-                }
-                List<Method> methods = new ArrayList<>(Arrays.asList(methodClass.getDeclaredMethods()));
-                Collections.addAll(methods, receiver.getClass().getMethods());
-
-                methods = fastMethodFilter(methods, name);
-
-                List<Method> targetMethodList = filterSuitableMethods(methods);
-
-                boolean isMixedWithBuiltins = targetMethodList.isEmpty();
-                if (isMixedWithBuiltins) {
-                    targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
-                }
-
-                Method targetMethod = findMostSpecific(targetMethodList);
-
-                // since we have Int.compareTo(Long) together with Integer.compareTo(Integer) and similar,
-                // we must mix with builtins if failed
-                if ((targetMethod == null) && !isMixedWithBuiltins) {
-                    targetMethodList = filterSuitableMethods(findBuiltins(methodClass), true);
-                    targetMethod = findMostSpecific(targetMethodList);
-                }
-                if (targetMethod == null) {
-                    return false;
-                }
-
-                Method owner = null;
-                boolean requireOwner = namedArguments != null && namedArguments.length > 0;
-                if (requireOwner) {
-                    owner = resolveBridgeOwner(targetMethod, methods);
-                }
-
-                setReturnType(targetMethod.getReturnType());
-
-                try {
-                    handle = caller.unreflect(targetMethod);
-                } catch (IllegalAccessException e) {
-                    throw new DynamicBindException(e.getMessage());
-                }
-                handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
-
-                return true;
-            }*/
         }
     }
 
@@ -411,29 +194,20 @@ public abstract class DynamicSelector {
         }
 
         private boolean genMethodClass() {
-            Object receiver = arguments[0];
-            if (receiver == null) {
-                throw new UnsupportedOperationException("null");
-            } else if (receiver instanceof Class) {
-                throw new UnsupportedOperationException("static");
-            } else {
-                try {
-                    Field field = receiver.getClass().getDeclaredField(name);
-                    setReturnType(field.getType());
-                    switch (it) {
-                        case GET:
-                            // handle = caller.findGetter(receiver.getClass(), name, ???type)
-                            handle = caller.unreflectGetter(field);
-                            break;
-                        case SET:
-                            handle = caller.unreflectSetter(field);
-                            break;
-                    }
-
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    return false;
-                }
+            switch (it) {
+                case GET:
+                    handle = DynamicOverloadResolution.resolveFieldOrPropertyGetter(caller, name, arguments, isStaticCall);
+                    break;
+                case SET:
+                    handle = DynamicOverloadResolution.resolveFieldOrPropertySetter(caller, name, arguments, isStaticCall);
+                    break;
+                default:
+                    throw new DynamicBindException("Wrong invoke type for field");
             }
+            if (handle == null) {
+                return false;
+            }
+            setReturnType(handle.type().returnType());
             return true;
         }
     }

@@ -1,13 +1,11 @@
 package kotlin;
 
-import com.sun.tools.javac.util.ArrayUtils;
 import kotlin.text.StringsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.*;
 import java.net.BindException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,15 +102,7 @@ public final class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
         if (!selector.setCallSite()) {
-            name = INVOKE_TYPE.GET.getJavaPrefix() + StringsKt.capitalize(name);
-            return invokeProxy(
-                    mc,
-                    caller,
-                    type,
-                    name,
-                    arguments,
-                    /* namedArguments */null,
-                    /* allowNamingConversion */ false);
+            throw new DynamicBindException("Cannot find getter for field " + name);
         }
         selector.processSetTarget();
         MethodHandle call = selector.getMethodHandle()
@@ -125,67 +115,13 @@ public final class DynamicMetaFactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
         if (!selector.setCallSite()) {
-            name = INVOKE_TYPE.SET.getJavaPrefix() + StringsKt.capitalize(name);
-            return invokeProxy(mc,
-                    caller,
-                    type,
-                    name,
-                    arguments,
-                    /* namedArguments */null,
-                    /* allowNamingConversion */ false);
+            throw new DynamicBindException("Cannot find setter for field " + name);
         }
         selector.processSetTarget();
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
         return call.invokeExact(arguments);
-    }
-
-    private static class ClosureInvoker {
-        @NotNull private MethodHandle getterCall;
-        @NotNull private MethodHandles.Lookup caller;
-        @Nullable private MethodHandle cachedCall;
-        @NotNull private Class[] cachedArguments;
-        boolean isReturnUnit;
-
-        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller) {
-            this(getterCall, caller, null, new Class[]{});
-        }
-
-        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments) {
-            this.getterCall = getterCall;
-            this.caller = caller;
-            this.cachedCall = cachedCall;
-            this.cachedArguments = cachedArguments;
-            this.isReturnUnit = getterCall.type().returnType().equals(void.class);
-        }
-
-        private boolean checkCache(Object ... arguments) {
-            if (cachedCall == null) return false;
-            if (cachedArguments.length != arguments.length) return false;
-            for (int i = 0; i < cachedArguments.length; ++i) {
-                if (!cachedArguments[i].equals(arguments[i].getClass()))
-                    return false;
-            }
-            return true;
-        }
-
-        public Object invokeClosure(Object ... arguments) throws Throwable {
-            if (!checkCache(arguments)) {
-                //arguments.getClass().getM
-            /*MethodHandle call = selector.getMethodHandle()
-                    .asSpreader(Object[].class, arguments.length)
-                    .asType(MethodType.methodType(Object.class, Object[].class));*/
-            }
-
-            assert cachedCall != null;
-            Object result = cachedCall.invokeExact(arguments);
-            if (isReturnUnit) {
-                return Unit.INSTANCE;
-            }
-
-            return result;
-        }
     }
 
     private static Object invokeProxy(MutableCallSite mc,
@@ -220,6 +156,7 @@ public final class DynamicMetaFactory {
                     MethodHandle fallback = makeFallBack(mc, caller, type, name, namedArguments, INVOKE_TYPE.METHOD);
                     selector.addAdditionalReceiverGuards(fallback);
                     allowCacheCallSite = false;
+                    // new ClosureInvoker();
                 }
                 //selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
                 //throw new DynamicBindException("UNIMPLEMENTED; cannot find target method " + name);
@@ -227,7 +164,7 @@ public final class DynamicMetaFactory {
         }
 
         if (!callSiteMounted) {
-            throw new DynamicBindException("Runtime: cannot find target method " + name);
+            throw new DynamicBindException("Cannot find target method " + name);
         }
         if (allowCacheCallSite) {
             selector.processSetTarget();
@@ -270,6 +207,73 @@ public final class DynamicMetaFactory {
 
         public final String getJavaPrefix() {
             return javaPrefix;
+        }
+    }
+
+    private static class ClosureInvoker {
+        boolean isReturnUnit;
+        @NotNull
+        private MethodHandle getterCall;
+        @NotNull
+        private MethodHandles.Lookup caller;
+        @Nullable
+        private String[] namedArguments;
+        @Nullable
+        private MethodHandle cachedCall;
+        @NotNull
+        private Class[] cachedArguments;
+
+        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments) {
+            this(getterCall, caller, namedArguments, null, new Class[]{});
+        }
+
+        public ClosureInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments, @Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments) {
+            this.getterCall = getterCall;
+            this.caller = caller;
+            this.namedArguments = namedArguments;
+            this.cachedCall = cachedCall;
+            this.cachedArguments = cachedArguments;
+            this.isReturnUnit = getterCall.type().returnType().equals(void.class);
+        }
+
+        private boolean checkCache(Object[] arguments) {
+            if (cachedCall == null) return false;
+            if (cachedArguments.length != arguments.length) return false;
+            for (int i = 0; i < cachedArguments.length; ++i) {
+                if (!cachedArguments[i].equals(arguments[i].getClass()))
+                    return false;
+            }
+            return true;
+        }
+
+        public Object invokeClosure(Object[] arguments) throws Throwable {
+            assert arguments.length > 0;
+
+            arguments[0] = getterCall.invokeExact(arguments[0]);
+
+            if (!checkCache(arguments)) {
+                cachedCall = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, /* isStaticCall */false);
+                if (cachedCall == null) {
+                    throw new DynamicBindException("Cannot invoke target object");
+                }
+                if (cachedArguments.length != arguments.length) {
+                    cachedArguments = new Class[arguments.length];
+                }
+                for (int i = 0; i < arguments.length; ++i) {
+                    cachedArguments[i] = arguments[i].getClass();
+                }
+                cachedCall = cachedCall
+                    .asSpreader(Object[].class, arguments.length)
+                    .asType(MethodType.methodType(Object.class, Object[].class));
+            }
+
+            assert cachedCall != null;
+            Object result = cachedCall.invokeExact(arguments);
+
+            if (isReturnUnit) {
+                return Unit.INSTANCE;
+            }
+            return result;
         }
     }
 
