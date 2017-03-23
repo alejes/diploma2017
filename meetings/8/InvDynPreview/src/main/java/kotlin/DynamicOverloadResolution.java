@@ -178,7 +178,8 @@ public class DynamicOverloadResolution {
         return method;
     }
 
-    @Nullable private static MethodHandle resolveField(MethodHandles.Lookup caller, @NotNull String name, @NotNull Object[] arguments, boolean isGetter) {
+    @Nullable
+    private static MethodHandle resolveField(MethodHandles.Lookup caller, @NotNull String name, @NotNull Object[] arguments, boolean isGetter) {
         Object receiver = arguments[0];
         if (receiver == null) {
             throw new UnsupportedOperationException("null");
@@ -187,12 +188,9 @@ public class DynamicOverloadResolution {
         } else {
             try {
                 Field field = receiver.getClass().getDeclaredField(name);
-                //setReturnType(field.getType());
                 if (isGetter) {
-                    // handle = caller.findGetter(receiver.getClass(), name, ???type)
                     return caller.unreflectGetter(field);
-                }
-                else {
+                } else {
                     return caller.unreflectSetter(field);
                 }
 
@@ -264,8 +262,6 @@ public class DynamicOverloadResolution {
             if (requireOwner) {
                 owner = resolveBridgeOwner(targetMethod, methods);
             }
-
-            //setReturnType(targetMethod.getReturnType());
 
             try {
                 handle = caller.unreflect(targetMethod);

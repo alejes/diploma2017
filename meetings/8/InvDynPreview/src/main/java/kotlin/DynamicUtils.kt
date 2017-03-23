@@ -7,7 +7,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Type
 import kotlin.DynamicOverloadResolution.DEFAULT_CALLER_SUFFIX
 import kotlin.DynamicOverloadResolution.isTypeMoreSpecific
-import kotlin.DynamicSelector.*
+import kotlin.DynamicSelector.TypeCompareResult
 import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.kotlinFunction
 

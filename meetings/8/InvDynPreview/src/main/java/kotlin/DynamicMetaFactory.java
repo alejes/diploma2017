@@ -17,8 +17,7 @@ public final class DynamicMetaFactory {
     /* package */ static final MethodType
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class),
             OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class),
-            TWO_OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class, Object.class),
-            INVOKER_MTYPE = MethodType.methodType(Object.class, Object.class);
+            TWO_OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class, Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
@@ -136,7 +135,6 @@ public final class DynamicMetaFactory {
         System.out.println("calculation target " + name);
         //[TODO] Selector
         boolean assignmentOperatorConversion = false;
-        boolean allowCacheCallSite = true;
         DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
         String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
         boolean callSiteMounted = selector.setCallSite();
@@ -149,38 +147,17 @@ public final class DynamicMetaFactory {
 
             //it can be field/property with lambda
             if (!callSiteMounted) {
-                //DynamicSelector temporarySelector = DynamicSelector.getFieldSelector(mc, caller, type, name, , INVOKE_TYPE.GET);
-
                 selector = DynamicSelector.getInvokerSelector(mc, caller, type, name, arguments, namedArguments);
                 callSiteMounted = selector.setCallSite();
-
-                /*MethodHandle getterHandle = DynamicOverloadResolution.resolveFieldOrPropertyGetter(caller, name, new Object[]{arguments[0]}, *//* isStaticCall *//*false);
-                if (getterHandle != null) {
-                    Object invokeObject = getterHandle
-                            .asType(MethodType.methodType(Object.class, Object.class))
-                            .invokeExact(arguments[0]);
-                    //Object invokeObject = fieldGetProxy(null, caller, INVOKER_MTYPE, name, new Object[]{arguments[0]});
-                    arguments[0] = invokeObject;
-                    selector = DynamicSelector.getMethodSelector(mc, caller, type, "invoke", arguments, namedArguments);
-                    if (callSiteMounted = selector.setCallSite()) {
-                        MethodHandle fallback = makeFallBack(mc, caller, type, name, namedArguments, INVOKE_TYPE.METHOD);
-                        // selector.addAdditionalReceiverGuards(fallback);
-                        allowCacheCallSite = false;
-                        ObjectInvoker objectInvoker = new ObjectInvoker(getterHandle, caller, namedArguments);
-                        PERFORM_INVOKE_METHOD.bindTo(objectInvoker);
-                    }*/
-                //}
-                //selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
-                //throw new DynamicBindException("UNIMPLEMENTED; cannot find target method " + name);
             }
         }
 
         if (!callSiteMounted) {
             throw new DynamicBindException("Cannot find target method " + name);
         }
-        if (allowCacheCallSite) {
-            selector.processSetTarget();
-        }
+
+        selector.processSetTarget();
+
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
@@ -259,12 +236,14 @@ public final class DynamicMetaFactory {
         }
 
         /* package */ Object performInvoke(Object[] arguments) throws Throwable {
+            System.out.println("lambda calculated");
             assert arguments.length > 0;
 
-            Object field = getterCall.invoke(arguments[0]); // getterCall.type().parameterType(0).cast(
+            Object field = getterCall.invoke(arguments[0]);
             arguments[0] = field;
 
             if (!checkCache(arguments)) {
+                System.out.println("rewrite lambda cache");
                 cachedCall = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, /* isStaticCall */false);
                 if (cachedCall == null) {
                     throw new DynamicBindException("Cannot invoke target object");
@@ -276,8 +255,8 @@ public final class DynamicMetaFactory {
                     cachedArguments[i] = arguments[i].getClass();
                 }
                 cachedCall = cachedCall
-                    .asSpreader(Object[].class, arguments.length)
-                    .asType(MethodType.methodType(Object.class, Object[].class));
+                        .asSpreader(Object[].class, arguments.length)
+                        .asType(MethodType.methodType(Object.class, Object[].class));
             }
 
             assert cachedCall != null;

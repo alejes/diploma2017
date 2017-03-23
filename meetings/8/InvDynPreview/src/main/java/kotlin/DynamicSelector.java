@@ -1,6 +1,5 @@
 package kotlin;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
@@ -19,9 +18,7 @@ import static kotlin.DynamicMetaFactory.*;
     protected final boolean isStaticCall;
     protected String name;
     protected MethodHandle handle;
-    protected Throwable caughtException;
     protected boolean isReturnUnit = false;
-    protected boolean spreadArguments = false;
 
     private DynamicSelector(Object[] arguments, @Nullable MutableCallSite mc, MethodHandles.Lookup caller, MethodType type, String name, boolean isStaticCall) {
         this.arguments = arguments;
@@ -42,12 +39,6 @@ import static kotlin.DynamicMetaFactory.*;
         return new FieldSelector(mc, caller, type, name, arguments, it);
     }
 
-    /* package */ void processCaughtExceptions() throws Throwable {
-        if (caughtException != null) {
-            throw caughtException;
-        }
-    }
-
     /* package */
     static DynamicSelector getMethodSelector(MutableCallSite mc,
                                              MethodHandles.Lookup caller,
@@ -60,11 +51,11 @@ import static kotlin.DynamicMetaFactory.*;
 
     /* package */
     static DynamicSelector getInvokerSelector(MutableCallSite mc,
-                                             MethodHandles.Lookup caller,
-                                             MethodType type,
-                                             String name,
-                                             Object[] arguments,
-                                             @Nullable String[] namedArguments) {
+                                              MethodHandles.Lookup caller,
+                                              MethodType type,
+                                              String name,
+                                              Object[] arguments,
+                                              @Nullable String[] namedArguments) {
         return new InvokerSelector(mc, caller, type, name, arguments, namedArguments);
     }
 
@@ -80,16 +71,7 @@ import static kotlin.DynamicMetaFactory.*;
             handle = MethodHandles.explicitCastArguments(handle, staticType);
             handle = MethodHandles.dropArguments(handle, 0, Class.class);
         } else {
-            //System.out.println(handle.isVarargsCollector());
-            //System.out.println(handle.toString());
-            /*if (spreadArguments) {
-                //handle = handle.a
-//                MethodHandles.reflectAs()
-                //handle = handle.asVarargsCollector (Object[].class, type.parameterCount() - 1);
-            }*/
-            //else {
-                handle = MethodHandles.explicitCastArguments(handle, type);
-            //}
+            handle = MethodHandles.explicitCastArguments(handle, type);
         }
     }
 
@@ -116,14 +98,6 @@ import static kotlin.DynamicMetaFactory.*;
 
     /* package */
     abstract boolean setCallSite() throws DynamicBindException;
-
-/*    *//* package *//* void addAdditionalReferencesGuards(MethodHandle fallback, Object obj) {
-        MethodHandle guard = IS_REFERENCES_EQUAL
-                .bindTo(obj)
-                .asType(OBJECT_TEST_MTYPE);
-
-        handle = MethodHandles.guardWithTest(guard, handle, fallback);
-    }*/
 
     /* package */ void changeName(String name) {
         this.name = name;
@@ -155,14 +129,13 @@ import static kotlin.DynamicMetaFactory.*;
     private final static class InvokerSelector extends DynamicSelector {
         @Nullable
         private String[] namedArguments;
-        private Object realReceiver;
 
         private InvokerSelector(@Nullable MutableCallSite mc,
-                               MethodHandles.Lookup caller,
-                               MethodType type,
-                               String name,
-                               Object[] arguments,
-                               @Nullable String[] namedArguments) {
+                                MethodHandles.Lookup caller,
+                                MethodType type,
+                                String name,
+                                Object[] arguments,
+                                @Nullable String[] namedArguments) {
             super(arguments, mc, caller, type, name, /* isStaticCall */ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
         }
@@ -172,7 +145,6 @@ import static kotlin.DynamicMetaFactory.*;
             if (!genMethodClass()) {
                 return false;
             }
-            //spreadArguments = true;
             prepareMetaHandlers();
             if (mc != null) {
                 changeTargetGuard();
@@ -186,46 +158,15 @@ import static kotlin.DynamicMetaFactory.*;
             if (getterHandle == null) {
                 return false;
             }
-            Object invokeObject;
-            realReceiver = arguments[0];
-            try {
-                invokeObject = getterHandle
-                        .asType(MethodType.methodType(Object.class, Object.class))
-                        .invokeExact(realReceiver);
-            }
-            catch (Throwable e) {
-                this.caughtException = e;
-                return false;
-            }
-
-            //Object invokeObject = fieldGetProxy(null, caller, INVOKER_MTYPE, name, new Object[]{arguments[0]});
-            // arguments[0] = invokeObject;
-
-            /*MethodHandle invokeHandle = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, *//* isStaticCall *//*false);
-            if (invokeHandle == null) {
-                return false;
-            }*/
 
             ObjectInvoker objectInvoker = new ObjectInvoker(getterHandle, caller, namedArguments);
 
             handle = PERFORM_INVOKE_METHOD.bindTo(objectInvoker).
-                        asCollector(Object[].class, type.parameterCount())
-                    .asType(type);;
+                    asCollector(Object[].class, type.parameterCount())
+                    .asType(type);
+            ;
 
             return true;
-        }
-
-        @Override
-        protected void changeTargetGuard() {
-            /*MethodHandle fallback = makeFallBack(mc, caller, type, name, null, INVOKE_TYPE.METHOD);
-            System.out.println("falback: " + fallback.toString());
-
-            MethodHandle guard = IS_REFERENCES_EQUAL
-                    .bindTo(realReceiver)
-                    .asType(OBJECT_TEST_MTYPE);
-
-            handle = MethodHandles.guardWithTest(guard, handle, fallback);*/
-            super.changeTargetGuard();
         }
     }
 
