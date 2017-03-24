@@ -74,6 +74,17 @@ import static kotlin.DynamicMetaFactory.*;
     }
 
     protected void prepareMetaHandlers() {
+        if (handle.isVarargsCollector()) {
+            /*System.out.println("Target = " + type);
+            System.out.println(handle.type());
+            System.out.println(handle.asCollector(int[].class, 5).type());*/
+            int parametersCount = handle.type().parameterCount();
+            Class<?> varargType = handle.type().parameterType(parametersCount - 1);
+            /*System.out.println("Parameters count = " + type.parameterCount());
+            System.out.println(handle.asCollector(varargType, type.parameterCount() - 1).type());*/
+            handle = handle.asCollector(varargType, type.parameterCount() - 1)
+                    .asType(type);
+        }
         //cached in groovy
         if (isStaticCall) {
             MethodType staticType = type.dropParameterTypes(0, 1);
@@ -187,7 +198,7 @@ import static kotlin.DynamicMetaFactory.*;
                                @NotNull String name,
                                @NotNull Object[] arguments,
                                @Nullable String[] namedArguments) {
-            super(arguments, mc, caller, type, name, InvokeType.METHOD, /* isStaticCall*/ arguments[0] instanceof Class);
+            super(arguments, mc, caller, type, name, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
         }
 

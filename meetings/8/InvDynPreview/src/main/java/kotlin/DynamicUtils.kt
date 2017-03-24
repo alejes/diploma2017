@@ -12,12 +12,26 @@ import kotlin.reflect.full.valueParameters
 import kotlin.reflect.jvm.kotlinFunction
 
 
+internal fun isArgumentSuitableForType(argument: Any?, type: Class<*>?): Boolean {
+    if ((argument != null) &&
+            (type != null) &&
+            (isTypeMoreSpecific(argument!!::class.java, type).index
+                    >= TypeCompareResult.WORSE.index)) {
+        return false
+    }
+    if ((argument == null) && (type != null) && (type.isPrimitive)) {
+        return false
+    }
+    return true
+}
+
 internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiverCheck: Boolean): Boolean {
     val isDefaultArgumentCaller = method.name.endsWith(DEFAULT_CALLER_SUFFIX)
     val requiredMethodParameters =
             if (skipReceiverCheck || isDefaultArgumentCaller) method.parameterTypes.slice(1..method.parameterCount - 1)
             else method.parameterTypes.toList()
 
+    var countSkippedArgumentsForVarargs = 0
 
     if (method.isVarArgs) {
         /*
@@ -26,20 +40,22 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiv
         if (requiredMethodParameters.size > arguments.size) {
             return false
         }
+        countSkippedArgumentsForVarargs = arguments.size - requiredMethodParameters.size
     } else if (requiredMethodParameters.size != arguments.size - 1) {
         if (!isDefaultArgumentCaller || (requiredMethodParameters.size - 1 < arguments.size)) {
             return false
         }
     }
 
-    arguments.drop(1).forEachIndexed { i, argument ->
-        if ((argument != null) &&
-                (requiredMethodParameters[i] != null) &&
-                (isTypeMoreSpecific(argument!!::class.java, requiredMethodParameters[i]).index
-                        >= TypeCompareResult.WORSE.index)) {
-            return false
-        }
-    }
+    arguments.drop(1)
+            .dropLast(countSkippedArgumentsForVarargs)
+            .forEachIndexed { i, argument ->
+                if (!isArgumentSuitableForType(argument, requiredMethodParameters[i])) return false
+            }
+
+    if (!arguments.takeLast(countSkippedArgumentsForVarargs)
+                .all { isArgumentSuitableForType(it, requiredMethodParameters.last().componentType) })
+        return false
 
     return true
 }
