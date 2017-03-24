@@ -64,13 +64,13 @@ public final class DynamicMetaFactory {
                                             String... namedArguments)
             throws IllegalAccessException, NoSuchMethodException, BindException {
         MutableCallSite mc = new MutableCallSite(type);
-        INVOKE_TYPE it;
-        if (query.equals(INVOKE_TYPE.GET.type)) {
-            it = INVOKE_TYPE.GET;
-        } else if (query.equals(INVOKE_TYPE.SET.type)) {
-            it = INVOKE_TYPE.SET;
-        } else if (query.equals(INVOKE_TYPE.METHOD.type)) {
-            it = INVOKE_TYPE.METHOD;
+        InvokeType it;
+        if (query.equals(InvokeType.GET.type)) {
+            it = InvokeType.GET;
+        } else if (query.equals(InvokeType.SET.type)) {
+            it = InvokeType.SET;
+        } else if (query.equals(InvokeType.METHOD.type)) {
+            it = InvokeType.METHOD;
         } else {
             throw new UnsupportedOperationException("unknown invoke query");
         }
@@ -88,9 +88,9 @@ public final class DynamicMetaFactory {
                                      @NotNull MethodType type,
                                      @NotNull String name,
                                      @Nullable String[] namedArguments,
-                                     @NotNull INVOKE_TYPE it) {
+                                     @NotNull InvokeType it) {
         MethodHandle mh = MethodHandles.insertArguments(it.getHandler(), 0, mc, caller, type, name);
-        if (it == INVOKE_TYPE.METHOD) {
+        if (it == InvokeType.METHOD) {
             mh = MethodHandles.insertArguments(mh, 1, namedArguments, /* allowNamingConversion */true);
         }
         mh = mh.asCollector(Object[].class, type.parameterCount())
@@ -105,7 +105,7 @@ public final class DynamicMetaFactory {
                                         @NotNull Object[] arguments) throws Throwable {
         System.out.println("calculation getter target " + name);
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.GET);
+        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
         if (!selector.setCallSite()) {
             throw new DynamicBindException("Cannot find getter for field " + name);
         }
@@ -123,7 +123,7 @@ public final class DynamicMetaFactory {
                                         @NotNull Object[] arguments) throws Throwable {
         System.out.println("calculation setter target " + name);
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, INVOKE_TYPE.SET);
+        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
         if (!selector.setCallSite()) {
             throw new DynamicBindException("Cannot find setter for field " + name);
         }
@@ -185,7 +185,7 @@ public final class DynamicMetaFactory {
         return result;
     }
 
-    /* package */ enum INVOKE_TYPE {
+    /* package */ enum InvokeType {
         GET("getField", "get", FIELD_GET),
         SET("setField", "set", FIELD_SET),
         METHOD("invoke", "", INVOKE_METHOD);
@@ -197,9 +197,9 @@ public final class DynamicMetaFactory {
         @NotNull
         private final MethodHandle mh;
 
-        private INVOKE_TYPE(@NotNull String type,
-                            @NotNull String javaPrefix,
-                            @NotNull MethodHandle mh) {
+        private InvokeType(@NotNull String type,
+                           @NotNull String javaPrefix,
+                           @NotNull MethodHandle mh) {
             this.type = type;
             this.javaPrefix = javaPrefix;
             this.mh = mh;

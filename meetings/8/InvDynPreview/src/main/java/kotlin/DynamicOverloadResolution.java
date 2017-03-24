@@ -210,7 +210,7 @@ public class DynamicOverloadResolution {
                                                                    boolean isStaticCall) {
         MethodHandle handle = resolveField(caller, name, arguments, /* isGetter */true);
         if (handle == null) {
-            name = DynamicMetaFactory.INVOKE_TYPE.GET.getJavaPrefix() + StringsKt.capitalize(name);
+            name = DynamicMetaFactory.InvokeType.GET.getJavaPrefix() + StringsKt.capitalize(name);
             return resolveMethod(caller, name, arguments, null, isStaticCall);
         }
         return handle;
@@ -223,7 +223,7 @@ public class DynamicOverloadResolution {
                                                                    boolean isStaticCall) {
         MethodHandle handle = resolveField(caller, name, arguments, /* isGetter */false);
         if (handle == null) {
-            name = DynamicMetaFactory.INVOKE_TYPE.SET.getJavaPrefix() + StringsKt.capitalize(name);
+            name = DynamicMetaFactory.InvokeType.SET.getJavaPrefix() + StringsKt.capitalize(name);
             return resolveMethod(caller, name, arguments, null, isStaticCall);
         }
         return handle;

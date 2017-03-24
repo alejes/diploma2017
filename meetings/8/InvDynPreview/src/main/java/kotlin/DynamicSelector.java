@@ -21,7 +21,7 @@ import static kotlin.DynamicMetaFactory.*;
     protected final MethodType type;
     protected final boolean isStaticCall;
     @NotNull
-    protected final INVOKE_TYPE invokeType;
+    protected final InvokeType invokeType;
     @NotNull
     protected String name;
     protected MethodHandle handle;
@@ -32,7 +32,7 @@ import static kotlin.DynamicMetaFactory.*;
                             @NotNull MethodHandles.Lookup caller,
                             @NotNull MethodType type,
                             @NotNull String name,
-                            @NotNull INVOKE_TYPE invokeType,
+                            @NotNull InvokeType invokeType,
                             boolean isStaticCall) {
         this.arguments = arguments;
         this.mc = mc;
@@ -49,7 +49,7 @@ import static kotlin.DynamicMetaFactory.*;
                                             @NotNull MethodType type,
                                             @NotNull String name,
                                             @NotNull Object[] arguments,
-                                            @NotNull INVOKE_TYPE it) {
+                                            @NotNull InvokeType it) {
         return new FieldSelector(mc, caller, type, name, arguments, it);
     }
 
@@ -71,11 +71,6 @@ import static kotlin.DynamicMetaFactory.*;
                                               @NotNull Object[] arguments,
                                               @Nullable String[] namedArguments) {
         return new InvokerSelector(mc, caller, type, name, arguments, namedArguments);
-    }
-
-
-    /* package */ boolean isReturnUnit() {
-        return isReturnUnit;
     }
 
     protected void prepareMetaHandlers() {
@@ -121,6 +116,10 @@ import static kotlin.DynamicMetaFactory.*;
         return true;
     }
 
+    /* package */ boolean isReturnUnit() {
+        return isReturnUnit;
+    }
+
     /* package */ void changeName(@NotNull String name) {
         this.name = name;
     }
@@ -140,7 +139,7 @@ import static kotlin.DynamicMetaFactory.*;
         WORSE(3);
         int index;
 
-        TypeCompareResult(int index) {
+        /* package */ TypeCompareResult(int index) {
             this.index = index;
         }
 
@@ -156,7 +155,7 @@ import static kotlin.DynamicMetaFactory.*;
                                 @NotNull String name,
                                 @NotNull Object[] arguments,
                                 @Nullable String[] namedArguments) {
-            super(arguments, mc, caller, type, name, INVOKE_TYPE.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
+            super(arguments, mc, caller, type, name, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
         }
 
@@ -188,7 +187,7 @@ import static kotlin.DynamicMetaFactory.*;
                                @NotNull String name,
                                @NotNull Object[] arguments,
                                @Nullable String[] namedArguments) {
-            super(arguments, mc, caller, type, name, INVOKE_TYPE.METHOD, /* isStaticCall*/ arguments[0] instanceof Class);
+            super(arguments, mc, caller, type, name, InvokeType.METHOD, /* isStaticCall*/ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
         }
 
@@ -209,7 +208,7 @@ import static kotlin.DynamicMetaFactory.*;
                               @NotNull MethodType type,
                               @NotNull String name,
                               @NotNull Object[] arguments,
-                              @NotNull INVOKE_TYPE it) {
+                              @NotNull InvokeType it) {
             // [TODO] static call for fields
             super(arguments, mc, caller, type, name, it, /* isStaticCall */ false);
         }
