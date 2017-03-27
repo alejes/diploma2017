@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
-
 public final class DynamicMetafactory {
     /*
      * Method handles for guards
@@ -235,10 +233,10 @@ public final class DynamicMetafactory {
         @Nullable
         private final String[] namedArguments;
         private final boolean isReturnUnit;
-        @Nullable
-        private MethodHandle cachedCall;
         @NotNull
-        private Class[] cachedArguments;
+        private ThreadLocal<MethodHandle> cachedCall;
+        @NotNull
+        private ThreadLocal<Class[]> cachedArguments;
 
         /* package */ ObjectInvoker(@NotNull MethodHandle getterCall,
                                     @NotNull MethodHandles.Lookup caller,
@@ -254,12 +252,12 @@ public final class DynamicMetafactory {
             this.getterCall = getterCall;
             this.caller = caller;
             this.namedArguments = namedArguments;
-            this.cachedCall = cachedCall;
-            this.cachedArguments = cachedArguments;
+            this.cachedCall = ThreadLocal.withInitial(() -> cachedCall);
+            this.cachedArguments = ThreadLocal.withInitial(() -> cachedArguments);
             this.isReturnUnit = getterCall.type().returnType().equals(void.class);
         }
 
-        private boolean checkCache(Object[] arguments) {
+        private boolean checkCache(@Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments, Object[] arguments) {
             if (cachedCall == null) return false;
             if (cachedArguments.length != arguments.length) return false;
             for (int i = 0; i < cachedArguments.length; ++i) {
@@ -276,29 +274,33 @@ public final class DynamicMetafactory {
             Object field = getterCall.invoke(arguments[0]);
             arguments[0] = field;
 
-            if (!checkCache(arguments)) {
-                cachedCall = DynamicOverloadResolution.resolveMethod(caller,
+            MethodHandle targetCall = cachedCall.get();
+            Class[] currentCachedArguments = cachedArguments.get();
+            if (!checkCache(targetCall, currentCachedArguments, arguments)) {
+                targetCall = DynamicOverloadResolution.resolveMethod(caller,
                         "invoke",
                         arguments,
                         namedArguments,
                         /* isStaticCall */false);
 
-                if (cachedCall == null) {
+                if (targetCall == null) {
                     throw new DynamicBindException("Cannot invoke target object");
                 }
-                if (cachedArguments.length != arguments.length) {
-                    cachedArguments = new Class[arguments.length];
+                if (currentCachedArguments.length != arguments.length) {
+                    currentCachedArguments = new Class[arguments.length];
                 }
                 for (int i = 0; i < arguments.length; ++i) {
-                    cachedArguments[i] = arguments[i].getClass();
+                    currentCachedArguments[i] = arguments[i].getClass();
                 }
-                cachedCall = cachedCall
+                targetCall = targetCall
                         .asSpreader(Object[].class, arguments.length)
                         .asType(MethodType.methodType(Object.class, Object[].class));
+                cachedCall.set(targetCall);
+                cachedArguments.set(currentCachedArguments);
             }
 
-            assert cachedCall != null;
-            Object result = cachedCall.invokeExact(arguments);
+            assert targetCall != null;
+            Object result = targetCall.invokeExact(arguments);
 
             if (isReturnUnit) {
                 return Unit.INSTANCE;
