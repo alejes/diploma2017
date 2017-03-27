@@ -62,7 +62,7 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiv
 
 fun insertDefaultArgumentsAndNamedParameters(handle: MethodHandle, targetMethod: Method, owner: Method?, namedArguments: Array<String>?, arguments: Array<Any>): MethodHandle {
     val isDefaultCaller = targetMethod.name.endsWith(DEFAULT_CALLER_SUFFIX)
-    if ((namedArguments?.isEmpty() ?: false) && !isDefaultCaller) {
+    if ((namedArguments?.isEmpty() ?: true) && !isDefaultCaller) {
         return handle;
     }
 

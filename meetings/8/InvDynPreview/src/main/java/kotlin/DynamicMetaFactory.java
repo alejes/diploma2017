@@ -72,7 +72,7 @@ public final class DynamicMetaFactory {
         } else if (query.equals(InvokeType.METHOD.type)) {
             it = InvokeType.METHOD;
         } else {
-            throw new UnsupportedOperationException("unknown invoke query");
+            throw new UnsupportedOperationException("Unknown invoke query");
         }
 
         MethodHandle mh = makeFallBack(mc, caller, type, name, namedArguments, it);
@@ -254,14 +254,12 @@ public final class DynamicMetaFactory {
         }
 
         /* package */ Object performInvoke(Object[] arguments) throws Throwable {
-            System.out.println("lambda calculated");
             assert arguments.length > 0;
 
             Object field = getterCall.invoke(arguments[0]);
             arguments[0] = field;
 
             if (!checkCache(arguments)) {
-                System.out.println("rewrite lambda cache");
                 cachedCall = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, /* isStaticCall */false);
                 if (cachedCall == null) {
                     throw new DynamicBindException("Cannot invoke target object");

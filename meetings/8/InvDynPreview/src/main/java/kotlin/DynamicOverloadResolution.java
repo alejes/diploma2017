@@ -119,13 +119,20 @@ public class DynamicOverloadResolution {
         }
     }
 
+    private static Class<?> getTypeParameter(Class<?>[] aParameters, int index, boolean isVarargs) {
+        if (!isVarargs || (index < aParameters.length - 1)) {
+            return aParameters[index];
+        }
+        return aParameters[aParameters.length - 1].getComponentType();
+    }
+
     private static boolean isMoreSpecific(@NotNull Method a, @NotNull Method b) {
         if (a == b)
             return true;
         if (a.getName().endsWith(DEFAULT_CALLER_SUFFIX))
-            return false;
-        if (b.getName().endsWith(DEFAULT_CALLER_SUFFIX))
             return true;
+        if (b.getName().endsWith(DEFAULT_CALLER_SUFFIX))
+            return false;
 
         switch (isTypeMoreSpecific(a.getReturnType(), b.getReturnType())) {
             case BETTER:
@@ -140,17 +147,28 @@ public class DynamicOverloadResolution {
              */
         Class<?>[] aParameters = a.getParameterTypes();
         Class<?>[] bParameters = b.getParameterTypes();
+        boolean isAVarargs = a.isVarArgs();
+        boolean isBVarargs = b.isVarArgs();
 
         int minimumCompareResult = DynamicSelector.TypeCompareResult.WORSE.index;
-        for (int i = 0; i < aParameters.length; ++i) {
-            DynamicSelector.TypeCompareResult compareResult = isTypeMoreSpecific(aParameters[i], bParameters[i]);
+        final int lastIndex = Math.min(aParameters.length, bParameters.length);
+        for (int i = 0; i < lastIndex; ++i) {
+            DynamicSelector.TypeCompareResult compareResult = isTypeMoreSpecific(
+                    getTypeParameter(aParameters, i, isAVarargs),
+                    getTypeParameter(bParameters, i, isBVarargs));
             if (compareResult == DynamicSelector.TypeCompareResult.WORSE) {
                 return false;
             }
             minimumCompareResult = Math.min(minimumCompareResult, compareResult.index);
         }
 
-        return minimumCompareResult <= DynamicSelector.TypeCompareResult.BETTER.index;
+        boolean compareResult = minimumCompareResult <= DynamicSelector.TypeCompareResult.BETTER.index;
+
+        if (!compareResult) {
+            if (!isAVarargs && isBVarargs)
+                return true;
+        }
+        return compareResult;
     }
 
     private static boolean isMoreSpecificThenAllOf(@NotNull Method candidate, @NotNull Collection<Method> descriptors) {
@@ -185,9 +203,9 @@ public class DynamicOverloadResolution {
                                              boolean isGetter) {
         Object receiver = arguments[0];
         if (receiver == null) {
-            throw new UnsupportedOperationException("null");
+            throw new NullPointerException("Unsupported receiver - null");
         } else if (receiver instanceof Class) {
-            throw new UnsupportedOperationException("static");
+            throw new UnsupportedOperationException("Static receiver");
         } else {
             try {
                 Field field = receiver.getClass().getDeclaredField(name);
