@@ -15,5 +15,6 @@ fun box(): String {
 
 
 ```
-java.lang.IllegalStateException: TYPE_MISMATCH: Type mismatch: inferred type is IntArray but Array<out dynamic> was expected (12,29) in /varargKotlinUnpackArray.kt
+java.lang.IllegalStateException: TYPE_MISMATCH: Type mismatch: inferred type is IntArray 
+but Array<out dynamic> was expected (12,29) in /varargKotlinUnpackArray.kt
 ```
