@@ -18,3 +18,17 @@ fun box(): String {
 java.lang.IllegalStateException: TYPE_MISMATCH: Type mismatch: inferred type is IntArray 
 but Array<out dynamic> was expected (12,29) in /varargKotlinUnpackArray.kt
 ```
+- Ещё вопрос
+```
+class A {
+    fun doWork(x: Int) = 76
+    fun doWork(x: Int?) = 79
+}
+
+fun box(): String {
+    val a: dynamic = A()
+    val res = a.doWork(17 as Int?)
+
+    return if (res == 79) "OK" else res.toString()
+}
+```
