@@ -55,7 +55,7 @@ public class DynamicMethodConsumerGen implements Opcodes {
             mv.visitVarInsn(ALOAD, 1);
             mv.visitInvokeDynamicInsn("invoke",
                     "(Ljava/lang/Object;)Ljava/lang/Object;",
-                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
+                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetafactory", "bootstrapDynamic",
                             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
                     new Object[]{"myMethod", new Integer(0)});
             mv.visitInsn(RETURN);

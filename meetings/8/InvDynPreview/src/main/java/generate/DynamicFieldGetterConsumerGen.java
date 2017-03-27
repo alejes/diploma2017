@@ -40,19 +40,19 @@ public class DynamicFieldGetterConsumerGen implements Opcodes {
             mv.visitLdcInsn("rewrite object");
             mv.visitInvokeDynamicInsn("setField",
                     "(Ljava/lang/Object;Ljava/lang/Object;)V",
-                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
+                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetafactory", "bootstrapDynamic",
                             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
                     new Object[]{"myStringField", new Integer(0)});
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitInvokeDynamicInsn("getField",
                     "(Ljava/lang/Object;)Ljava/lang/Object;",
-                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
+                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetafactory", "bootstrapDynamic",
                             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
                     new Object[]{"myStringField", new Integer(0)});
             /*mv.visitInvokeDynamicInsn("getProperty",
                     "(Ljava/lang/Object;)Ljava/lang/Object;",
-                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetaFactory", "bootstrapDynamic",
+                    new Handle(Opcodes.H_INVOKESTATIC, "kotlin/DynamicMetafactory", "bootstrapDynamic",
                             "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;I)Ljava/lang/invoke/CallSite;"),
                     new Object[]{"myField", new Integer(0)});*/
             mv.visitVarInsn(ASTORE, 1);

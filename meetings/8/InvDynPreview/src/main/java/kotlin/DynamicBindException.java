@@ -12,4 +12,5 @@ public final class DynamicBindException extends RuntimeException {
     public DynamicBindException(Throwable cause) {
         super(cause);
     }
+
 }

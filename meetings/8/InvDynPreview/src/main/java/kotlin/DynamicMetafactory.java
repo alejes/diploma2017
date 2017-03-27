@@ -9,18 +9,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public final class DynamicMetaFactory {
+
+
+public final class DynamicMetafactory {
     /*
      * Method handles for guards
      */
-    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL, IS_REFERENCES_EQUAL, PERFORM_INVOKE_METHOD;
+    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL, PERFORM_INVOKE_METHOD;
     private static final MethodType
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class),
             OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final AssignmentMarker ASSIGNMENT_MARKER = new AssignmentMarker();
+    private static final CompoundAssignmentPerformMarker COMPOUND_ASSIGNMENT_PERFORM_MARKER = new CompoundAssignmentPerformMarker();
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
@@ -38,14 +40,14 @@ public final class DynamicMetaFactory {
                 String[].class,
                 boolean.class);
         try {
-            FIELD_GET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldGetProxy", mt);
-            FIELD_SET = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "fieldSetProxy", mt);
-            INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetaFactory.class, "invokeProxy", mtInvoke);
+            FIELD_GET = DYNAMIC_LOOKUP.findStatic(DynamicMetafactory.class, "fieldGetProxy", mt);
+            FIELD_SET = DYNAMIC_LOOKUP.findStatic(DynamicMetafactory.class, "fieldSetProxy", mt);
+            INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetafactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
             IS_NULL = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isNull", OBJECT_TEST_MTYPE);
-            // [TODO] Object.equals
-            IS_REFERENCES_EQUAL = DYNAMIC_LOOKUP.findVirtual(Object.class, "equals", OBJECT_TEST_MTYPE);
-            PERFORM_INVOKE_METHOD = DYNAMIC_LOOKUP.findVirtual(ObjectInvoker.class, "performInvoke", MethodType.methodType(Object.class, Object[].class));
+            PERFORM_INVOKE_METHOD = DYNAMIC_LOOKUP.findVirtual(ObjectInvoker.class,
+                    "performInvoke",
+                    MethodType.methodType(Object.class, Object[].class));
         } catch (IllegalAccessException | NoSuchMethodException e) {
             throw new DynamicBindException(e);
         }
@@ -56,6 +58,7 @@ public final class DynamicMetaFactory {
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("modAssign", "mod"); // rem assign?!
     }
 
+    @SuppressWarnings("unused")
     public static CallSite bootstrapDynamic(MethodHandles.Lookup caller,
                                             String query,
                                             MethodType type,
@@ -98,12 +101,12 @@ public final class DynamicMetaFactory {
         return mh;
     }
 
+    @SuppressWarnings("unused")
     private static Object fieldGetProxy(@NotNull MutableCallSite mc,
                                         @NotNull MethodHandles.Lookup caller,
                                         @NotNull MethodType type,
                                         @NotNull String name,
                                         @NotNull Object[] arguments) throws Throwable {
-        System.out.println("calculation getter target " + name);
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
         if (!selector.setCallSite()) {
@@ -116,12 +119,12 @@ public final class DynamicMetaFactory {
         return call.invokeExact(arguments);
     }
 
+    @SuppressWarnings("unused")
     private static Object fieldSetProxy(@NotNull MutableCallSite mc,
                                         @NotNull MethodHandles.Lookup caller,
                                         @NotNull MethodType type,
                                         @NotNull String name,
                                         @NotNull Object[] arguments) throws Throwable {
-        System.out.println("calculation setter target " + name);
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
         if (!selector.setCallSite()) {
@@ -134,6 +137,7 @@ public final class DynamicMetaFactory {
         return call.invokeExact(arguments);
     }
 
+    @SuppressWarnings("unused")
     private static Object invokeProxy(@NotNull MutableCallSite mc,
                                       @NotNull MethodHandles.Lookup caller,
                                       @NotNull MethodType type,
@@ -142,7 +146,6 @@ public final class DynamicMetaFactory {
                                       @Nullable String[] namedArguments,
                                       boolean allowNamingConversion
     ) throws Throwable {
-        System.out.println("calculation target " + name);
         //[TODO] Selector
         boolean assignmentOperatorConversion = false;
         DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
@@ -175,7 +178,7 @@ public final class DynamicMetaFactory {
         Object result = call.invokeExact(arguments);
 
         if ((operatorCounterpart != null) && (!assignmentOperatorConversion)) {
-            return ASSIGNMENT_MARKER;
+            return COMPOUND_ASSIGNMENT_PERFORM_MARKER;
         }
 
         if (selector.isReturnUnit()) {
@@ -183,6 +186,14 @@ public final class DynamicMetaFactory {
         }
 
         return result;
+    }
+
+    /**
+     * @throws DynamicBindException - always
+     */
+    @SuppressWarnings("unused")
+    public static Throwable processNotFoundSelector() {
+        throw new DynamicBindException("Cannot find selector");
     }
 
     /* package */ enum InvokeType {
@@ -229,12 +240,17 @@ public final class DynamicMetaFactory {
         @NotNull
         private Class[] cachedArguments;
 
-        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments) {
+        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall,
+                                    @NotNull MethodHandles.Lookup caller,
+                                    @Nullable String[] namedArguments) {
             this(getterCall, caller, namedArguments, null, new Class[]{});
         }
 
-        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall, @NotNull MethodHandles.Lookup caller, @Nullable String[] namedArguments, @Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments) {
-            System.out.println("object invoker created");
+        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall,
+                                    @NotNull MethodHandles.Lookup caller,
+                                    @Nullable String[] namedArguments,
+                                    @Nullable MethodHandle cachedCall,
+                                    @NotNull Class[] cachedArguments) {
             this.getterCall = getterCall;
             this.caller = caller;
             this.namedArguments = namedArguments;
@@ -253,6 +269,7 @@ public final class DynamicMetaFactory {
             return true;
         }
 
+        @SuppressWarnings("unused")
         /* package */ Object performInvoke(Object[] arguments) throws Throwable {
             assert arguments.length > 0;
 
@@ -260,7 +277,12 @@ public final class DynamicMetaFactory {
             arguments[0] = field;
 
             if (!checkCache(arguments)) {
-                cachedCall = DynamicOverloadResolution.resolveMethod(caller, "invoke", arguments, namedArguments, /* isStaticCall */false);
+                cachedCall = DynamicOverloadResolution.resolveMethod(caller,
+                        "invoke",
+                        arguments,
+                        namedArguments,
+                        /* isStaticCall */false);
+
                 if (cachedCall == null) {
                     throw new DynamicBindException("Cannot invoke target object");
                 }
@@ -285,8 +307,8 @@ public final class DynamicMetaFactory {
         }
     }
 
-    public final static class AssignmentMarker {
-        private AssignmentMarker() {
+    public final static class CompoundAssignmentPerformMarker {
+        private CompoundAssignmentPerformMarker() {
         }
     }
 }

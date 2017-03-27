@@ -54,13 +54,17 @@ internal fun isMethodSuitable(method: Method, arguments: Array<Any?>, skipReceiv
             }
 
     if (!arguments.takeLast(countSkippedArgumentsForVarargs)
-                .all { isArgumentSuitableForType(it, requiredMethodParameters.last().componentType) })
+            .all { isArgumentSuitableForType(it, requiredMethodParameters.last().componentType) })
         return false
 
     return true
 }
 
-fun insertDefaultArgumentsAndNamedParameters(handle: MethodHandle, targetMethod: Method, owner: Method?, namedArguments: Array<String>?, arguments: Array<Any>): MethodHandle {
+fun insertDefaultArgumentsAndNamedParameters(handle: MethodHandle,
+                                             targetMethod: Method,
+                                             owner: Method?,
+                                             namedArguments: Array<String>?,
+                                             arguments: Array<Any>): MethodHandle {
     val isDefaultCaller = targetMethod.name.endsWith(DEFAULT_CALLER_SUFFIX)
     if ((namedArguments?.isEmpty() ?: true) && !isDefaultCaller) {
         return handle;
@@ -117,7 +121,12 @@ internal fun permuteMethodType(type: MethodType, permutation: ArrayList<Int>): M
     )
 }
 
-internal fun insertNamedArguments(handle: MethodHandle, targetMethod: Method, currentNamedArguments: Array<String>, methodNamedArguments: List<String>, arguments: Array<Any>, defaultCaller: Boolean): MethodHandle {
+internal fun insertNamedArguments(handle: MethodHandle,
+                                  targetMethod: Method,
+                                  currentNamedArguments: Array<String>,
+                                  methodNamedArguments: List<String>,
+                                  arguments: Array<Any>,
+                                  defaultCaller: Boolean): MethodHandle {
     var mask = 0
     val masks = ArrayList<Int>(1)
 

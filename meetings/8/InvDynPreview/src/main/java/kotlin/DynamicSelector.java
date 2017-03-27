@@ -8,7 +8,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 
-import static kotlin.DynamicMetaFactory.*;
+import static kotlin.DynamicMetafactory.*;
 
 /* package */ abstract class DynamicSelector {
     @NotNull
@@ -167,7 +167,10 @@ import static kotlin.DynamicMetaFactory.*;
 
         @Override
         protected boolean genMethodClass() {
-            MethodHandle getterHandle = DynamicOverloadResolution.resolveFieldOrPropertyGetter(caller, name, new Object[]{arguments[0]}, /* isStaticCall */false);
+            MethodHandle getterHandle = DynamicOverloadResolution.resolveFieldOrPropertyGetter(caller,
+                    name,
+                    new Object[]{arguments[0]},
+                    /* isStaticCall */false);
             if (getterHandle == null) {
                 return false;
             }
@@ -181,7 +184,6 @@ import static kotlin.DynamicMetaFactory.*;
             return true;
         }
     }
-
 
     private final static class MethodSelector extends DynamicSelector {
         @Nullable
