@@ -26,6 +26,7 @@ import static kotlin.DynamicMetafactory.*;
     protected String name;
     protected MethodHandle handle;
     protected boolean isReturnUnit = false;
+    protected boolean addGuardsForArguments = true;
 
     private DynamicSelector(@NotNull Object[] arguments,
                             @NotNull MutableCallSite mc,
@@ -107,6 +108,9 @@ import static kotlin.DynamicMetafactory.*;
             System.arraycopy(handleParameters, 0, dropTypes, 0, dropTypes.length);
             guard = MethodHandles.dropArguments(guard, 0, dropTypes);
             handle = MethodHandles.guardWithTest(guard, handle, fallback);
+            if (!addGuardsForArguments) {
+                break;
+            }
         }
     }
 
@@ -174,8 +178,10 @@ import static kotlin.DynamicMetafactory.*;
             if (getterHandle == null) {
                 return false;
             }
-
+            
             ObjectInvoker objectInvoker = new ObjectInvoker(getterHandle, caller, namedArguments);
+            // guards will be checked in ObjectInvoker
+            addGuardsForArguments = false;
 
             handle = PERFORM_INVOKE_METHOD.bindTo(objectInvoker).
                     asCollector(Object[].class, type.parameterCount())
