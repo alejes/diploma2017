@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015/Debian) (preloaded format=xelatex 2017.3.30)  30 MAR 2017 19:05
+This is XeTeX, Version 3.14159265-2.6-0.99992 (TeX Live 2015/Debian) (preloaded format=xelatex 2017.3.30)  30 MAR 2017 19:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -935,81 +935,67 @@ Package geometry Warning: `a4paper': not available in `\newgeometry'; skipped.
 
  (./chapter0/chapter0.tex [3
 
-]
-Overfull \hbox (47.68362pt too wide) in paragraph at lines 3--10
+]) (./chapter1/chapter1.tex
+Overfull \hbox (47.68362pt too wide) in paragraph at lines 3--1
 []\EU1/CMUSerif(2)/m/n/12 Подмножество, как следует из вышесказанного, допускае
 т неопровержимый ортогональный
  []
 
 
-Overfull \hbox (26.24435pt too wide) in paragraph at lines 3--10
+Overfull \hbox (26.24435pt too wide) in paragraph at lines 3--1
 \EU1/CMUSerif(2)/m/n/12 определитель, явно демонстрируя всю чушь вышесказанного
 . Функция многих переменных
  []
 
 
-Overfull \hbox (47.00412pt too wide) in paragraph at lines 3--10
+Overfull \hbox (47.00412pt too wide) in paragraph at lines 3--1
 \EU1/CMUSerif(2)/m/n/12 последовательно переворачивает предел функции, что неуд
 ивительно. Согласно предыдущему,
  []
 
 
-Overfull \hbox (3.34592pt too wide) in paragraph at lines 3--10
+Overfull \hbox (3.34592pt too wide) in paragraph at lines 3--1
 \EU1/CMUSerif(2)/m/n/12 предел последовательности поддерживает определитель сис
 темы линейных уравнений,
  []
 
 
-Overfull \hbox (25.01389pt too wide) in paragraph at lines 3--10
+Overfull \hbox (25.01389pt too wide) in paragraph at lines 3--1
 \EU1/CMUSerif(2)/m/n/12 как и предполагалось. Интересно отметить, что предел фу
 нкции однородно специфицирует
  []
 
-[4]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 12.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 12.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 12.
-
-Overfull \hbox (8.90646pt too wide) in paragraph at lines 17--24
-\EU1/CMUSerif(2)/m/n/12 htyhtyhtyhtytr6 Определитель системы линейных уравнений
- ([][]2[][]), в первом приближении,
+[4])
+Overfull \hbox (156.32248pt too wide) in paragraph at lines 9--8
+\EU1/CMUSerif(2)/m/n/12 dewdewdew dewdewdew dewdewdddddddddddddewde wdddddd ddd
+ddddewdewdddddddddddddewdewddddddddddddd
  []
 
 
-Overfull \hbox (14.7131pt too wide) in paragraph at lines 17--24
-\EU1/CMUSerif(2)/m/n/12 реально допускает интеграл от функции, имеющий конечный
- разрыв, явно демонстрируя
+Overfull \hbox (25.81076pt too wide) in paragraph at lines 9--8
+\EU1/CMUSerif(2)/m/n/12 ewdewddd ddddddddddewdewddd ddddddd dddewdewddddddddddd
+ddewdew ddddddddddddd
  []
 
 
-Overfull \hbox (20.39537pt too wide) in paragraph at lines 17--24
-\EU1/CMUSerif(2)/m/n/12 в итоге приходим к логическому противоречию. К тому же 
-разрыв функции неоднозначен.
- []
-
-File: fig1.jpg Graphic file (type QTm)
-<use  "fig1.jpg" >
-File: thesis-search-trends.pdf Graphic file (type QTm)
- <use  "thesis-search-trends.pdf" >
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[5])
-Overfull \hbox (8.44925pt too wide) in paragraph at lines 49--7
-[]\EU1/CMUSerif(2)/m/n/12 Огибающая семейства поверхностей позитивно масштабиру
-ет невероятный полином,
+Overfull \hbox (16.49435pt too wide) in paragraph at lines 9--8
+\EU1/CMUSerif(2)/m/n/12 ewdewdddddddddd dddewdewdd dddddddddddewdewdddddddddddd
+dewde wdddddddddddd
  []
 
 
-Overfull \hbox (18.12912pt too wide) in paragraph at lines 49--7
-\EU1/CMUSerif(2)/m/n/12 Согласно предыдущему, бином Ньютона порождает нормальны
-й натуральный логарифм,
+Overfull \hbox (901.89279pt too wide) in paragraph at lines 9--8
+\EU1/CMUSerif(2)/m/n/12 ddddddewdewddddd ddddddddewdewddddddddddd ddewdewdddddd
+dddddddewdewdddddddddddddewdewdddddddddddddewdewdddddddddddddewdewddddddddddddd
+ewdewdddddddddddddewdewdddddddddddddewdewdddddddddddddewdewdddddddddddd
  []
 
-(./main.bbl [6]
+
+Underfull \hbox (badness 10000) in paragraph at lines 9--8
+
+ []
+
+(./main.bbl [5]
 .................................................
 . fontspec info: "defining-font"
 . 
@@ -1042,6 +1028,12 @@ Overfull \hbox (18.12912pt too wide) in paragraph at lines 49--7
 . \fontdimen 2\font =1\fontdimen 2\font \fontdimen 3\font =0\fontdimen 3\font
 . \fontdimen 4\font =0\fontdimen 4\font \fontdimen 7\font =0\fontdimen 2\font 
 .................................................
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 19.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 19.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 19.
 
 Underfull \hbox (badness 10000) in paragraph at lines 16--21
 []\EU1/CMUSerif(2)/m/n/12 Wikipedia. Наибольший общий делитель // Википедия, св
@@ -1061,20 +1053,20 @@ Underfull \hbox (badness 10000) in paragraph at lines 25--34
  []
 
 )
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 11.
- [7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 11.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 12.
+ [6]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 12.
  (./main.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 11.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 11.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 12.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 12.
  ) 
 Here is how much of TeX's memory you used:
- 22204 strings out of 495536
- 397706 string characters out of 6186181
- 420820 words of memory out of 5000000
- 25298 multiletter control sequences out of 15000+600000
+ 22198 strings out of 495536
+ 397650 string characters out of 6186181
+ 419820 words of memory out of 5000000
+ 25292 multiletter control sequences out of 15000+600000
  6912 words of font info for 46 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 57i,11n,64p,10419b,603s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 57i,11n,64p,10419b,607s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on main.pdf (7 pages).
+Output written on main.pdf (6 pages).
