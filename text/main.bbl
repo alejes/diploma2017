@@ -1,0 +1,42 @@
+\begin{thebibliography}{1}
+\def\selectlanguageifdefined#1{
+\expandafter\ifx\csname date#1\endcsname\relax
+\else\selectlanguage{#1}\fi}
+\providecommand*{\href}[2]{{\small #2}}
+\providecommand*{\url}[1]{{\small #1}}
+\providecommand*{\BibUrl}[1]{\url{#1}}
+\providecommand{\BibAnnote}[1]{}
+\providecommand*{\BibEmph}[1]{#1}
+\ProvideTextCommandDefault{\cyrdash}{\hbox to.8em{--\hss--}}
+\providecommand*{\BibDash}{\ifdim\lastskip>0pt\unskip\nobreak\hskip.2em\fi
+\cyrdash\hskip.2em\ignorespaces}
+
+\bibitem{wiki:lcd}
+\selectlanguageifdefined{russian}
+\BibEmph{Wikipedia}. Наибольший общий делитель~//
+  Википедия, свободная энциклопедия. \BibDash
+\newblock 2012. \BibDash
+\newblock URL: \BibUrl{http://goo.gl/1eEF3} ({дата обращения}:
+  08.04.2013).
+
+\bibitem{book:fourier}
+\selectlanguageifdefined{english}
+\BibEmph{Кожевников~Н.И., Краснощекова~Т.И.,
+  Шишкин~Н.Е.} Ряды и интеграл Фурье: Теория
+  поля. Аналитические и специальные
+  функции. Преобразование Лапласа.
+  Избранные главы высшей математики для
+  инженеров и студентов втузов. Задачи и
+  упражнения. \BibDash
+\newblock Наука, 1964. \BibDash
+\newblock Google Books~:
+  \href{http://books.google.ru/books?id=xvXuAAAAMAAJ}{http://books.google.ru/books?id=xvXuAAAAMAAJ}.
+
+\bibitem{saturday_is_monday}
+\selectlanguageifdefined{russian}
+\BibEmph{Стругацкий~А.Н., Стругацкий~Б.Н.}
+  Понедельник начинается в субботу~/ Под
+  ред.\ ~Иванов. \BibDash
+\newblock М.~: Детская литература, 1965.
+
+\end{thebibliography}

@@ -1,0 +1,43 @@
+% В этом шаблоне используется класс spbau-diploma. Его можно найти и, если требуется, 
+% поправить в файле spbau-diploma.cls
+\documentclass{spbau-diploma}
+\begin{document}
+
+
+% Год, город, название университета и факультета предопределены,
+% но можно и поменять.
+% Если англоязычная титульная страница не нужна, то ее можно просто удалить.
+\filltitle{ru}{
+    chair              = {Кафедра математических и информационных технологий},
+    title              = {Пустое подмножество как замкнутое множество},
+    % Здесь указывается тип работы. Возможные значения:
+    %   coursework - Курсовая работа
+    %   diploma - Диплом специалиста
+    %   master - Диплом магистра
+    %   bachelor - Диплом бакалавра
+    type               = {master},
+    position           = {студента},
+    group              = 604,
+    author             = {Степанов Алексей Макарович},
+    supervisorPosition = {д.\,ф.-м.\,н., профессор},
+    supervisor         = {Выбегалло А.\,А.},
+    reviewerPosition   = {ст. преп.},
+    reviewer           = {Привалов А.\,И.},
+    chairHeadPosition  = {д.\,ф.-м.\,н., профессор},
+    chairHead          = {Омельченко А.\,В.},
+    % university = {САНКТ-ПЕТЕРБУРГСКИЙ АКАДЕМИЧЕСКИЙ УНИВЕРСИТЕТ},
+    % faculty = {Центр высшего образования},
+    % city = {Санкт-Петербург},
+    % year             = {2013}
+}
+\filltitle{en}{
+    chair              = {Department of Mathematics and Information Technology},
+    title              = {Empty subset as closed set},
+    author             = {Alexey Stepanov},
+    supervisorPosition = {professor},
+    supervisor         = {Amvrosy Vibegallo},
+    reviewerPosition   = {assistant},
+    reviewer           = {Alexander Privalov},
+    chairHeadPosition  = {professor},
+    chairHead          = {Alexander Omelchenko},
+}

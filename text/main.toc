@@ -1,0 +1,11 @@
+\select@language {russian}
+\contentsline {section}{Введение}{4}{section*.2}
+\contentsline {section}{\numberline {1}Доказательство}{5}{section.1}
+\contentsline {section}{Заключение}{6}{section*.3}
+\contentsline {section}{Список литературы}{7}{section*.4}
+\select@language {russian}
+\select@language {english}
+\select@language {russian}
+\select@language {russian}
+\select@language {russian}
+\select@language {russian}
