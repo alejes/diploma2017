@@ -1,10 +1,8 @@
 \select@language {russian}
 \contentsline {section}{Введение}{4}{section*.2}
 \contentsline {section}{\numberline {1}Обзор литературы}{5}{section.1}
-\contentsline {section}{Список литературы}{6}{section*.3}
-\select@language {russian}
+\contentsline {section}{Список литературы}{7}{section*.3}
 \select@language {english}
-\select@language {russian}
 \select@language {russian}
 \select@language {russian}
 \select@language {russian}

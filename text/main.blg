@@ -4,44 +4,44 @@ The top-level auxiliary file: main.aux
 The style file: ugost2008ls.bst
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: diploma.bib.bib
-You've used 3 entries,
+You've used 2 entries,
             4180 wiz_defined-function locations,
-            1149 strings with 9864 characters,
-and the built_in function-call counts, 1163 in all, are:
-= -- 133
-> -- 44
-< -- 5
-+ -- 16
-- -- 13
-* -- 76
-:= -- 162
-add.period$ -- 12
-call.type$ -- 3
+            1139 strings with 9242 characters,
+and the built_in function-call counts, 636 in all, are:
+= -- 65
+> -- 15
+< -- 3
++ -- 6
+- -- 4
+* -- 39
+:= -- 91
+add.period$ -- 7
+call.type$ -- 2
 change.case$ -- 0
 chr.to.int$ -- 0
-cite$ -- 3
-duplicate$ -- 54
-empty$ -- 123
-format.name$ -- 13
-if$ -- 285
+cite$ -- 2
+duplicate$ -- 33
+empty$ -- 75
+format.name$ -- 4
+if$ -- 150
 int.to.chr$ -- 0
-int.to.str$ -- 3
+int.to.str$ -- 2
 missing$ -- 0
-newline$ -- 31
-num.names$ -- 14
-pop$ -- 28
+newline$ -- 25
+num.names$ -- 8
+pop$ -- 15
 preamble$ -- 1
-purify$ -- 12
+purify$ -- 6
 quote$ -- 0
-skip$ -- 27
+skip$ -- 14
 stack$ -- 0
-substring$ -- 15
-swap$ -- 27
+substring$ -- 10
+swap$ -- 16
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 7
-width$ -- 4
-write$ -- 52
+while$ -- 4
+width$ -- 3
+write$ -- 36

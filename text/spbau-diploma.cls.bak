@@ -47,6 +47,18 @@
 
 \usepackage{fancyhdr}
 \usepackage{ifthen}
+
+\usepackage[ruled,vlined]{algorithm2e}
+
+
+% Define Algorithm
+\newcounter{alg}[section]%\numberwithin{alg}{section}
+\newenvironment{alg}[1][0]{\par\vspace{3mm plus 1mm minus 1mm}\noindent%
+\refstepcounter{alg}%
+\ifx0#1{\bfseries Алгоритм \thesection.\arabic{alg}. \hskip 8pt}%
+\else{\bfseries Алгоритм \thesection.\arabic{alg} {\normalfont(#1)}.}%
+\fi\itshape } {\normalfont\par\vspace{2mm}}
+
 %% Мы используем компилятор XeLaTex, который дружит с Unicode и True Type/Open Type
 %% шрифтами. Для русификации достаточно подключить пакет fontspec и
 %% выбрать Unicode шрифт в котором есть кириллические глифы. Ниже
@@ -307,3 +319,25 @@
 
 \let\savenumberline\numberline
 \def\numberline#1{\savenumberline{#1.}}
+
+
+
+\usepackage{amssymb}
+
+\renewcommand{\phi}{\varphi}
+\newcommand{\dd}{\partial}
+
+% Переопределение le ge в русских традициях
+\renewcommand{\le}{\leqslant}
+%\renewcommand{\leq}{\leqslant}
+\renewcommand{\ge}{\geqslant}
+%\renewcommand{\geq}{\geqslant}
+
+
+% Define Definition
+\newcounter{definition}[section]
+\newenvironment{definition}[1][0]{\par\vspace{3mm plus 1mm minus 1mm}\noindent%
+\refstepcounter{definition}%
+\ifx0#1{\bfseries Определение \thesection.\arabic{definition}.\hskip 8pt}%
+\else{\bfseries Определение \thesection.\arabic{definition} {\normalfont(#1)}.}%
+\fi\itshape } {\normalfont\par\vspace{2mm}}
