@@ -16,3 +16,9 @@ foreach (var property in (IDictionary<String, Object>)employee)
 // Name: John Smith
 // Age: 33
 ```
+
+
+
+### Априорные знания читателя.
+
+Что необходимо предполагать что читатель знает, а что необходимо вводить? Например trait.
