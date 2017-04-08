@@ -13,14 +13,15 @@ public final class DynamicMetafactory {
     /*
      * Method handles for guards
      */
-    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL, PERFORM_INVOKE_METHOD;
+    /* package */ static final MethodHandle IS_INSTANCE, IS_NULL, PERFORM_INVOKE_METHOD, FILTER_UNIT, FILTER_COMPOUND_ASSIGNMENT;
+    /* package */ static final CompoundAssignmentPerformMarker COMPOUND_ASSIGNMENT_PERFORM_MARKER = new CompoundAssignmentPerformMarker();
     private static final MethodType
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class),
-            OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class);
+            OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class),
+            CONSTANT_RETURN_MTYPE = MethodType.methodType(Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final CompoundAssignmentPerformMarker COMPOUND_ASSIGNMENT_PERFORM_MARKER = new CompoundAssignmentPerformMarker();
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
@@ -43,6 +44,8 @@ public final class DynamicMetafactory {
             INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetafactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
             IS_NULL = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isNull", OBJECT_TEST_MTYPE);
+            FILTER_UNIT = DYNAMIC_LOOKUP.findStatic(DynamicFilters.class, "returnUnit", CONSTANT_RETURN_MTYPE);
+            FILTER_COMPOUND_ASSIGNMENT = DYNAMIC_LOOKUP.findStatic(DynamicFilters.class, "returnCompoundAssignmentPerformMarker", CONSTANT_RETURN_MTYPE);
             PERFORM_INVOKE_METHOD = DYNAMIC_LOOKUP.findVirtual(ObjectInvoker.class,
                     "performInvoke",
                     MethodType.methodType(Object.class, Object[].class));
@@ -145,15 +148,13 @@ public final class DynamicMetafactory {
                                       boolean allowNamingConversion
     ) throws Throwable {
         //[TODO] Selector
-        boolean assignmentOperatorConversion = false;
         DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
         String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
         boolean callSiteMounted = selector.setCallSite();
         if (allowNamingConversion && !callSiteMounted) {
             if (operatorCounterpart != null) {
-                assignmentOperatorConversion = true;
                 selector.changeName(operatorCounterpart);
-                callSiteMounted = selector.setCallSite();
+                callSiteMounted = selector.setCallSite(true);
             }
 
             //invokeType can be field/property with lambda
@@ -173,17 +174,7 @@ public final class DynamicMetafactory {
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
 
-        Object result = call.invokeExact(arguments);
-
-        if ((operatorCounterpart != null) && (!assignmentOperatorConversion)) {
-            return COMPOUND_ASSIGNMENT_PERFORM_MARKER;
-        }
-
-        if (selector.isReturnUnit()) {
-            return Unit.INSTANCE;
-        }
-
-        return result;
+        return call.invokeExact(arguments);
     }
 
     /**

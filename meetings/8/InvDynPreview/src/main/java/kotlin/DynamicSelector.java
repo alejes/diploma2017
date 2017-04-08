@@ -114,20 +114,34 @@ import static kotlin.DynamicMetafactory.*;
         }
     }
 
+    protected void filterResult(boolean compoundAssignment) {
+        if (isReturnUnit){
+            handle = MethodHandles.filterReturnValue(handle,
+                    MethodHandles.dropArguments(FILTER_UNIT, 0, handle.type().parameterArray())
+            );
+        }
+        else if (compoundAssignment) {
+            handle = MethodHandles.filterReturnValue(handle,
+                    MethodHandles.dropArguments(FILTER_COMPOUND_ASSIGNMENT, 0, handle.type().parameterArray())
+            );
+        }
+    }
+
     protected abstract boolean genMethodClass();
 
     /* package */  boolean setCallSite() {
+        return setCallSite(false);
+    }
+
+    /* package */  boolean setCallSite(boolean compoundAssignment) {
         if (!genMethodClass()) {
             return false;
         }
         prepareMetaHandlers();
         changeTargetGuard();
+        filterResult(compoundAssignment);
         processSetTarget();
         return true;
-    }
-
-    /* package */ boolean isReturnUnit() {
-        return isReturnUnit;
     }
 
     /* package */ void changeName(@NotNull String name) {
@@ -178,7 +192,7 @@ import static kotlin.DynamicMetafactory.*;
             if (getterHandle == null) {
                 return false;
             }
-            
+
             ObjectInvoker objectInvoker = new ObjectInvoker(getterHandle, caller, namedArguments);
             // guards will be checked in ObjectInvoker
             addGuardsForArguments = false;
