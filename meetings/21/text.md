@@ -4,7 +4,9 @@
 
 ### У аргументов по умолчанию есть
 
+```
 // DefaultConstructorMarker or MethodHandle
         arguments.add(null)
+```
         
-Что это и для чего он нужен7
+Что это и для чего он нужен?
