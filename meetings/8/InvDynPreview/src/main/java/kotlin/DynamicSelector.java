@@ -115,15 +115,10 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     protected void filterResult(boolean compoundAssignment) {
-        if (isReturnUnit){
-            handle = MethodHandles.filterReturnValue(handle,
-                    MethodHandles.dropArguments(FILTER_UNIT, 0, handle.type().parameterArray())
-            );
-        }
-        else if (compoundAssignment) {
-            handle = MethodHandles.filterReturnValue(handle,
-                    MethodHandles.dropArguments(FILTER_COMPOUND_ASSIGNMENT, 0, handle.type().parameterArray())
-            );
+        if (compoundAssignment) {
+            handle = MethodHandles.filterReturnValue(handle, FILTER_COMPOUND_ASSIGNMENT);
+        } else if (isReturnUnit && !type.returnType().equals(void.class)) {
+            handle = MethodHandles.filterReturnValue(handle, FILTER_UNIT);
         }
     }
 

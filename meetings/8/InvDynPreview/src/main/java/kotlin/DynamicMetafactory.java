@@ -18,7 +18,7 @@ public final class DynamicMetafactory {
     private static final MethodType
             CLASS_INSTANCE_MTYPE = MethodType.methodType(boolean.class, Class.class, Object.class),
             OBJECT_TEST_MTYPE = MethodType.methodType(boolean.class, Object.class),
-            CONSTANT_RETURN_MTYPE = MethodType.methodType(Object.class);
+            OBJECT_TRANSFORM_MTYPE = MethodType.methodType(Object.class, Object.class);
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
@@ -44,8 +44,8 @@ public final class DynamicMetafactory {
             INVOKE_METHOD = DYNAMIC_LOOKUP.findStatic(DynamicMetafactory.class, "invokeProxy", mtInvoke);
             IS_INSTANCE = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isInstance", CLASS_INSTANCE_MTYPE);
             IS_NULL = DYNAMIC_LOOKUP.findStatic(DynamicGuards.class, "isNull", OBJECT_TEST_MTYPE);
-            FILTER_UNIT = DYNAMIC_LOOKUP.findStatic(DynamicFilters.class, "returnUnit", CONSTANT_RETURN_MTYPE);
-            FILTER_COMPOUND_ASSIGNMENT = DYNAMIC_LOOKUP.findStatic(DynamicFilters.class, "returnCompoundAssignmentPerformMarker", CONSTANT_RETURN_MTYPE);
+            FILTER_UNIT = DYNAMIC_LOOKUP.findStatic(DynamicFilters.class, "returnUnit", OBJECT_TRANSFORM_MTYPE);
+            FILTER_COMPOUND_ASSIGNMENT = DYNAMIC_LOOKUP.findStatic(DynamicFilters.class, "returnCompoundAssignmentPerformMarker", OBJECT_TRANSFORM_MTYPE);
             PERFORM_INVOKE_METHOD = DYNAMIC_LOOKUP.findVirtual(ObjectInvoker.class,
                     "performInvoke",
                     MethodType.methodType(Object.class, Object[].class));
@@ -150,11 +150,12 @@ public final class DynamicMetafactory {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
         String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
-        boolean callSiteMounted = selector.setCallSite();
+        boolean hasCounterpart = operatorCounterpart != null;
+        boolean callSiteMounted = selector.setCallSite(hasCounterpart);
         if (allowNamingConversion && !callSiteMounted) {
             if (operatorCounterpart != null) {
                 selector.changeName(operatorCounterpart);
-                callSiteMounted = selector.setCallSite(true);
+                callSiteMounted = selector.setCallSite();
             }
 
             //invokeType can be field/property with lambda

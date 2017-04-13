@@ -2,11 +2,11 @@ package kotlin;
 
 @SuppressWarnings("unused")
 public class DynamicFilters {
-    public static Object returnUnit() {
+    public static Object returnUnit(Object oldRes) {
         return Unit.INSTANCE;
     }
 
-    public static Object returnCompoundAssignmentPerformMarker() {
+    public static Object returnCompoundAssignmentPerformMarker(Object oldRes) {
         return DynamicMetafactory.COMPOUND_ASSIGNMENT_PERFORM_MARKER;
     }
 }
