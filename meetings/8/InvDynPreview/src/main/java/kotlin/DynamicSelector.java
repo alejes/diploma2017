@@ -11,29 +11,26 @@ import java.lang.invoke.MutableCallSite;
 import static kotlin.DynamicMetafactory.*;
 
 /* package */ abstract class DynamicSelector {
-    @NotNull
     protected final Object[] arguments;
-    @NotNull
     protected final MethodHandles.Lookup caller;
-    @NotNull
     protected final MutableCallSite mc;
-    @NotNull
     protected final MethodType type;
     protected final boolean isStaticCall;
-    @NotNull
     protected final InvokeType invokeType;
-    @NotNull
     protected String name;
     protected MethodHandle handle;
+    protected int flags;
     protected boolean isReturnUnit = false;
     protected boolean addGuardsForArguments = true;
+    private static int COMPOUND_ASSIGNMENT_FLAG = 1;
 
-    private DynamicSelector(@NotNull Object[] arguments,
-                            @NotNull MutableCallSite mc,
-                            @NotNull MethodHandles.Lookup caller,
-                            @NotNull MethodType type,
-                            @NotNull String name,
-                            @NotNull InvokeType invokeType,
+    private DynamicSelector(Object[] arguments,
+                            MutableCallSite mc,
+                            MethodHandles.Lookup caller,
+                            MethodType type,
+                            String name,
+                            int flags,
+                            InvokeType invokeType,
                             boolean isStaticCall) {
         this.arguments = arguments;
         this.mc = mc;
@@ -41,36 +38,38 @@ import static kotlin.DynamicMetafactory.*;
         this.type = type;
         this.name = name;
         this.invokeType = invokeType;
+        this.flags = flags;
         this.isStaticCall = isStaticCall;
     }
 
     /* package */
-    static DynamicSelector getFieldSelector(@NotNull MutableCallSite mc,
-                                            @NotNull MethodHandles.Lookup caller,
-                                            @NotNull MethodType type,
-                                            @NotNull String name,
-                                            @NotNull Object[] arguments,
-                                            @NotNull InvokeType it) {
+    static DynamicSelector getFieldSelector(MutableCallSite mc,
+                                            MethodHandles.Lookup caller,
+                                            MethodType type,
+                                            String name,
+                                            Object[] arguments,
+                                            InvokeType it) {
         return new FieldSelector(mc, caller, type, name, arguments, it);
     }
 
     /* package */
-    static DynamicSelector getMethodSelector(@NotNull MutableCallSite mc,
-                                             @NotNull MethodHandles.Lookup caller,
-                                             @NotNull MethodType type,
-                                             @NotNull String name,
-                                             @NotNull Object[] arguments,
-                                             @Nullable String[] namedArguments) {
-        return new MethodSelector(mc, caller, type, name, arguments, namedArguments);
+    static DynamicSelector getMethodSelector(MutableCallSite mc,
+                                             MethodHandles.Lookup caller,
+                                             MethodType type,
+                                             String name,
+                                             Object[] arguments,
+                                             int flags,
+                                             /* Nullable */  String[] namedArguments) {
+        return new MethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
     }
 
     /* package */
-    static DynamicSelector getInvokerSelector(@NotNull MutableCallSite mc,
-                                              @NotNull MethodHandles.Lookup caller,
-                                              @NotNull MethodType type,
-                                              @NotNull String name,
-                                              @NotNull Object[] arguments,
-                                              @Nullable String[] namedArguments) {
+    static DynamicSelector getInvokerSelector(MutableCallSite mc,
+                                              MethodHandles.Lookup caller,
+                                              MethodType type,
+                                              String name,
+                                              Object[] arguments,
+                                              /* Nullable */ String[] namedArguments) {
         return new InvokerSelector(mc, caller, type, name, arguments, namedArguments);
     }
 
@@ -92,7 +91,7 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     protected void changeTargetGuard() {
-        MethodHandle fallback = makeFallBack(mc, caller, type, name, null, invokeType);
+        MethodHandle fallback = makeFallBack(mc, caller, type, name, flags, null, invokeType);
         Class<?>[] handleParameters = handle.type().parameterArray();
         for (int i = 0; i < arguments.length; ++i) {
             MethodHandle guard;
@@ -115,9 +114,10 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     protected void filterResult(boolean compoundAssignment) {
-        if (compoundAssignment) {
+        if (compoundAssignment && ((flags & COMPOUND_ASSIGNMENT_FLAG) == COMPOUND_ASSIGNMENT_FLAG)) {
             handle = MethodHandles.filterReturnValue(handle, FILTER_COMPOUND_ASSIGNMENT);
-        } else if (isReturnUnit && !type.returnType().equals(void.class)) {
+        }
+        else if (isReturnUnit && !type.returnType().equals(void.class)) {
             handle = MethodHandles.filterReturnValue(handle, FILTER_UNIT);
         }
     }
@@ -165,16 +165,16 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     private final static class InvokerSelector extends DynamicSelector {
-        @Nullable
+        /* Nullable */
         private String[] namedArguments;
 
-        private InvokerSelector(@NotNull MutableCallSite mc,
-                                @NotNull MethodHandles.Lookup caller,
-                                @NotNull MethodType type,
-                                @NotNull String name,
-                                @NotNull Object[] arguments,
-                                @Nullable String[] namedArguments) {
-            super(arguments, mc, caller, type, name, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
+        private InvokerSelector(MutableCallSite mc,
+                                MethodHandles.Lookup caller,
+                                MethodType type,
+                                String name,
+                                Object[] arguments,
+                                /* Nullable */  String[] namedArguments) {
+            super(arguments, mc, caller, type, name, /* flags */ 0, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
         }
 
@@ -201,16 +201,17 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     private final static class MethodSelector extends DynamicSelector {
-        @Nullable
+        /* Nullable */
         private String[] namedArguments;
 
-        private MethodSelector(@NotNull MutableCallSite mc,
-                               @NotNull MethodHandles.Lookup caller,
-                               @NotNull MethodType type,
-                               @NotNull String name,
-                               @NotNull Object[] arguments,
-                               @Nullable String[] namedArguments) {
-            super(arguments, mc, caller, type, name, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
+        private MethodSelector(MutableCallSite mc,
+                               MethodHandles.Lookup caller,
+                               MethodType type,
+                               String name,
+                               Object[] arguments,
+                               int flags,
+                               /* Nullable */  String[] namedArguments) {
+            super(arguments, mc, caller, type, name, flags, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
             this.namedArguments = namedArguments;
         }
 
@@ -226,14 +227,14 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     private final static class FieldSelector extends DynamicSelector {
-        private FieldSelector(@NotNull MutableCallSite mc,
-                              @NotNull MethodHandles.Lookup caller,
-                              @NotNull MethodType type,
-                              @NotNull String name,
-                              @NotNull Object[] arguments,
-                              @NotNull InvokeType it) {
+        private FieldSelector(MutableCallSite mc,
+                              MethodHandles.Lookup caller,
+                              MethodType type,
+                              String name,
+                              Object[] arguments,
+                              InvokeType it) {
             // [TODO] static call for fields
-            super(arguments, mc, caller, type, name, it, /* isStaticCall */ false);
+            super(arguments, mc, caller, type, name, /* flags */ 0, it, /* isStaticCall */ false);
         }
 
         @Override

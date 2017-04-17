@@ -40,7 +40,7 @@ public class DynamicOverloadResolution {
     }
 
     @NotNull
-    private static List<Method> fastMethodFilter(@NotNull List<Method> methods, @NotNull String name) {
+    private static List<Method> fastMethodFilter(List<Method> methods, String name) {
         String defaultName = name + DEFAULT_CALLER_SUFFIX;
         return methods.stream()
                 .filter(it -> (it.getName().equals(name) && !it.isBridge()) || it.getName().equals(defaultName))
@@ -49,17 +49,17 @@ public class DynamicOverloadResolution {
     }
 
     @NotNull
-    private static List<Method> filterSuitableMethods(@NotNull List<Method> methods, @NotNull Object[] arguments) {
+    private static List<Method> filterSuitableMethods(List<Method> methods, Object[] arguments) {
         return filterSuitableMethods(methods, arguments, false);
     }
 
     @NotNull
-    private static List<Method> filterSuitableMethods(@NotNull List<Method> methods, @NotNull Object[] arguments, boolean skipReceiverCheck) {
+    private static List<Method> filterSuitableMethods(List<Method> methods, Object[] arguments, boolean skipReceiverCheck) {
         return methods.stream().filter(it -> DynamicUtilsKt.isMethodSuitable(it, arguments, skipReceiverCheck)).collect(Collectors.toList());
     }
 
     @NotNull
-    private static List<Method> findBuiltins(@NotNull String name, @NotNull Class methodClass) {
+    private static List<Method> findBuiltins(String name, Class methodClass) {
         Class builtinClass = BUILTIN_CLASSES.get(methodClass);
         if (builtinClass == null) {
             return Collections.emptyList();
@@ -67,7 +67,7 @@ public class DynamicOverloadResolution {
         return fastMethodFilter(Arrays.asList(builtinClass.getDeclaredMethods()), name);
     }
 
-    private static boolean isBridgeForMethod(@NotNull Method bridge, @NotNull Method candidateMethod) {
+    private static boolean isBridgeForMethod(Method bridge, Method candidateMethod) {
         Class<?>[] parameterTypes = bridge.getParameterTypes();
         if (!parameterTypes[0].equals(candidateMethod.getDeclaringClass()))
             return false;
@@ -81,7 +81,7 @@ public class DynamicOverloadResolution {
         return true;
     }
 
-    private static Method findMostSpecific(@NotNull List<Method> methods) {
+    private static Method findMostSpecific(List<Method> methods) {
         if (methods.isEmpty()) {
             return null;
         } else if (methods.size() == 1) {
@@ -97,12 +97,12 @@ public class DynamicOverloadResolution {
         return null;
     }
 
-    private static Class<?> prepareClassForCompare(@NotNull Class<?> clazz) {
+    private static Class<?> prepareClassForCompare(Class<?> clazz) {
         return getJavaObjectType(getKotlinClass(clazz));
     }
 
     /* package */
-    static DynamicSelector.TypeCompareResult isTypeMoreSpecific(@NotNull Class<?> a, @NotNull Class<?> b) {
+    static DynamicSelector.TypeCompareResult isTypeMoreSpecific(Class<?> a, Class<?> b) {
         if (a == b) {
             return DynamicSelector.TypeCompareResult.EQUAL;
         }
@@ -126,7 +126,7 @@ public class DynamicOverloadResolution {
         return aParameters[aParameters.length - 1].getComponentType();
     }
 
-    private static boolean isMoreSpecific(@NotNull Method a, @NotNull Method b) {
+    private static boolean isMoreSpecific(Method a, Method b) {
         if (a == b)
             return true;
         if (a.getName().endsWith(DEFAULT_CALLER_SUFFIX))
@@ -171,7 +171,7 @@ public class DynamicOverloadResolution {
         return compareResult;
     }
 
-    private static boolean isMoreSpecificThenAllOf(@NotNull Method candidate, @NotNull Collection<Method> descriptors) {
+    private static boolean isMoreSpecificThenAllOf(Method candidate, Collection<Method> descriptors) {
         // NB subtyping relation in Kotlin is not transitive in presence of flexible types:
         //  String? <: String! <: String, but not String? <: String
         for (Method descriptor : descriptors) {
@@ -197,9 +197,9 @@ public class DynamicOverloadResolution {
     }
 
     @Nullable
-    private static MethodHandle resolveField(@NotNull MethodHandles.Lookup caller,
-                                             @NotNull String name,
-                                             @NotNull Object[] arguments,
+    private static MethodHandle resolveField(MethodHandles.Lookup caller,
+                                             String name,
+                                             Object[] arguments,
                                              boolean isGetter) {
         Object receiver = arguments[0];
         if (receiver == null) {
@@ -222,9 +222,9 @@ public class DynamicOverloadResolution {
     }
 
     @Nullable
-    /* package */ static MethodHandle resolveFieldOrPropertyGetter(@NotNull MethodHandles.Lookup caller,
-                                                                   @NotNull String name,
-                                                                   @NotNull Object[] arguments,
+    /* package */ static MethodHandle resolveFieldOrPropertyGetter(MethodHandles.Lookup caller,
+                                                                   String name,
+                                                                   Object[] arguments,
                                                                    boolean isStaticCall) {
         MethodHandle handle = resolveField(caller, name, arguments, /* isGetter */true);
         if (handle == null) {
@@ -235,9 +235,9 @@ public class DynamicOverloadResolution {
     }
 
     @Nullable
-    /* package */ static MethodHandle resolveFieldOrPropertySetter(@NotNull MethodHandles.Lookup caller,
-                                                                   @NotNull String name,
-                                                                   @NotNull Object[] arguments,
+    /* package */ static MethodHandle resolveFieldOrPropertySetter(MethodHandles.Lookup caller,
+                                                                   String name,
+                                                                   Object[] arguments,
                                                                    boolean isStaticCall) {
         MethodHandle handle = resolveField(caller, name, arguments, /* isGetter */false);
         if (handle == null) {
@@ -248,10 +248,10 @@ public class DynamicOverloadResolution {
     }
 
     @Nullable
-    /* package */ static MethodHandle resolveMethod(@NotNull MethodHandles.Lookup caller,
-                                                    @NotNull String name,
-                                                    @NotNull Object[] arguments,
-                                                    @Nullable String[] namedArguments,
+    /* package */ static MethodHandle resolveMethod(MethodHandles.Lookup caller,
+                                                    String name,
+                                                    Object[] arguments,
+                                                    /* Nullable */ String[] namedArguments,
                                                     boolean isStaticCall) {
         Object receiver = arguments[0];
         if (receiver == null) {

@@ -36,6 +36,7 @@ public final class DynamicMetafactory {
                 MethodType.class,
                 String.class,
                 Object[].class,
+                int.class,
                 String[].class,
                 boolean.class);
         try {
@@ -56,7 +57,8 @@ public final class DynamicMetafactory {
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("minusAssign", "minus");
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("timesAssign", "times");
         ASSIGNMENT_OPERATION_COUNTERPARTS.put("divAssign", "div");
-        ASSIGNMENT_OPERATION_COUNTERPARTS.put("modAssign", "mod"); // rem assign?!
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("modAssign", "mod");
+        ASSIGNMENT_OPERATION_COUNTERPARTS.put("remAssign", "rem");
     }
 
     @SuppressWarnings("unused")
@@ -79,7 +81,7 @@ public final class DynamicMetafactory {
             throw new UnsupportedOperationException("Unknown invoke query");
         }
 
-        MethodHandle mh = makeFallBack(mc, caller, type, name, namedArguments, it);
+        MethodHandle mh = makeFallBack(mc, caller, type, name, flags, namedArguments, it);
         mc.setTarget(mh);
 
         return mc;
@@ -87,15 +89,16 @@ public final class DynamicMetafactory {
 
     /* package */
     @NotNull
-    static MethodHandle makeFallBack(@NotNull MutableCallSite mc,
-                                     @NotNull MethodHandles.Lookup caller,
-                                     @NotNull MethodType type,
-                                     @NotNull String name,
-                                     @Nullable String[] namedArguments,
-                                     @NotNull InvokeType it) {
+    static MethodHandle makeFallBack(MutableCallSite mc,
+                                     MethodHandles.Lookup caller,
+                                     MethodType type,
+                                     String name,
+                                     int flags,
+                                     String[] namedArguments,
+                                     InvokeType it) {
         MethodHandle mh = MethodHandles.insertArguments(it.getHandler(), 0, mc, caller, type, name);
         if (it == InvokeType.METHOD) {
-            mh = MethodHandles.insertArguments(mh, 1, namedArguments, /* allowNamingConversion */true);
+            mh = MethodHandles.insertArguments(mh, 1, flags, namedArguments, /* allowNamingConversion */true);
         }
         mh = mh.asCollector(Object[].class, type.parameterCount())
                 .asType(type);
@@ -103,11 +106,11 @@ public final class DynamicMetafactory {
     }
 
     @SuppressWarnings("unused")
-    private static Object fieldGetProxy(@NotNull MutableCallSite mc,
-                                        @NotNull MethodHandles.Lookup caller,
-                                        @NotNull MethodType type,
-                                        @NotNull String name,
-                                        @NotNull Object[] arguments) throws Throwable {
+    private static Object fieldGetProxy(MutableCallSite mc,
+                                        MethodHandles.Lookup caller,
+                                        MethodType type,
+                                        String name,
+                                        Object[] arguments) throws Throwable {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
         if (!selector.setCallSite()) {
@@ -121,11 +124,11 @@ public final class DynamicMetafactory {
     }
 
     @SuppressWarnings("unused")
-    private static Object fieldSetProxy(@NotNull MutableCallSite mc,
-                                        @NotNull MethodHandles.Lookup caller,
-                                        @NotNull MethodType type,
-                                        @NotNull String name,
-                                        @NotNull Object[] arguments) throws Throwable {
+    private static Object fieldSetProxy(MutableCallSite mc,
+                                        MethodHandles.Lookup caller,
+                                        MethodType type,
+                                        String name,
+                                        Object[] arguments) throws Throwable {
         //[TODO] Selector
         DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
         if (!selector.setCallSite()) {
@@ -139,16 +142,17 @@ public final class DynamicMetafactory {
     }
 
     @SuppressWarnings("unused")
-    private static Object invokeProxy(@NotNull MutableCallSite mc,
-                                      @NotNull MethodHandles.Lookup caller,
-                                      @NotNull MethodType type,
-                                      @NotNull String name,
-                                      @NotNull Object[] arguments,
-                                      @Nullable String[] namedArguments,
+    private static Object invokeProxy(MutableCallSite mc,
+                                      MethodHandles.Lookup caller,
+                                      MethodType type,
+                                      String name,
+                                      Object[] arguments,
+                                      int flags,
+                                      /* Nullable */ String[] namedArguments,
                                       boolean allowNamingConversion
     ) throws Throwable {
         //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, namedArguments);
+        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
         String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
         boolean hasCounterpart = operatorCounterpart != null;
         boolean callSiteMounted = selector.setCallSite(hasCounterpart);
@@ -191,16 +195,13 @@ public final class DynamicMetafactory {
         SET("setField", "set", FIELD_SET),
         METHOD("invoke", "", INVOKE_METHOD);
 
-        @NotNull
         private final String type;
-        @NotNull
         private final String javaPrefix;
-        @NotNull
         private final MethodHandle mh;
 
-        private InvokeType(@NotNull String type,
-                           @NotNull String javaPrefix,
-                           @NotNull MethodHandle mh) {
+        private InvokeType(String type,
+                           String javaPrefix,
+                           MethodHandle mh) {
             this.type = type;
             this.javaPrefix = javaPrefix;
             this.mh = mh;
@@ -218,29 +219,25 @@ public final class DynamicMetafactory {
     }
 
     /* package */ static class ObjectInvoker {
-        @NotNull
         private final MethodHandle getterCall;
-        @NotNull
         private final MethodHandles.Lookup caller;
-        @Nullable
+        /* Nullable */
         private final String[] namedArguments;
         private final boolean isReturnUnit;
-        @NotNull
         private ThreadLocal<MethodHandle> cachedCall;
-        @NotNull
         private ThreadLocal<Class[]> cachedArguments;
 
-        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall,
-                                    @NotNull MethodHandles.Lookup caller,
-                                    @Nullable String[] namedArguments) {
+        /* package */ ObjectInvoker(MethodHandle getterCall,
+                                    MethodHandles.Lookup caller,
+                                    /* Nullable */ String[] namedArguments) {
             this(getterCall, caller, namedArguments, null, new Class[]{});
         }
 
-        /* package */ ObjectInvoker(@NotNull MethodHandle getterCall,
-                                    @NotNull MethodHandles.Lookup caller,
-                                    @Nullable String[] namedArguments,
-                                    @Nullable MethodHandle cachedCall,
-                                    @NotNull Class[] cachedArguments) {
+        /* package */ ObjectInvoker(MethodHandle getterCall,
+                                    MethodHandles.Lookup caller,
+                                    /* Nullable */ String[] namedArguments,
+                                    /* Nullable */ MethodHandle cachedCall,
+                                    Class[] cachedArguments) {
             this.getterCall = getterCall;
             this.caller = caller;
             this.namedArguments = namedArguments;
