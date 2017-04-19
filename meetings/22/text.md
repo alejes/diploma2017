@@ -79,3 +79,32 @@ fun box(): String {
 ```
 kotlin.DynamicBindException: class is not public: java.util.Arrays$ArrayList.get(int)Object/invokeVirtual, from ListIteratorKt
 ```
+
+Короткий пример проблемы:
+
+```
+import java.util.AbstractList;
+import java.util.List;
+
+
+public class MySuperClass {
+    private static class MyList extends AbstractList {
+        @Override
+        public Object get(int index) {
+            return 5557;
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+    }
+
+    List toList() {
+        return new MyList();
+    }
+}
+```
+
+
+А что с полями? Там вообще неразбериха! Идея - давайте возвращать то поле, которое наиболее близкое в иерархии наследовании к данному классу.
