@@ -1,7 +1,5 @@
 package kotlin;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.*;
 import java.net.BindException;
@@ -88,7 +86,6 @@ public final class DynamicMetafactory {
     }
 
     /* package */
-    @NotNull
     static MethodHandle makeFallBack(MutableCallSite mc,
                                      MethodHandles.Lookup caller,
                                      MethodType type,
@@ -205,12 +202,10 @@ public final class DynamicMetafactory {
             this.mh = mh;
         }
 
-        @NotNull
         public final MethodHandle getHandler() {
             return mh;
         }
 
-        @NotNull
         public final String getJavaPrefix() {
             return javaPrefix;
         }
@@ -244,7 +239,7 @@ public final class DynamicMetafactory {
             this.isReturnUnit = getterCall.type().returnType().equals(void.class);
         }
 
-        private boolean checkCache(@Nullable MethodHandle cachedCall, @NotNull Class[] cachedArguments, Object[] arguments) {
+        private boolean checkCache(/* Nullable */ MethodHandle cachedCall, Class[] cachedArguments, Object[] arguments) {
             if (cachedCall == null) return false;
             if (cachedArguments.length != arguments.length) return false;
             for (int i = 0; i < cachedArguments.length; ++i) {

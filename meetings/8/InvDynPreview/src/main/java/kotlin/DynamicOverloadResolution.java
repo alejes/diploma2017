@@ -3,7 +3,6 @@ package kotlin;
 
 import kotlin.builtins.*;
 import kotlin.text.StringsKt;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -192,7 +191,7 @@ public final class DynamicOverloadResolution {
         return method;
     }
 
-    @Nullable
+    /* Nullable */
     private static MethodHandle resolveField(MethodHandles.Lookup caller,
                                              String name,
                                              Object[] arguments,

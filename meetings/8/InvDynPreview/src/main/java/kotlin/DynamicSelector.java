@@ -1,6 +1,5 @@
 package kotlin;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -137,7 +136,7 @@ import static kotlin.DynamicMetafactory.*;
         return true;
     }
 
-    /* package */ void changeName(@NotNull String name) {
+    /* package */ void changeName(String name) {
         this.name = name;
     }
 
