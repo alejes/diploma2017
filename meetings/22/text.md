@@ -117,9 +117,11 @@ public class MySuperClass {
 ### Groovy
 
 [MetaMethodIndex.java](https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/runtime/metaclass/MetaMethodIndex.java#L372)
+```
                     // do not overwrite interface methods with instance methods
                     // do not overwrite private methods
                     // Note: private methods from parent classes are not shown here,
                     // but when doing the multimethod connection step, we overwrite
                     // methods of the parent class with methods of a subclass and
                     // in that case we want to keep the private methods
+```
