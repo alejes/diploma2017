@@ -1,7 +1,6 @@
 package kotlin;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -11,18 +10,18 @@ import java.lang.invoke.MutableCallSite;
 import static kotlin.DynamicMetafactory.*;
 
 /* package */ abstract class DynamicSelector {
+    private static final int COMPOUND_ASSIGNMENT_FLAG = 1;
     protected final Object[] arguments;
     protected final MethodHandles.Lookup caller;
     protected final MutableCallSite mc;
     protected final MethodType type;
     protected final boolean isStaticCall;
     protected final InvokeType invokeType;
+    protected final int flags;
     protected String name;
     protected MethodHandle handle;
-    protected int flags;
     protected boolean isReturnUnit = false;
     protected boolean addGuardsForArguments = true;
-    private static int COMPOUND_ASSIGNMENT_FLAG = 1;
 
     private DynamicSelector(Object[] arguments,
                             MutableCallSite mc,
@@ -116,8 +115,7 @@ import static kotlin.DynamicMetafactory.*;
     protected void filterResult(boolean compoundAssignment) {
         if (compoundAssignment && ((flags & COMPOUND_ASSIGNMENT_FLAG) == COMPOUND_ASSIGNMENT_FLAG)) {
             handle = MethodHandles.filterReturnValue(handle, FILTER_COMPOUND_ASSIGNMENT);
-        }
-        else if (isReturnUnit && !type.returnType().equals(void.class)) {
+        } else if (isReturnUnit && !type.returnType().equals(void.class)) {
             handle = MethodHandles.filterReturnValue(handle, FILTER_UNIT);
         }
     }

@@ -116,7 +116,7 @@ public final class DynamicMetafactory {
         if (!selector.setCallSite()) {
             throw new DynamicBindException("Cannot find getter for field " + name);
         }
-        selector.processSetTarget();
+
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
@@ -134,7 +134,7 @@ public final class DynamicMetafactory {
         if (!selector.setCallSite()) {
             throw new DynamicBindException("Cannot find setter for field " + name);
         }
-        selector.processSetTarget();
+
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
                 .asType(MethodType.methodType(Object.class, Object[].class));
@@ -172,8 +172,6 @@ public final class DynamicMetafactory {
         if (!callSiteMounted) {
             throw new DynamicBindException("Cannot find target method " + name);
         }
-
-        selector.processSetTarget();
 
         MethodHandle call = selector.getMethodHandle()
                 .asSpreader(Object[].class, arguments.length)
@@ -218,7 +216,7 @@ public final class DynamicMetafactory {
         }
     }
 
-    /* package */ static class ObjectInvoker {
+    /* package */ static final class ObjectInvoker {
         private final MethodHandle getterCall;
         private final MethodHandles.Lookup caller;
         /* Nullable */

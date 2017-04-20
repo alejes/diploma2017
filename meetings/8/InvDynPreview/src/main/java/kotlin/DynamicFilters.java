@@ -1,7 +1,7 @@
 package kotlin;
 
 @SuppressWarnings("unused")
-public class DynamicFilters {
+public final class DynamicFilters {
     public static Object returnUnit(Object oldRes) {
         return Unit.INSTANCE;
     }

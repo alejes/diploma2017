@@ -3,7 +3,6 @@ package kotlin;
 
 import kotlin.builtins.*;
 import kotlin.text.StringsKt;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.MethodHandle;
@@ -16,10 +15,10 @@ import java.util.stream.Collectors;
 import static kotlin.jvm.JvmClassMappingKt.getJavaObjectType;
 import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 
-public class DynamicOverloadResolution {
+public final class DynamicOverloadResolution {
     /* package */ static final String DEFAULT_CALLER_SUFFIX = "$default";
-    @NotNull
     private static final Map<Class, Class> BUILTIN_CLASSES = new HashMap<>();
+    private static final MethodHandle ILLEGAL_ACCESS = MethodHandles.constant(DynamicSelector.class, null);
 
     static {
         BUILTIN_CLASSES.put(java.lang.Byte.class, ByteBuiltins.class);
@@ -29,6 +28,7 @@ public class DynamicOverloadResolution {
         BUILTIN_CLASSES.put(java.lang.Long.class, LongBuiltins.class);
         BUILTIN_CLASSES.put(java.lang.Short.class, ShortBuiltins.class);
         BUILTIN_CLASSES.put(java.lang.String.class, StringBuiltins.class);
+        BUILTIN_CLASSES.put(java.util.ArrayList.class, ListBuiltins.class);
         BUILTIN_CLASSES.put(boolean[].class, BooleanArrayBuiltins.class);
         BUILTIN_CLASSES.put(byte[].class, ByteArrayBuiltins.class);
         BUILTIN_CLASSES.put(char[].class, CharArrayBuiltins.class);
@@ -39,7 +39,6 @@ public class DynamicOverloadResolution {
         BUILTIN_CLASSES.put(short[].class, ShortArrayBuiltins.class);
     }
 
-    @NotNull
     private static List<Method> fastMethodFilter(List<Method> methods, String name) {
         String defaultName = name + DEFAULT_CALLER_SUFFIX;
         return methods.stream()
@@ -48,17 +47,14 @@ public class DynamicOverloadResolution {
                 .collect(Collectors.toList());
     }
 
-    @NotNull
     private static List<Method> filterSuitableMethods(List<Method> methods, Object[] arguments) {
         return filterSuitableMethods(methods, arguments, false);
     }
 
-    @NotNull
     private static List<Method> filterSuitableMethods(List<Method> methods, Object[] arguments, boolean skipReceiverCheck) {
         return methods.stream().filter(it -> DynamicUtilsKt.isMethodSuitable(it, arguments, skipReceiverCheck)).collect(Collectors.toList());
     }
 
-    @NotNull
     private static List<Method> findBuiltins(String name, Class methodClass) {
         Class builtinClass = BUILTIN_CLASSES.get(methodClass);
         if (builtinClass == null) {
@@ -221,11 +217,12 @@ public class DynamicOverloadResolution {
         }
     }
 
-    @Nullable
-    /* package */ static MethodHandle resolveFieldOrPropertyGetter(MethodHandles.Lookup caller,
-                                                                   String name,
-                                                                   Object[] arguments,
-                                                                   boolean isStaticCall) {
+    /* Nullable */
+    /* package */
+    static MethodHandle resolveFieldOrPropertyGetter(MethodHandles.Lookup caller,
+                                                     String name,
+                                                     Object[] arguments,
+                                                     boolean isStaticCall) {
         MethodHandle handle = resolveField(caller, name, arguments, /* isGetter */true);
         if (handle == null) {
             name = DynamicMetafactory.InvokeType.GET.getJavaPrefix() + StringsKt.capitalize(name);
@@ -234,11 +231,12 @@ public class DynamicOverloadResolution {
         return handle;
     }
 
-    @Nullable
-    /* package */ static MethodHandle resolveFieldOrPropertySetter(MethodHandles.Lookup caller,
-                                                                   String name,
-                                                                   Object[] arguments,
-                                                                   boolean isStaticCall) {
+    /* Nullable */
+    /* package */
+    static MethodHandle resolveFieldOrPropertySetter(MethodHandles.Lookup caller,
+                                                     String name,
+                                                     Object[] arguments,
+                                                     boolean isStaticCall) {
         MethodHandle handle = resolveField(caller, name, arguments, /* isGetter */false);
         if (handle == null) {
             name = DynamicMetafactory.InvokeType.SET.getJavaPrefix() + StringsKt.capitalize(name);
@@ -247,61 +245,103 @@ public class DynamicOverloadResolution {
         return handle;
     }
 
-    @Nullable
-    /* package */ static MethodHandle resolveMethod(MethodHandles.Lookup caller,
-                                                    String name,
-                                                    Object[] arguments,
-                                                    /* Nullable */ String[] namedArguments,
-                                                    boolean isStaticCall) {
+    /* Nullable */
+    /* package */
+    static MethodHandle resolveMethod(MethodHandles.Lookup caller,
+                                      String name,
+                                      Object[] arguments,
+                                      /* Nullable */ String[] namedArguments,
+                                      boolean isStaticCall) {
         Object receiver = arguments[0];
         if (receiver == null) {
             throw new NullPointerException("Unsupported receiver - null");
         } else {
             Class methodClass;
-            MethodHandle handle;
             if (isStaticCall) {
                 methodClass = (Class) receiver;
             } else {
                 methodClass = receiver.getClass();
             }
-            List<Method> methods = new ArrayList<>(Arrays.asList(methodClass.getDeclaredMethods()));
-            Collections.addAll(methods, receiver.getClass().getMethods());
+            return resolveMethodAndFindClass(caller, name, arguments, namedArguments, methodClass);
+        }
+    }
 
-            methods = fastMethodFilter(methods, name);
+    /* Nullable */
+    private static MethodHandle resolveMethodAndFindClass(MethodHandles.Lookup caller,
+                                                          String name,
+                                                          Object[] arguments,
+                                                          /* Nullable */ String[] namedArguments,
+                                                          Class methodClass) {
+        MethodHandle handle = resolveMethodOnClass(caller, name, arguments, namedArguments, methodClass);
+        if (handle == null)
+            return null;
 
-            List<Method> targetMethodList = filterSuitableMethods(methods, arguments);
-
-            boolean isMixedWithBuiltins = targetMethodList.isEmpty();
-            if (isMixedWithBuiltins) {
-                targetMethodList = filterSuitableMethods(findBuiltins(name, methodClass), arguments, true);
-            }
-
-            Method targetMethod = findMostSpecific(targetMethodList);
-
-            // since we have Int.compareTo(Long) together with Integer.compareTo(Integer) and similar,
-            // we must mix with builtins if failed
-            if ((targetMethod == null) && !isMixedWithBuiltins) {
-                targetMethodList = filterSuitableMethods(findBuiltins(name, methodClass), arguments, true);
-                targetMethod = findMostSpecific(targetMethodList);
-            }
-            if (targetMethod == null) {
-                return null;
-            }
-
-            Method owner = null;
-            boolean requireOwner = namedArguments != null && namedArguments.length > 0;
-            if (requireOwner) {
-                owner = resolveBridgeOwner(targetMethod, methods);
-            }
-
-            try {
-                handle = caller.unreflect(targetMethod);
-            } catch (IllegalAccessException e) {
-                throw new DynamicBindException(e.getMessage());
-            }
-            handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
-
+        if (handle != ILLEGAL_ACCESS) {
             return handle;
         }
+
+        for (Class classInterface : methodClass.getInterfaces()) {
+            handle = resolveMethodAndFindClass(caller, name, arguments, namedArguments, classInterface);
+            if (handle != null) {
+                return handle;
+            }
+        }
+
+        if (!methodClass.equals(Object.class) && !methodClass.isInterface()) {
+            handle = resolveMethodAndFindClass(caller, name, arguments, namedArguments, methodClass.getSuperclass());
+            if (handle != null) {
+                return handle;
+            }
+        }
+
+        return null;
+    }
+
+
+    /* Nullable */
+    private static MethodHandle resolveMethodOnClass(MethodHandles.Lookup caller,
+                                                     String name,
+                                                     Object[] arguments,
+                                                    /* Nullable */ String[] namedArguments,
+                                                     Class methodClass) {
+        MethodHandle handle;
+        List<Method> methods = new ArrayList<>(Arrays.asList(methodClass.getDeclaredMethods()));
+        Collections.addAll(methods, methodClass.getMethods());
+
+        methods = fastMethodFilter(methods, name);
+
+        List<Method> targetMethodList = filterSuitableMethods(methods, arguments);
+
+        boolean isMixedWithBuiltins = targetMethodList.isEmpty();
+        if (isMixedWithBuiltins) {
+            targetMethodList = filterSuitableMethods(findBuiltins(name, methodClass), arguments, true);
+        }
+
+        Method targetMethod = findMostSpecific(targetMethodList);
+
+        // since we have Int.compareTo(Long) together with Integer.compareTo(Integer) and similar,
+        // we must mix with builtins if failed
+        if ((targetMethod == null) && !isMixedWithBuiltins) {
+            targetMethodList = filterSuitableMethods(findBuiltins(name, methodClass), arguments, true);
+            targetMethod = findMostSpecific(targetMethodList);
+        }
+        if (targetMethod == null) {
+            return null;
+        }
+
+        Method owner = null;
+        boolean requireOwner = namedArguments != null && namedArguments.length > 0;
+        if (requireOwner) {
+            owner = resolveBridgeOwner(targetMethod, methods);
+        }
+
+        try {
+            handle = caller.unreflect(targetMethod);
+        } catch (IllegalAccessException e) {
+            return ILLEGAL_ACCESS;
+        }
+        handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
+
+        return handle;
     }
 }
