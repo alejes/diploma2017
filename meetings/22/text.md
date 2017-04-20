@@ -112,3 +112,14 @@ public class MySuperClass {
 Для методов:
 - Мы можем сказать что вы ССЗБ что используете тут динамики и эта та же самая проблема что разрешение A a = new B();
 - Можно сказать что если мы не нашли этот метод с плохими правами доступа к этому классу, то давайте поищем среди интерфейсов или родителей такой класс, что мы можем получить к нему доступ.
+
+
+### Groovy
+
+[MetaMethodIndex.java](https://github.com/groovy/groovy-core/blob/master/src/main/org/codehaus/groovy/runtime/metaclass/MetaMethodIndex.java#L372)
+                    // do not overwrite interface methods with instance methods
+                    // do not overwrite private methods
+                    // Note: private methods from parent classes are not shown here,
+                    // but when doing the multimethod connection step, we overwrite
+                    // methods of the parent class with methods of a subclass and
+                    // in that case we want to keep the private methods
