@@ -125,3 +125,38 @@ public class MySuperClass {
                     // methods of the parent class with methods of a subclass and
                     // in that case we want to keep the private methods
 ```
+
+
+### Тест на вызываемые объекты
+
+- В Groovy не получилось вызывать объект у которого есть call из поля. Даже в динамическом случае.
+
+```
+class CallableObjectDynamic {
+    def call(int arg1, int arg2, int arg3, int arg4) {
+        return (arg1 + 10 * arg2 + 124 * arg3 + 1089 * arg4).toString()
+    }
+
+    def call(int arg1, String arg2, int arg3, int arg4) {
+        return arg2 + arg1 + 43 * arg3 + 534 * arg4
+    }
+
+    def call(int arg1, String arg2, int arg3, String arg4) {
+        return arg2 + arg1 + 11 * arg3 + "|" + arg4
+    }
+}
+
+
+class MyClassDynamic {
+    CallableObjectDynamic field = new CallableObjectDynamic()
+}
+
+
+class GroovyRunnerDynamic {
+    static String method4Proxy(int arg1) {
+        MyClassDynamic x = new MyClassDynamic()
+        return x.field(arg1, 3, 1, 2)
+        //return x.field(new Integer(5), new String("aaa"), new Integer(1), new Integer(2))
+    }
+}
+```
