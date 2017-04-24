@@ -17,7 +17,6 @@ import static kotlin.jvm.JvmClassMappingKt.getKotlinClass;
 public final class DynamicOverloadResolution {
     /* package */ static final String DEFAULT_CALLER_SUFFIX = "$default";
     private static final Map<Class, Class> BUILTIN_CLASSES = new HashMap<>();
-    private static final MethodHandle ILLEGAL_ACCESS = MethodHandles.constant(DynamicSelector.class, null);
 
     static {
         BUILTIN_CLASSES.put(java.lang.Byte.class, ByteBuiltins.class);
@@ -265,47 +264,104 @@ public final class DynamicOverloadResolution {
         }
     }
 
+    private static boolean checkAccess(MethodHandles.Lookup caller, Method method) {
+        try {
+            caller.unreflect(method);
+            return true;
+        } catch (IllegalAccessException e) {
+            return false;
+        }
+    }
+
     /* Nullable */
     private static MethodHandle resolveMethodAndFindClass(MethodHandles.Lookup caller,
                                                           String name,
                                                           Object[] arguments,
                                                           /* Nullable */ String[] namedArguments,
                                                           Class methodClass) {
-        MethodHandle handle = resolveMethodOnClass(caller, name, arguments, namedArguments, methodClass);
-        if (handle == null)
-            return null;
-
-        if (handle != ILLEGAL_ACCESS) {
+        MethodHandle handle;
+        try {
+            handle = resolveMethodHandleOnClass(caller, name, arguments, namedArguments, methodClass);
             return handle;
+        } catch (IllegalAccessException e) {
+            // IllegalAccessException was iff we on right hierarchy path. We continue search accessible method.
         }
 
-        for (Class classInterface : methodClass.getInterfaces()) {
-            handle = resolveMethodAndFindClass(caller, name, arguments, namedArguments, classInterface);
-            if (handle != null) {
-                return handle;
+        List<Class> currentLayer = Collections.singletonList(methodClass);
+        List<Method> methodHandles = new ArrayList<>();
+        while (!currentLayer.isEmpty()) {
+            List<Class> nextLayer = new ArrayList<>();
+
+            for (Class cls : currentLayer) {
+                Collections.addAll(nextLayer, cls.getInterfaces());
+                nextLayer.add(cls.getSuperclass());
             }
-        }
 
-        if (!methodClass.equals(Object.class) && !methodClass.isInterface()) {
-            handle = resolveMethodAndFindClass(caller, name, arguments, namedArguments, methodClass.getSuperclass());
-            if (handle != null) {
-                return handle;
+            currentLayer = nextLayer.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
+
+            methodHandles.clear();
+            for (Class cls : currentLayer) {
+                Method currentMethod = resolveMethodOnClass(caller, name, arguments, namedArguments, cls);
+                if ((currentMethod != null) && checkAccess(caller, currentMethod)) {
+                    methodHandles.add(currentMethod);
+                }
+            }
+
+            Method method = findMostSpecific(methodHandles);
+            if (method != null) {
+                try {
+                    return transformMethodToMethodHandle(caller, method, name, arguments, namedArguments, methodClass);
+                } catch (IllegalAccessException e) {
+                    return null;
+                }
             }
         }
 
         return null;
     }
 
+    private static MethodHandle transformMethodToMethodHandle(MethodHandles.Lookup caller,
+                                                              Method targetMethod,
+                                                              String name,
+                                                              Object[] arguments,
+                                                            /* Nullable */ String[] namedArguments,
+                                                              Class methodClass) throws IllegalAccessException {
+        Method owner = null;
+        boolean requireOwner = namedArguments != null && namedArguments.length > 0;
+        if (requireOwner) {
+            List<Method> methods = Arrays.asList(methodClass.getMethods());
+            methods = fastMethodFilter(methods, name);
+            owner = resolveBridgeOwner(targetMethod, methods);
+        }
+
+        MethodHandle handle = caller.unreflect(targetMethod);
+        handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
+
+        return handle;
+    }
 
     /* Nullable */
-    private static MethodHandle resolveMethodOnClass(MethodHandles.Lookup caller,
-                                                     String name,
-                                                     Object[] arguments,
+    private static MethodHandle resolveMethodHandleOnClass(MethodHandles.Lookup caller,
+                                                           String name,
+                                                           Object[] arguments,
                                                     /* Nullable */ String[] namedArguments,
-                                                     Class methodClass) {
+                                                           Class methodClass) throws IllegalAccessException {
+        Method targetMethod = resolveMethodOnClass(caller, name, arguments, namedArguments, methodClass);
+        if (targetMethod == null) {
+            return null;
+        }
+        return transformMethodToMethodHandle(caller, targetMethod, name, arguments, namedArguments, methodClass);
+    }
+
+    /* Nullable */
+    private static Method resolveMethodOnClass(MethodHandles.Lookup caller,
+                                               String name,
+                                               Object[] arguments,
+                                                    /* Nullable */ String[] namedArguments,
+                                               Class methodClass) {
         MethodHandle handle;
-        List<Method> methods = new ArrayList<>(Arrays.asList(methodClass.getDeclaredMethods()));
-        Collections.addAll(methods, methodClass.getMethods());
+        List<Method> methods = Arrays.asList(methodClass.getMethods());
+        //Collections.addAll(methods, methodClass.getMethods());
 
         methods = fastMethodFilter(methods, name);
 
@@ -324,23 +380,7 @@ public final class DynamicOverloadResolution {
             targetMethodList = filterSuitableMethods(findBuiltins(name, methodClass), arguments, true);
             targetMethod = findMostSpecific(targetMethodList);
         }
-        if (targetMethod == null) {
-            return null;
-        }
 
-        Method owner = null;
-        boolean requireOwner = namedArguments != null && namedArguments.length > 0;
-        if (requireOwner) {
-            owner = resolveBridgeOwner(targetMethod, methods);
-        }
-
-        try {
-            handle = caller.unreflect(targetMethod);
-        } catch (IllegalAccessException e) {
-            return ILLEGAL_ACCESS;
-        }
-        handle = DynamicUtilsKt.insertDefaultArgumentsAndNamedParameters(handle, targetMethod, owner, namedArguments, arguments);
-
-        return handle;
+        return targetMethod;
     }
 }
