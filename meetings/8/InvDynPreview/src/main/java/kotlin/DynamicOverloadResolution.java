@@ -1,6 +1,7 @@
 package kotlin;
 
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import kotlin.builtins.*;
 import kotlin.text.StringsKt;
 
@@ -8,6 +9,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -265,6 +267,10 @@ public final class DynamicOverloadResolution {
     }
 
     private static boolean checkAccess(MethodHandles.Lookup caller, Method method) {
+        if (Modifier.isPrivate(method.getModifiers()) &&
+                !(method.getClass().getPackage() == caller.getClass().getPackage())) {
+            return true;
+        }
         try {
             caller.unreflect(method);
             return true;

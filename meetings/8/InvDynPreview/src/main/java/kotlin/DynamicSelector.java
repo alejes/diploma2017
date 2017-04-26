@@ -144,7 +144,7 @@ import static kotlin.DynamicMetafactory.*;
         return handle;
     }
 
-    /* package */ void processSetTarget() {
+    private void processSetTarget() {
         mc.setTarget(handle);
     }
 
