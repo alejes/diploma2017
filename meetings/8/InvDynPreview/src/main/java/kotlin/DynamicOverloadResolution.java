@@ -1,7 +1,6 @@
 package kotlin;
 
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import kotlin.builtins.*;
 import kotlin.text.StringsKt;
 
@@ -365,9 +364,7 @@ public final class DynamicOverloadResolution {
                                                Object[] arguments,
                                                     /* Nullable */ String[] namedArguments,
                                                Class methodClass) {
-        MethodHandle handle;
         List<Method> methods = Arrays.asList(methodClass.getMethods());
-        //Collections.addAll(methods, methodClass.getMethods());
 
         methods = fastMethodFilter(methods, name);
 
