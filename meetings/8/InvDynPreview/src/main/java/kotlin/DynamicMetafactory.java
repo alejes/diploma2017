@@ -5,6 +5,7 @@ import java.lang.invoke.*;
 import java.net.BindException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public final class DynamicMetafactory {
@@ -20,6 +21,12 @@ public final class DynamicMetafactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
+    private static final HashMap<MutableCallSite, HashMap<MethodHandleEntry, MethodHandle>> callSiteGetFieldMap = new HashMap<>();
+    private static final HashMap<MutableCallSite, HashMap<MethodHandleEntry, MethodHandle>> callSiteSetFieldMap = new HashMap<>();
+    private static final HashMap<MutableCallSite, HashMap<MethodHandleEntry, MethodHandle>> callSiteMethodMap = new HashMap<>();
+    private static final ReentrantLock callSiteGetLock = new ReentrantLock();
+    private static final ReentrantLock callSiteSetLock = new ReentrantLock();
+    private static final ReentrantLock callSiteMethodLock = new ReentrantLock();
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
@@ -108,16 +115,40 @@ public final class DynamicMetafactory {
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
-        //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
-        if (!selector.setCallSite()) {
-            throw new DynamicBindException("Cannot find getter for field " + name);
+        MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
+        callSiteGetLock.lock();
+        HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
+        MethodHandle targetMethodHandle;
+        try {
+            HashMap<MethodHandleEntry, MethodHandle> candidateMap = new HashMap<>();
+            mapOfCallSite = callSiteGetFieldMap.putIfAbsent(mc, candidateMap);
+            if (mapOfCallSite == null) {
+                mapOfCallSite = candidateMap;
+            }
+            targetMethodHandle = mapOfCallSite.get(methodHandleEntry);
+        } finally {
+            callSiteGetLock.unlock();
         }
 
-        MethodHandle call = selector.getMethodHandle()
-                .asSpreader(Object[].class, arguments.length)
-                .asType(MethodType.methodType(Object.class, Object[].class));
-        return call.invokeExact(arguments);
+        if (targetMethodHandle == null) {
+            //[TODO] Selector
+            DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
+            if (!selector.setCallSite()) {
+                throw new DynamicBindException("Cannot find getter for field " + name);
+            }
+
+            targetMethodHandle = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
+                    .asType(MethodType.methodType(Object.class, Object[].class));
+
+            callSiteGetLock.lock();
+            try {
+                mapOfCallSite.put(methodHandleEntry, targetMethodHandle);
+            } finally {
+                callSiteGetLock.unlock();
+            }
+        }
+        return targetMethodHandle.invokeExact(arguments);
     }
 
     @SuppressWarnings("unused")
@@ -126,16 +157,40 @@ public final class DynamicMetafactory {
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
-        //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
-        if (!selector.setCallSite()) {
-            throw new DynamicBindException("Cannot find setter for field " + name);
+        MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
+        callSiteSetLock.lock();
+        HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
+        MethodHandle targetMethodHandle;
+        try {
+            HashMap<MethodHandleEntry, MethodHandle> candidateMap = new HashMap<>();
+            mapOfCallSite = callSiteSetFieldMap.putIfAbsent(mc, candidateMap);
+            if (mapOfCallSite == null) {
+                mapOfCallSite = candidateMap;
+            }
+            targetMethodHandle = mapOfCallSite.get(methodHandleEntry);
+        } finally {
+            callSiteSetLock.unlock();
         }
 
-        MethodHandle call = selector.getMethodHandle()
-                .asSpreader(Object[].class, arguments.length)
-                .asType(MethodType.methodType(Object.class, Object[].class));
-        return call.invokeExact(arguments);
+        if (targetMethodHandle == null) {
+            //[TODO] Selector
+            DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
+            if (!selector.setCallSite()) {
+                throw new DynamicBindException("Cannot find setter for field " + name);
+            }
+
+            targetMethodHandle = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
+                    .asType(MethodType.methodType(Object.class, Object[].class));
+
+            callSiteSetLock.lock();
+            try {
+                mapOfCallSite.put(methodHandleEntry, targetMethodHandle);
+            } finally {
+                callSiteSetLock.unlock();
+            }
+        }
+        return targetMethodHandle.invokeExact(arguments);
     }
 
     @SuppressWarnings("unused")
@@ -148,33 +203,57 @@ public final class DynamicMetafactory {
                                       /* Nullable */ String[] namedArguments,
                                       boolean allowNamingConversion
     ) throws Throwable {
-        //[TODO] Selector
-        DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
-        String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
-        boolean hasCounterpart = operatorCounterpart != null;
-        boolean callSiteMounted = selector.setCallSite(hasCounterpart);
-        if (allowNamingConversion && !callSiteMounted) {
-            if (operatorCounterpart != null) {
-                selector.changeName(operatorCounterpart);
-                callSiteMounted = selector.setCallSite();
+        MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
+        callSiteMethodLock.lock();
+        HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
+        MethodHandle targetMethodHandle;
+        try {
+            HashMap<MethodHandleEntry, MethodHandle> candidateMap = new HashMap<>();
+            mapOfCallSite = callSiteMethodMap.putIfAbsent(mc, candidateMap);
+            if (mapOfCallSite == null) {
+                mapOfCallSite = candidateMap;
+            }
+            targetMethodHandle = mapOfCallSite.get(methodHandleEntry);
+        } finally {
+            callSiteMethodLock.unlock();
+        }
+
+        if (targetMethodHandle == null) {
+            //[TODO] Selector
+            DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
+            String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
+            boolean hasCounterpart = operatorCounterpart != null;
+            boolean callSiteMounted = selector.setCallSite(hasCounterpart);
+            if (allowNamingConversion && !callSiteMounted) {
+                if (operatorCounterpart != null) {
+                    selector.changeName(operatorCounterpart);
+                    callSiteMounted = selector.setCallSite();
+                }
+
+                //invokeType can be field/property with lambda
+                if (!callSiteMounted) {
+                    selector = DynamicSelector.getInvokerSelector(mc, caller, type, name, arguments, namedArguments);
+                    callSiteMounted = selector.setCallSite();
+                }
             }
 
-            //invokeType can be field/property with lambda
             if (!callSiteMounted) {
-                selector = DynamicSelector.getInvokerSelector(mc, caller, type, name, arguments, namedArguments);
-                callSiteMounted = selector.setCallSite();
+                throw new DynamicBindException("Cannot find target method " + name);
+            }
+
+            targetMethodHandle = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
+                    .asType(MethodType.methodType(Object.class, Object[].class));
+
+            callSiteMethodLock.lock();
+            try {
+                mapOfCallSite.put(methodHandleEntry, targetMethodHandle);
+            } finally {
+                callSiteMethodLock.unlock();
             }
         }
 
-        if (!callSiteMounted) {
-            throw new DynamicBindException("Cannot find target method " + name);
-        }
-
-        MethodHandle call = selector.getMethodHandle()
-                .asSpreader(Object[].class, arguments.length)
-                .asType(MethodType.methodType(Object.class, Object[].class));
-
-        return call.invokeExact(arguments);
+        return targetMethodHandle.invokeExact(arguments);
     }
 
     /**
@@ -208,6 +287,61 @@ public final class DynamicMetafactory {
 
         public final String getJavaPrefix() {
             return javaPrefix;
+        }
+    }
+
+    private static final class MethodHandleEntry {
+        /* package */ final Class[] argumentClasses;
+        private final int hash;
+
+        /* package */ MethodHandleEntry(Class[] argumentClasses) {
+            this.argumentClasses = argumentClasses;
+            int tempHash = 0;
+            for (Class clazz : argumentClasses) {
+                tempHash ^= clazz.hashCode();
+            }
+            hash = tempHash;
+        }
+
+        /* package */
+        static MethodHandleEntry buildFromArguments(Object[] argumentClasses) {
+            Class[] clazzArray = new Class[argumentClasses.length];
+            for (int i = 0; i < argumentClasses.length; ++i) {
+                Object obj = argumentClasses[i];
+                if (obj == null) {
+                    clazzArray[i] = void.class;
+                } else {
+                    clazzArray[i] = argumentClasses[i].getClass();
+                }
+            }
+            return new MethodHandleEntry(clazzArray);
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (obj.getClass() != MethodHandleEntry.class)
+                return false;
+
+            Class[] objClasses = ((MethodHandleEntry) obj).argumentClasses;
+            if (objClasses.length != argumentClasses.length) {
+                return false;
+            }
+
+            for (int i = 0; i < argumentClasses.length; ++i) {
+                if (argumentClasses[i] != objClasses[i])
+                    return false;
+            }
+
+            return true;
         }
     }
 
