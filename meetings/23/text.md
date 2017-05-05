@@ -24,38 +24,40 @@ fun box(): String {
 
 - ReentrantLock + hashmap в CallSite
 
-Benchmark                                               Mode  Cnt      Score      Error  Units
-MyBenchmark.GroovyDynamicMethod0_0                      avgt   60      0.038 ±    0.001  us/op
-MyBenchmark.GroovyDynamicMethod3_3                      avgt   60    981.233 ±   14.712  us/op
-MyBenchmark.GroovyDynamicMethod5Proxy                   avgt   60   1567.074 ±    5.654  us/op
-MyBenchmark.GroovyDynamicMethod5_10                     avgt   60   1648.115 ±   38.835  us/op
-MyBenchmark.GroovyDynamicMethod5_2_default3Proxy        avgt   60   1405.636 ±   14.019  us/op
-MyBenchmark.GroovyInvokeDynamicMethod0_0                avgt   60      0.013 ±    0.001  us/op
-MyBenchmark.GroovyInvokeDynamicMethod3_3                avgt   60  41736.439 ±  894.566  us/op
-MyBenchmark.GroovyInvokeDynamicMethod5Proxy             avgt   60  49150.659 ± 2127.131  us/op
-MyBenchmark.GroovyInvokeDynamicMethod5_10               avgt   60  55677.995 ± 1213.618  us/op
-MyBenchmark.GroovyInvokeDynamicMethod5_2_default3Proxy  avgt   60  44745.824 ±  883.252  us/op
-MyBenchmark.kotlinDynamicMethod0_0                      avgt   60      0.004 ±    0.001  us/op
-MyBenchmark.kotlinDynamicMethod3_3                      avgt   60   1442.085 ±   11.134  us/op
-MyBenchmark.kotlinDynamicMethod5Proxy                   avgt   60   1720.368 ±   13.739  us/op
-MyBenchmark.kotlinDynamicMethod5_10                     avgt   60   1760.024 ±   21.880  us/op
-MyBenchmark.kotlinDynamicMethod5_2_default3Proxy        avgt   60   1688.205 ±    9.158  us/op
+|Benchmark                                  | Mode | Cnt |     Score |      Error | Units|
+|---|---|---|---|---|---|
+|GroovyDynamicMethod0_0                     | avgt |  60 |     0.038 | ±    0.001 | us/op|
+|GroovyDynamicMethod3_3                     | avgt |  60 |   981.233 | ±   14.712 | us/op|
+|GroovyDynamicMethod5Proxy                  | avgt |  60 |  1567.074 | ±    5.654 | us/op|
+|GroovyDynamicMethod5_10                    | avgt |  60 |  1648.115 | ±   38.835 | us/op|
+|GroovyDynamicMethod5_2_default3Proxy       | avgt |  60 |  1405.636 | ±   14.019 | us/op|
+|GroovyInvokeDynamicMethod0_0               | avgt |  60 |     0.013 | ±    0.001 | us/op|
+|GroovyInvokeDynamicMethod3_3               | avgt |  60 | 41736.439 | ±  894.566 | us/op|
+|GroovyInvokeDynamicMethod5Proxy            | avgt |  60 | 49150.659 | ± 2127.131 | us/op|
+|GroovyInvokeDynamicMethod5_10              | avgt |  60 | 55677.995 | ± 1213.618 | us/op|
+|GroovyInvokeDynamicMethod5_2_default3Proxy | avgt |  60 | 44745.824 | ±  883.252 | us/op|
+|kotlinDynamicMethod0_0                     | avgt |  60 |     0.004 | ±    0.001 | us/op|
+|kotlinDynamicMethod3_3                     | avgt |  60 |  1442.085 | ±   11.134 | us/op|
+|kotlinDynamicMethod5Proxy                  | avgt |  60 |  1720.368 | ±   13.739 | us/op|
+|kotlinDynamicMethod5_10                    | avgt |  60 |  1760.024 | ±   21.880 | us/op|
+|kotlinDynamicMethod5_2_default3Proxy       | avgt |  60 |  1688.205 | ±    9.158 | us/op|
 
 - Collections.synchronizedMap в CallSite.
 
-Benchmark                                               Mode  Cnt      Score      Error  Units
-MyBenchmark.GroovyDynamicMethod0_0                      avgt   60      0.038 ±    0.001  us/op
-MyBenchmark.GroovyDynamicMethod3_3                      avgt   60    972.503 ±    9.126  us/op
-MyBenchmark.GroovyDynamicMethod5Proxy                   avgt   60   1552.920 ±   11.394  us/op
-MyBenchmark.GroovyDynamicMethod5_10                     avgt   60   1615.261 ±    7.205  us/op
-MyBenchmark.GroovyDynamicMethod5_2_default3Proxy        avgt   60   1363.339 ±   10.463  us/op
-MyBenchmark.GroovyInvokeDynamicMethod0_0                avgt   60      0.011 ±    0.001  us/op
-MyBenchmark.GroovyInvokeDynamicMethod3_3                avgt   60  41110.996 ±  438.299  us/op
-MyBenchmark.GroovyInvokeDynamicMethod5Proxy             avgt   60  54066.070 ±  602.085  us/op
-MyBenchmark.GroovyInvokeDynamicMethod5_10               avgt   60  51602.621 ± 1103.996  us/op
-MyBenchmark.GroovyInvokeDynamicMethod5_2_default3Proxy  avgt   60  41187.940 ±  801.785  us/op
-MyBenchmark.kotlinDynamicMethod0_0                      avgt   60      0.004 ±    0.001  us/op
-MyBenchmark.kotlinDynamicMethod3_3                      avgt   60   1364.518 ±   18.220  us/op
-MyBenchmark.kotlinDynamicMethod5Proxy                   avgt   60   1442.166 ±   12.882  us/op
-MyBenchmark.kotlinDynamicMethod5_10                     avgt   60   1416.214 ±   30.963  us/op
-MyBenchmark.kotlinDynamicMethod5_2_default3Proxy        avgt   60   1434.649 ±   15.752  us/op
+|Benchmark                                  | Mode | Cnt |     Score |      Error | Units|
+|---|---|---|---|---|---|
+|GroovyDynamicMethod0_0                     | avgt |  60 |     0.038 | ±    0.001 | us/op|
+|GroovyDynamicMethod3_3                     | avgt |  60 |   972.503 | ±    9.126 | us/op|
+|GroovyDynamicMethod5Proxy                  | avgt |  60 |  1552.920 | ±   11.394 | us/op|
+|GroovyDynamicMethod5_10                    | avgt |  60 |  1615.261 | ±    7.205 | us/op|
+|GroovyDynamicMethod5_2_default3Proxy       | avgt |  60 |  1363.339 | ±   10.463 | us/op|
+|GroovyInvokeDynamicMethod0_0               | avgt |  60 |     0.011 | ±    0.001 | us/op|
+|GroovyInvokeDynamicMethod3_3               | avgt |  60 | 41110.996 | ±  438.299 | us/op|
+|GroovyInvokeDynamicMethod5Proxy            | avgt |  60 | 54066.070 | ±  602.085 | us/op|
+|GroovyInvokeDynamicMethod5_10              | avgt |  60 | 51602.621 | ± 1103.996 | us/op|
+|GroovyInvokeDynamicMethod5_2_default3Proxy | avgt |  60 | 41187.940 | ±  801.785 | us/op|
+|kotlinDynamicMethod0_0                     | avgt |  60 |     0.004 | ±    0.001 | us/op|
+|kotlinDynamicMethod3_3                     | avgt |  60 |  1364.518 | ±   18.220 | us/op|
+|kotlinDynamicMethod5Proxy                  | avgt |  60 |  1442.166 | ±   12.882 | us/op|
+|kotlinDynamicMethod5_10                    | avgt |  60 |  1416.214 | ±   30.963 | us/op|
+|kotlinDynamicMethod5_2_default3Proxy       | avgt |  60 |  1434.649 | ±   15.752 | us/op|
