@@ -3,10 +3,10 @@ package kotlin;
 
 import java.lang.invoke.*;
 import java.net.BindException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 public final class DynamicMetafactory {
@@ -22,9 +22,6 @@ public final class DynamicMetafactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final ReentrantLock callSiteGetLock = new ReentrantLock();
-    private static final ReentrantLock callSiteSetLock = new ReentrantLock();
-    private static final ReentrantLock callSiteMethodLock = new ReentrantLock();
     private static final int CALLSITE_CACHE_SIZE = 5;
 
     static {
@@ -115,13 +112,7 @@ public final class DynamicMetafactory {
                                         String name,
                                         Object[] arguments) throws Throwable {
         MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-        callSiteGetLock.lock();
-        MethodHandle targetMethodHandle;
-        try {
-            targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
-        } finally {
-            callSiteGetLock.unlock();
-        }
+        MethodHandle targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
 
         if (targetMethodHandle == null) {
             //[TODO] Selector
@@ -134,12 +125,7 @@ public final class DynamicMetafactory {
                     .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
-            callSiteGetLock.lock();
-            try {
-                mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
-            } finally {
-                callSiteGetLock.unlock();
-            }
+            mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
         }
         return targetMethodHandle.invokeExact(arguments);
     }
@@ -151,13 +137,7 @@ public final class DynamicMetafactory {
                                         String name,
                                         Object[] arguments) throws Throwable {
         MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-        callSiteSetLock.lock();
-        MethodHandle targetMethodHandle;
-        try {
-            targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
-        } finally {
-            callSiteSetLock.unlock();
-        }
+        MethodHandle targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
 
         if (targetMethodHandle == null) {
             //[TODO] Selector
@@ -170,12 +150,7 @@ public final class DynamicMetafactory {
                     .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
-            callSiteSetLock.lock();
-            try {
-                mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
-            } finally {
-                callSiteSetLock.unlock();
-            }
+            mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
         }
         return targetMethodHandle.invokeExact(arguments);
     }
@@ -191,13 +166,7 @@ public final class DynamicMetafactory {
                                       boolean allowNamingConversion
     ) throws Throwable {
         MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-        callSiteMethodLock.lock();
-        MethodHandle targetMethodHandle;
-        try {
-            targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
-        } finally {
-            callSiteMethodLock.unlock();
-        }
+        MethodHandle targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
 
         if (targetMethodHandle == null) {
             //[TODO] Selector
@@ -226,12 +195,7 @@ public final class DynamicMetafactory {
                     .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
-            callSiteMethodLock.lock();
-            try {
-                mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
-            } finally {
-                callSiteMethodLock.unlock();
-            }
+            mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
         }
 
         return targetMethodHandle.invokeExact(arguments);
@@ -272,9 +236,9 @@ public final class DynamicMetafactory {
     }
 
     /* package */ static final class DynamicCallSite extends MutableCallSite {
-        /* package */ CacheMap methodHandleCache = new CacheMap();
+        /* package */ Map<MethodHandleEntry, MethodHandle> methodHandleCache = Collections.synchronizedMap(new CacheMap());
 
-        public DynamicCallSite(MethodType type) {
+        /* package */ DynamicCallSite(MethodType type) {
             super(type);
         }
     }
