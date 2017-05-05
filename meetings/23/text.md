@@ -21,6 +21,7 @@ fun box(): String {
 ### Сравнение реализаций кешей
 
 - Тест overloads на 8 потоков
+- 1000 Int + 1000 String перемешанных дял перегрузок
 
 - ReentrantLock + hashmap в CallSite
 
