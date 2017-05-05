@@ -23,7 +23,7 @@ fun box(): String {
 - Тест overloads на 8 потоков
 - 1000 Int + 1000 String перемешанных дял перегрузок
 
-- ReentrantLock + hashmap hashmap
+- ReentrantLock + hashmap hashmap (log утерян, а пересобирать смысла нет, появилось лучшее решение)
 
 ![ew](https://pp.userapi.com/c840131/v840131398/3ea/U-oj9uyC1ww.jpg)
 
