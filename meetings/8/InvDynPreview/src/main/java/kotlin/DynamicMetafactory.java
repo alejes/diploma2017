@@ -22,9 +22,6 @@ public final class DynamicMetafactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final HashMap<MutableCallSite, CacheMap> callSiteGetFieldMap = new HashMap<>();
-    private static final HashMap<MutableCallSite, CacheMap> callSiteSetFieldMap = new HashMap<>();
-    private static final HashMap<MutableCallSite, CacheMap> callSiteMethodMap = new HashMap<>();
     private static final ReentrantLock callSiteGetLock = new ReentrantLock();
     private static final ReentrantLock callSiteSetLock = new ReentrantLock();
     private static final ReentrantLock callSiteMethodLock = new ReentrantLock();
@@ -32,13 +29,13 @@ public final class DynamicMetafactory {
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
-                MutableCallSite.class,
+                DynamicCallSite.class,
                 MethodHandles.Lookup.class,
                 MethodType.class,
                 String.class,
                 Object[].class);
         MethodType mtInvoke = MethodType.methodType(Object.class,
-                MutableCallSite.class,
+                DynamicCallSite.class,
                 MethodHandles.Lookup.class,
                 MethodType.class,
                 String.class,
@@ -76,7 +73,7 @@ public final class DynamicMetafactory {
                                             int flags,
                                             String... namedArguments)
             throws IllegalAccessException, NoSuchMethodException, BindException {
-        MutableCallSite mc = new MutableCallSite(type);
+        DynamicCallSite mc = new DynamicCallSite(type);
         InvokeType it;
         if (query.equals(InvokeType.GET.type)) {
             it = InvokeType.GET;
@@ -95,7 +92,7 @@ public final class DynamicMetafactory {
     }
 
     /* package */
-    static MethodHandle makeFallBack(MutableCallSite mc,
+    static MethodHandle makeFallBack(DynamicCallSite mc,
                                      MethodHandles.Lookup caller,
                                      MethodType type,
                                      String name,
@@ -112,22 +109,16 @@ public final class DynamicMetafactory {
     }
 
     @SuppressWarnings("unused")
-    private static Object fieldGetProxy(MutableCallSite mc,
+    private static Object fieldGetProxy(DynamicCallSite mc,
                                         MethodHandles.Lookup caller,
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
         MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
         callSiteGetLock.lock();
-        HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
         MethodHandle targetMethodHandle;
         try {
-            CacheMap candidateMap = new CacheMap();
-            mapOfCallSite = callSiteGetFieldMap.putIfAbsent(mc, candidateMap);
-            if (mapOfCallSite == null) {
-                mapOfCallSite = candidateMap;
-            }
-            targetMethodHandle = mapOfCallSite.get(methodHandleEntry);
+            targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
         } finally {
             callSiteGetLock.unlock();
         }
@@ -145,7 +136,7 @@ public final class DynamicMetafactory {
 
             callSiteGetLock.lock();
             try {
-                mapOfCallSite.put(methodHandleEntry, targetMethodHandle);
+                mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
             } finally {
                 callSiteGetLock.unlock();
             }
@@ -154,22 +145,16 @@ public final class DynamicMetafactory {
     }
 
     @SuppressWarnings("unused")
-    private static Object fieldSetProxy(MutableCallSite mc,
+    private static Object fieldSetProxy(DynamicCallSite mc,
                                         MethodHandles.Lookup caller,
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
         MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
         callSiteSetLock.lock();
-        HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
         MethodHandle targetMethodHandle;
         try {
-            CacheMap candidateMap = new CacheMap();
-            mapOfCallSite = callSiteSetFieldMap.putIfAbsent(mc, candidateMap);
-            if (mapOfCallSite == null) {
-                mapOfCallSite = candidateMap;
-            }
-            targetMethodHandle = mapOfCallSite.get(methodHandleEntry);
+            targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
         } finally {
             callSiteSetLock.unlock();
         }
@@ -187,7 +172,7 @@ public final class DynamicMetafactory {
 
             callSiteSetLock.lock();
             try {
-                mapOfCallSite.put(methodHandleEntry, targetMethodHandle);
+                mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
             } finally {
                 callSiteSetLock.unlock();
             }
@@ -196,7 +181,7 @@ public final class DynamicMetafactory {
     }
 
     @SuppressWarnings("unused")
-    private static Object invokeProxy(MutableCallSite mc,
+    private static Object invokeProxy(DynamicCallSite mc,
                                       MethodHandles.Lookup caller,
                                       MethodType type,
                                       String name,
@@ -207,15 +192,9 @@ public final class DynamicMetafactory {
     ) throws Throwable {
         MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
         callSiteMethodLock.lock();
-        HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
         MethodHandle targetMethodHandle;
         try {
-            CacheMap candidateMap = new CacheMap();
-            mapOfCallSite = callSiteMethodMap.putIfAbsent(mc, candidateMap);
-            if (mapOfCallSite == null) {
-                mapOfCallSite = candidateMap;
-            }
-            targetMethodHandle = mapOfCallSite.get(methodHandleEntry);
+            targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
         } finally {
             callSiteMethodLock.unlock();
         }
@@ -249,7 +228,7 @@ public final class DynamicMetafactory {
 
             callSiteMethodLock.lock();
             try {
-                mapOfCallSite.put(methodHandleEntry, targetMethodHandle);
+                mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
             } finally {
                 callSiteMethodLock.unlock();
             }
@@ -289,6 +268,14 @@ public final class DynamicMetafactory {
 
         public final String getJavaPrefix() {
             return javaPrefix;
+        }
+    }
+
+    /* package */ static final class DynamicCallSite extends MutableCallSite {
+        /* package */ CacheMap methodHandleCache = new CacheMap();
+
+        public DynamicCallSite(MethodType type) {
+            super(type);
         }
     }
 

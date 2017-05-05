@@ -12,7 +12,7 @@ import static kotlin.DynamicMetafactory.*;
     private static final int COMPOUND_ASSIGNMENT_FLAG = 1;
     protected final Object[] arguments;
     protected final MethodHandles.Lookup caller;
-    protected final MutableCallSite mc;
+    protected final DynamicCallSite mc;
     protected final MethodType type;
     protected final boolean isStaticCall;
     protected final InvokeType invokeType;
@@ -23,7 +23,7 @@ import static kotlin.DynamicMetafactory.*;
     protected boolean addGuardsForArguments = true;
 
     private DynamicSelector(Object[] arguments,
-                            MutableCallSite mc,
+                            DynamicCallSite mc,
                             MethodHandles.Lookup caller,
                             MethodType type,
                             String name,
@@ -41,7 +41,7 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     /* package */
-    static DynamicSelector getFieldSelector(MutableCallSite mc,
+    static DynamicSelector getFieldSelector(DynamicCallSite mc,
                                             MethodHandles.Lookup caller,
                                             MethodType type,
                                             String name,
@@ -51,7 +51,7 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     /* package */
-    static DynamicSelector getMethodSelector(MutableCallSite mc,
+    static DynamicSelector getMethodSelector(DynamicCallSite mc,
                                              MethodHandles.Lookup caller,
                                              MethodType type,
                                              String name,
@@ -62,7 +62,7 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     /* package */
-    static DynamicSelector getInvokerSelector(MutableCallSite mc,
+    static DynamicSelector getInvokerSelector(DynamicCallSite mc,
                                               MethodHandles.Lookup caller,
                                               MethodType type,
                                               String name,
@@ -165,7 +165,7 @@ import static kotlin.DynamicMetafactory.*;
         /* Nullable */
         private String[] namedArguments;
 
-        private InvokerSelector(MutableCallSite mc,
+        private InvokerSelector(DynamicCallSite mc,
                                 MethodHandles.Lookup caller,
                                 MethodType type,
                                 String name,
@@ -201,7 +201,7 @@ import static kotlin.DynamicMetafactory.*;
         /* Nullable */
         private String[] namedArguments;
 
-        private MethodSelector(MutableCallSite mc,
+        private MethodSelector(DynamicCallSite mc,
                                MethodHandles.Lookup caller,
                                MethodType type,
                                String name,
@@ -224,7 +224,7 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     private final static class FieldSelector extends DynamicSelector {
-        private FieldSelector(MutableCallSite mc,
+        private FieldSelector(DynamicCallSite mc,
                               MethodHandles.Lookup caller,
                               MethodType type,
                               String name,
