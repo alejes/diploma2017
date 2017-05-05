@@ -4,6 +4,7 @@ package kotlin;
 import java.lang.invoke.*;
 import java.net.BindException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,12 +22,13 @@ public final class DynamicMetafactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final HashMap<MutableCallSite, HashMap<MethodHandleEntry, MethodHandle>> callSiteGetFieldMap = new HashMap<>();
-    private static final HashMap<MutableCallSite, HashMap<MethodHandleEntry, MethodHandle>> callSiteSetFieldMap = new HashMap<>();
-    private static final HashMap<MutableCallSite, HashMap<MethodHandleEntry, MethodHandle>> callSiteMethodMap = new HashMap<>();
+    private static final HashMap<MutableCallSite, CacheMap> callSiteGetFieldMap = new HashMap<>();
+    private static final HashMap<MutableCallSite, CacheMap> callSiteSetFieldMap = new HashMap<>();
+    private static final HashMap<MutableCallSite, CacheMap> callSiteMethodMap = new HashMap<>();
     private static final ReentrantLock callSiteGetLock = new ReentrantLock();
     private static final ReentrantLock callSiteSetLock = new ReentrantLock();
     private static final ReentrantLock callSiteMethodLock = new ReentrantLock();
+    private static final int CALLSITE_CACHE_SIZE = 5;
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
@@ -120,7 +122,7 @@ public final class DynamicMetafactory {
         HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
         MethodHandle targetMethodHandle;
         try {
-            HashMap<MethodHandleEntry, MethodHandle> candidateMap = new HashMap<>();
+            CacheMap candidateMap = new CacheMap();
             mapOfCallSite = callSiteGetFieldMap.putIfAbsent(mc, candidateMap);
             if (mapOfCallSite == null) {
                 mapOfCallSite = candidateMap;
@@ -162,7 +164,7 @@ public final class DynamicMetafactory {
         HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
         MethodHandle targetMethodHandle;
         try {
-            HashMap<MethodHandleEntry, MethodHandle> candidateMap = new HashMap<>();
+            CacheMap candidateMap = new CacheMap();
             mapOfCallSite = callSiteSetFieldMap.putIfAbsent(mc, candidateMap);
             if (mapOfCallSite == null) {
                 mapOfCallSite = candidateMap;
@@ -208,7 +210,7 @@ public final class DynamicMetafactory {
         HashMap<MethodHandleEntry, MethodHandle> mapOfCallSite;
         MethodHandle targetMethodHandle;
         try {
-            HashMap<MethodHandleEntry, MethodHandle> candidateMap = new HashMap<>();
+            CacheMap candidateMap = new CacheMap();
             mapOfCallSite = callSiteMethodMap.putIfAbsent(mc, candidateMap);
             if (mapOfCallSite == null) {
                 mapOfCallSite = candidateMap;
@@ -287,6 +289,13 @@ public final class DynamicMetafactory {
 
         public final String getJavaPrefix() {
             return javaPrefix;
+        }
+    }
+
+    private static final class CacheMap extends LinkedHashMap<MethodHandleEntry, MethodHandle> {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<MethodHandleEntry, MethodHandle> eldest) {
+            return size() > CALLSITE_CACHE_SIZE;
         }
     }
 
