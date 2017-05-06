@@ -39,11 +39,16 @@ public final class DynamicOverloadResolution {
     }
 
     private static List<Method> fastMethodFilter(List<Method> methods, String name) {
+        List<Method> newList = new ArrayList<>(methods.size());
         String defaultName = name + DEFAULT_CALLER_SUFFIX;
-        return methods.stream()
-                .filter(it -> (it.getName().equals(name) && !it.isBridge()) || it.getName().equals(defaultName))
-                .distinct()
-                .collect(Collectors.toList());
+
+        for (Method it : methods) {
+            if ((it.getName().equals(name) && !it.isBridge()) || it.getName().equals(defaultName)) {
+                newList.add(it);
+            }
+        }
+
+        return newList;
     }
 
     private static List<Method> filterSuitableMethods(List<Method> methods, Object[] arguments) {
@@ -51,7 +56,13 @@ public final class DynamicOverloadResolution {
     }
 
     private static List<Method> filterSuitableMethods(List<Method> methods, Object[] arguments, boolean skipReceiverCheck) {
-        return methods.stream().filter(it -> DynamicUtilsKt.isMethodSuitable(it, arguments, skipReceiverCheck)).collect(Collectors.toList());
+        List<Method> newList = new ArrayList<>(methods.size());
+        for (Method it : methods) {
+            if (DynamicUtilsKt.isMethodSuitable(it, arguments, skipReceiverCheck)) {
+                newList.add(it);
+            }
+        }
+        return newList;
     }
 
     private static List<Method> findBuiltins(String name, Class methodClass) {
@@ -179,13 +190,16 @@ public final class DynamicOverloadResolution {
     private static Method resolveBridgeOwner(Method targetMethod, List<Method> listForSearchOriginalForBridge) {
         Method method = targetMethod;
         if (targetMethod.isBridge()) {
-            Optional<Method> candidate = listForSearchOriginalForBridge.stream()
-                    .filter(it -> !it.isBridge() && (it != targetMethod) && !it.getName().endsWith(DEFAULT_CALLER_SUFFIX))
-                    .filter(it -> isBridgeForMethod(targetMethod, it)).findFirst();
-            if (!candidate.isPresent()) {
-                return null;
+            method = null;
+            for (Method it : listForSearchOriginalForBridge) {
+                if (!it.isBridge() &&
+                        (it != targetMethod) &&
+                        !it.getName().endsWith(DEFAULT_CALLER_SUFFIX) &&
+                        isBridgeForMethod(targetMethod, it)) {
+                    method = it;
+                    break;
+                }
             }
-            method = candidate.get();
         }
         return method;
     }
