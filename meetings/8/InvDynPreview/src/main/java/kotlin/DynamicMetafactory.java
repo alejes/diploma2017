@@ -4,7 +4,6 @@ package kotlin;
 import java.lang.invoke.*;
 import java.net.BindException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -111,23 +110,28 @@ public final class DynamicMetafactory {
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
-        MethodHandle targetMethodHandle = mc.methodHandleCache.get(arguments);
+        CacheMap.Entry cacheEntry = mc.methodHandleCache.get(arguments);
+        MethodHandle invokedHandle;
 
-        if (targetMethodHandle == null) {
+        if (cacheEntry == null) {
             //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
             if (!selector.setCallSite()) {
                 throw new DynamicBindException("Cannot find getter for field " + name);
             }
 
-            targetMethodHandle = selector.getMethodHandle()
-                    .asSpreader(Object[].class, arguments.length)
+            MethodHandle cachedHandle = selector.getMethodHandle();
+            invokedHandle = cachedHandle.asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-            mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
+            mc.methodHandleCache.put(methodHandleEntry, cachedHandle, invokedHandle);
+        } else {
+            mc.setTarget(cacheEntry.targetValue);
+            invokedHandle = cacheEntry.invokedValue;
         }
-        return targetMethodHandle.invokeExact(arguments);
+
+        return invokedHandle.invokeExact(arguments);
     }
 
     @SuppressWarnings("unused")
@@ -136,23 +140,28 @@ public final class DynamicMetafactory {
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
-        MethodHandle targetMethodHandle = mc.methodHandleCache.get(arguments);
+        CacheMap.Entry cacheEntry = mc.methodHandleCache.get(arguments);
+        MethodHandle invokedHandle;
 
-        if (targetMethodHandle == null) {
+        if (cacheEntry == null) {
             //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
             if (!selector.setCallSite()) {
                 throw new DynamicBindException("Cannot find setter for field " + name);
             }
 
-            targetMethodHandle = selector.getMethodHandle()
-                    .asSpreader(Object[].class, arguments.length)
+            MethodHandle cachedHandle = selector.getMethodHandle();
+            invokedHandle = cachedHandle.asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-            mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
+            mc.methodHandleCache.put(methodHandleEntry, cachedHandle, invokedHandle);
+        } else {
+            mc.setTarget(cacheEntry.targetValue);
+            invokedHandle = cacheEntry.invokedValue;
         }
-        return targetMethodHandle.invokeExact(arguments);
+
+        return invokedHandle.invokeExact(arguments);
     }
 
     @SuppressWarnings("unused")
@@ -165,9 +174,12 @@ public final class DynamicMetafactory {
                                       /* Nullable */ String[] namedArguments,
                                       boolean allowNamingConversion
     ) throws Throwable {
-        MethodHandle targetMethodHandle = mc.methodHandleCache.get(arguments);
+        // System.out.println("call " + name);
+        CacheMap.Entry cacheEntry = mc.methodHandleCache.get(arguments);
+        MethodHandle invokedHandle;
 
-        if (targetMethodHandle == null) {
+        if (cacheEntry == null) {
+            // System.out.println("cannot find in cache");
             //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
             String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
@@ -190,15 +202,18 @@ public final class DynamicMetafactory {
                 throw new DynamicBindException("Cannot find target method " + name);
             }
 
-            targetMethodHandle = selector.getMethodHandle()
-                    .asSpreader(Object[].class, arguments.length)
+            MethodHandle cachedHandle = selector.getMethodHandle();
+            invokedHandle = cachedHandle.asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-            mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
+            mc.methodHandleCache.put(methodHandleEntry, cachedHandle, invokedHandle);
+        } else {
+            mc.setTarget(cacheEntry.targetValue);
+            invokedHandle = cacheEntry.invokedValue;
         }
 
-        return targetMethodHandle.invokeExact(arguments);
+        return invokedHandle.invokeExact(arguments);
     }
 
     /**
@@ -247,25 +262,22 @@ public final class DynamicMetafactory {
         private final LinkedList<CacheMap.Entry> list = new LinkedList<>();
 
         /* package */
-        synchronized MethodHandle get(MethodHandleEntry entry) {
-            Iterator<Entry> iterator = list.iterator();
+        synchronized Entry get(MethodHandleEntry entry) {
             int hash = entry.hash;
-            while (iterator.hasNext()) {
-                Entry e = iterator.next();
+            for (Entry e : list) {
                 if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
-                    iterator.remove();
-                    list.addFirst(e);
-                    return e.value;
+                    return e;
                 }
             }
             return null;
         }
 
         /* package */
-        synchronized MethodHandle get(Object[] entry) {
+        synchronized Entry get(Object[] entry) {
             int hash = MethodHandleEntry.computeHashCode(entry);
             //listLoop:
             for (Entry e : list) {
+                //System.out.println("\tSecond Cache entry");
                 if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
                     /*Class[] arguments = e.key.argumentClasses;
                     if (arguments.length != entry.length) {
@@ -279,15 +291,15 @@ public final class DynamicMetafactory {
                     }*/
                     //iterator.remove();
                     //list.addFirst(e);
-                    return e.value;
+                    return e;
                 }
             }
             return null;
         }
 
         /* package */
-        synchronized void put(MethodHandleEntry key, MethodHandle value) {
-            list.addFirst(new Entry(key, value));
+        synchronized void put(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
+            list.addFirst(new Entry(key, targetValue, invokedValue));
             if (list.size() > CALLSITE_CACHE_SIZE) {
                 list.removeLast();
             }
@@ -295,11 +307,13 @@ public final class DynamicMetafactory {
 
         /* package */ static final class Entry {
             /* package */ final MethodHandleEntry key;
-            /* package */ final MethodHandle value;
+            /* package */ final MethodHandle targetValue;
+            /* package */ final MethodHandle invokedValue;
 
-            /* package */ Entry(MethodHandleEntry key, MethodHandle value) {
+            /* package */ Entry(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
                 this.key = key;
-                this.value = value;
+                this.targetValue = targetValue;
+                this.invokedValue = invokedValue;
             }
         }
     }
@@ -347,11 +361,13 @@ public final class DynamicMetafactory {
 
         @Override
         public int hashCode() {
+            //System.out.println("\t\tHashCode Calculation");
             return hash;
         }
 
         /* package */
         boolean objectEquals(Object[] objects) {
+            //System.out.println("\t\t\tequals call");
             if (objects.length != argumentClasses.length) {
                 return false;
             }
