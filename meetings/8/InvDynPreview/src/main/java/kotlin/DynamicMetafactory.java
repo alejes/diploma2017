@@ -3,9 +3,9 @@ package kotlin;
 
 import java.lang.invoke.*;
 import java.net.BindException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 
@@ -111,8 +111,7 @@ public final class DynamicMetafactory {
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
-        MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-        MethodHandle targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
+        MethodHandle targetMethodHandle = mc.methodHandleCache.get(arguments);
 
         if (targetMethodHandle == null) {
             //[TODO] Selector
@@ -125,6 +124,7 @@ public final class DynamicMetafactory {
                     .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
+            MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
             mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
         }
         return targetMethodHandle.invokeExact(arguments);
@@ -136,8 +136,7 @@ public final class DynamicMetafactory {
                                         MethodType type,
                                         String name,
                                         Object[] arguments) throws Throwable {
-        MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-        MethodHandle targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
+        MethodHandle targetMethodHandle = mc.methodHandleCache.get(arguments);
 
         if (targetMethodHandle == null) {
             //[TODO] Selector
@@ -150,6 +149,7 @@ public final class DynamicMetafactory {
                     .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
+            MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
             mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
         }
         return targetMethodHandle.invokeExact(arguments);
@@ -165,8 +165,7 @@ public final class DynamicMetafactory {
                                       /* Nullable */ String[] namedArguments,
                                       boolean allowNamingConversion
     ) throws Throwable {
-        MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-        MethodHandle targetMethodHandle = mc.methodHandleCache.get(methodHandleEntry);
+        MethodHandle targetMethodHandle = mc.methodHandleCache.get(arguments);
 
         if (targetMethodHandle == null) {
             //[TODO] Selector
@@ -195,6 +194,7 @@ public final class DynamicMetafactory {
                     .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
+            MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
             mc.methodHandleCache.put(methodHandleEntry, targetMethodHandle);
         }
 
@@ -236,17 +236,71 @@ public final class DynamicMetafactory {
     }
 
     /* package */ static final class DynamicCallSite extends MutableCallSite {
-        /* package */ Map<MethodHandleEntry, MethodHandle> methodHandleCache = Collections.synchronizedMap(new CacheMap());
+        /* package */ CacheMap methodHandleCache = new CacheMap();
 
         /* package */ DynamicCallSite(MethodType type) {
             super(type);
         }
     }
 
-    private static final class CacheMap extends LinkedHashMap<MethodHandleEntry, MethodHandle> {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<MethodHandleEntry, MethodHandle> eldest) {
-            return size() > CALLSITE_CACHE_SIZE;
+    private static final class CacheMap {
+        private final LinkedList<CacheMap.Entry> list = new LinkedList<>();
+
+        /* package */
+        synchronized MethodHandle get(MethodHandleEntry entry) {
+            Iterator<Entry> iterator = list.iterator();
+            int hash = entry.hash;
+            while (iterator.hasNext()) {
+                Entry e = iterator.next();
+                if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
+                    iterator.remove();
+                    list.addFirst(e);
+                    return e.value;
+                }
+            }
+            return null;
+        }
+
+        /* package */
+        synchronized MethodHandle get(Object[] entry) {
+            int hash = MethodHandleEntry.computeHashCode(entry);
+            //listLoop:
+            for (Entry e : list) {
+                if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
+                    /*Class[] arguments = e.key.argumentClasses;
+                    if (arguments.length != entry.length) {
+                        continue;
+                    }
+
+                    for (int i = 0; i < arguments.length; ++i) {
+                        if (entry[i].getClass() != arguments[i]) {
+                            break listLoop;
+                        }
+                    }*/
+                    //iterator.remove();
+                    //list.addFirst(e);
+                    return e.value;
+                }
+            }
+            return null;
+        }
+
+        /* package */
+        synchronized void put(MethodHandleEntry key, MethodHandle value) {
+            list.addFirst(new Entry(key, value));
+            if (list.size() > CALLSITE_CACHE_SIZE) {
+                list.removeLast();
+            }
+        }
+
+        /* package */ static final class Entry {
+            /* package */ final MethodHandleEntry key;
+            /* package */ final MethodHandle value;
+
+            /* package */ Entry(MethodHandleEntry key, MethodHandle value) {
+                this.key = key;
+                this.value = value;
+            }
         }
     }
 
@@ -263,6 +317,7 @@ public final class DynamicMetafactory {
             hash = tempHash;
         }
 
+
         /* package */
         static MethodHandleEntry buildFromArguments(Object[] argumentClasses) {
             Class[] clazzArray = new Class[argumentClasses.length];
@@ -277,9 +332,34 @@ public final class DynamicMetafactory {
             return new MethodHandleEntry(clazzArray);
         }
 
+        /* package */
+        static int computeHashCode(Object[] args) {
+            int hash = 0;
+            for (Object obj : args) {
+                if (obj == null) {
+                    hash ^= void.class.hashCode();
+                } else {
+                    hash ^= obj.getClass().hashCode();
+                }
+            }
+            return hash;
+        }
+
         @Override
         public int hashCode() {
             return hash;
+        }
+
+        /* package */
+        boolean objectEquals(Object[] objects) {
+            if (objects.length != argumentClasses.length) {
+                return false;
+            }
+            for (int i = 0; i < argumentClasses.length; ++i) {
+                if (argumentClasses[i] != objects[i].getClass())
+                    return false;
+            }
+            return true;
         }
 
         @Override
@@ -288,6 +368,7 @@ public final class DynamicMetafactory {
                 return true;
             if (obj == null)
                 return false;
+
             if (obj.getClass() != MethodHandleEntry.class)
                 return false;
 
@@ -311,8 +392,8 @@ public final class DynamicMetafactory {
         /* Nullable */
         private final String[] namedArguments;
         private final boolean isReturnUnit;
-        private ThreadLocal<MethodHandle> cachedCall;
-        private ThreadLocal<Class[]> cachedArguments;
+        private final ThreadLocal<MethodHandle> cachedCall;
+        private final ThreadLocal<Class[]> cachedArguments;
 
         /* package */ ObjectInvoker(MethodHandle getterCall,
                                     MethodHandles.Lookup caller,
