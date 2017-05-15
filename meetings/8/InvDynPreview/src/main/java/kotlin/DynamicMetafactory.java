@@ -4,9 +4,10 @@ package kotlin;
 import java.lang.invoke.*;
 import java.net.BindException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public final class DynamicMetafactory {
@@ -22,7 +23,7 @@ public final class DynamicMetafactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final int CALLSITE_CACHE_SIZE = 5;
+    private static final int CALLSITE_CACHE_SIZE = 10;
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
@@ -175,12 +176,10 @@ public final class DynamicMetafactory {
                                       /* Nullable */ String[] namedArguments,
                                       boolean allowNamingConversion
     ) throws Throwable {
-        // System.out.println("call " + name);
         CacheMap.Entry cacheEntry = mc.methodHandleCache.get(arguments);
         MethodHandle invokedHandle;
 
         if (cacheEntry == null) {
-            // System.out.println("cannot find in cache");
             //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
             String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
@@ -261,50 +260,52 @@ public final class DynamicMetafactory {
 
     private static final class CacheMap {
         private final LinkedList<CacheMap.Entry> list = new LinkedList<>();
+        private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
         /* package */
-        synchronized Entry get(MethodHandleEntry entry) {
+        Entry get(MethodHandleEntry entry) {
             int hash = entry.hash;
-            for (Entry e : list) {
-                if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
-                    return e;
-                }
-            }
-            return null;
-        }
-
-        /* package */
-        synchronized Entry get(Object[] entry) {
-            int hash = MethodHandleEntry.computeHashCode(entry);
-            //listLoop:
-            Iterator<Entry> iterator = list.iterator();
-            while (iterator.hasNext()) {
-                Entry e = iterator.next();
-                //System.out.println("\tSecond Cache entry");
-                if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
-                    /*Class[] arguments = e.key.argumentClasses;
-                    if (arguments.length != entry.length) {
-                        continue;
+            lock.readLock().lock();
+            try {
+                for (Entry e : list) {
+                    if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
+                        return e;
                     }
-
-                    for (int i = 0; i < arguments.length; ++i) {
-                        if (entry[i].getClass() != arguments[i]) {
-                            break listLoop;
-                        }
-                    }*/
-                    iterator.remove();
-                    list.addFirst(e);
-                    return e;
                 }
+            } finally {
+                lock.readLock().unlock();
             }
             return null;
         }
 
         /* package */
-        synchronized void put(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
-            list.addFirst(new Entry(key, targetValue, invokedValue));
-            if (list.size() > CALLSITE_CACHE_SIZE) {
-                list.removeLast();
+        Entry get(Object[] entry) {
+            int hash = MethodHandleEntry.computeHashCode(entry);
+            lock.readLock().lock();
+            try {
+                for (Entry e : list) {
+                    if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
+//                        iterator.remove();
+//                        list.addFirst(e);
+                        return e;
+                    }
+                }
+            } finally {
+                lock.readLock().unlock();
+            }
+            return null;
+        }
+
+        /* package */
+        void put(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
+            lock.writeLock().lock();
+            try {
+                list.addFirst(new Entry(key, targetValue, invokedValue));
+                if (list.size() > CALLSITE_CACHE_SIZE) {
+                    list.removeLast();
+                }
+            } finally {
+                lock.writeLock().unlock();
             }
         }
 
