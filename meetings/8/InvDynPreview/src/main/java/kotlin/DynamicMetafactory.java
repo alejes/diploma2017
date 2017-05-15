@@ -4,6 +4,7 @@ package kotlin;
 import java.lang.invoke.*;
 import java.net.BindException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -251,7 +252,7 @@ public final class DynamicMetafactory {
     }
 
     /* package */ static final class DynamicCallSite extends MutableCallSite {
-        /* package */ CacheMap methodHandleCache = new CacheMap();
+        /* package */ final CacheMap methodHandleCache = new CacheMap();
 
         /* package */ DynamicCallSite(MethodType type) {
             super(type);
@@ -276,7 +277,9 @@ public final class DynamicMetafactory {
         synchronized Entry get(Object[] entry) {
             int hash = MethodHandleEntry.computeHashCode(entry);
             //listLoop:
-            for (Entry e : list) {
+            Iterator<Entry> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                Entry e = iterator.next();
                 //System.out.println("\tSecond Cache entry");
                 if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
                     /*Class[] arguments = e.key.argumentClasses;
@@ -289,8 +292,8 @@ public final class DynamicMetafactory {
                             break listLoop;
                         }
                     }*/
-                    //iterator.remove();
-                    //list.addFirst(e);
+                    iterator.remove();
+                    list.addFirst(e);
                     return e;
                 }
             }
@@ -472,7 +475,6 @@ public final class DynamicMetafactory {
                 cachedArguments.set(currentCachedArguments);
             }
 
-            assert targetCall != null;
             Object result = targetCall.invokeExact(arguments);
 
             if (isReturnUnit) {

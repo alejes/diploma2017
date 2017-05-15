@@ -162,7 +162,7 @@ import static kotlin.DynamicMetafactory.*;
 
     private final static class InvokerSelector extends DynamicSelector {
         /* Nullable */
-        private String[] namedArguments;
+        private final String[] namedArguments;
 
         private InvokerSelector(DynamicCallSite mc,
                                 MethodHandles.Lookup caller,
@@ -198,7 +198,7 @@ import static kotlin.DynamicMetafactory.*;
 
     private final static class MethodSelector extends DynamicSelector {
         /* Nullable */
-        private String[] namedArguments;
+        private final String[] namedArguments;
 
         private MethodSelector(DynamicCallSite mc,
                                MethodHandles.Lookup caller,
