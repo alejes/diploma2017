@@ -6,8 +6,6 @@ import java.net.BindException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public final class DynamicMetafactory {
@@ -23,7 +21,7 @@ public final class DynamicMetafactory {
     private static final MethodHandles.Lookup DYNAMIC_LOOKUP = MethodHandles.lookup();
     private static final MethodHandle FIELD_GET, FIELD_SET, INVOKE_METHOD;
     private static final Map<String, String> ASSIGNMENT_OPERATION_COUNTERPARTS = new HashMap<>();
-    private static final int CALLSITE_CACHE_SIZE = 10;
+    private static final int CALLSITE_CACHE_SIZE = 15;
 
     static {
         MethodType mt = MethodType.methodType(Object.class,
@@ -260,52 +258,36 @@ public final class DynamicMetafactory {
 
     private static final class CacheMap {
         private final LinkedList<CacheMap.Entry> list = new LinkedList<>();
-        private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
         /* package */
-        Entry get(MethodHandleEntry entry) {
+        synchronized Entry get(MethodHandleEntry entry) {
             int hash = entry.hash;
-            lock.readLock().lock();
-            try {
-                for (Entry e : list) {
-                    if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
-                        return e;
-                    }
+            for (Entry e : list) {
+                if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
+                    return e;
                 }
-            } finally {
-                lock.readLock().unlock();
             }
             return null;
         }
 
         /* package */
-        Entry get(Object[] entry) {
+        synchronized Entry get(Object[] entry) {
             int hash = MethodHandleEntry.computeHashCode(entry);
-            lock.readLock().lock();
-            try {
-                for (Entry e : list) {
-                    if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
+            for (Entry e : list) {
+                if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
 //                        iterator.remove();
 //                        list.addFirst(e);
-                        return e;
-                    }
+                    return e;
                 }
-            } finally {
-                lock.readLock().unlock();
             }
             return null;
         }
 
         /* package */
-        void put(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
-            lock.writeLock().lock();
-            try {
-                list.addFirst(new Entry(key, targetValue, invokedValue));
-                if (list.size() > CALLSITE_CACHE_SIZE) {
-                    list.removeLast();
-                }
-            } finally {
-                lock.writeLock().unlock();
+        synchronized void put(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
+            list.addFirst(new Entry(key, targetValue, invokedValue));
+            if (list.size() > CALLSITE_CACHE_SIZE) {
+                list.removeLast();
             }
         }
 
@@ -365,13 +347,11 @@ public final class DynamicMetafactory {
 
         @Override
         public int hashCode() {
-            //System.out.println("\t\tHashCode Calculation");
             return hash;
         }
 
         /* package */
         boolean objectEquals(Object[] objects) {
-            //System.out.println("\t\t\tequals call");
             if (objects.length != argumentClasses.length) {
                 return false;
             }
