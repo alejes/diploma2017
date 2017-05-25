@@ -120,14 +120,14 @@ public final class DynamicMetafactory {
                 throw new DynamicBindException("Cannot find getter for field " + name);
             }
 
-            MethodHandle cachedHandle = selector.getMethodHandle();
-            invokedHandle = cachedHandle.asSpreader(Object[].class, arguments.length)
+            invokedHandle = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-            mc.methodHandleCache.put(methodHandleEntry, cachedHandle, invokedHandle);
+            mc.methodHandleCache.put(methodHandleEntry, invokedHandle);
         } else {
-            mc.setTarget(cacheEntry.targetValue);
+            //mc.setTarget(cacheEntry.targetValue);
             invokedHandle = cacheEntry.invokedValue;
         }
 
@@ -150,14 +150,14 @@ public final class DynamicMetafactory {
                 throw new DynamicBindException("Cannot find setter for field " + name);
             }
 
-            MethodHandle cachedHandle = selector.getMethodHandle();
-            invokedHandle = cachedHandle.asSpreader(Object[].class, arguments.length)
+            invokedHandle = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-            mc.methodHandleCache.put(methodHandleEntry, cachedHandle, invokedHandle);
+            mc.methodHandleCache.put(methodHandleEntry, invokedHandle);
         } else {
-            mc.setTarget(cacheEntry.targetValue);
+            //mc.setTarget(cacheEntry.targetValue);
             invokedHandle = cacheEntry.invokedValue;
         }
 
@@ -200,14 +200,14 @@ public final class DynamicMetafactory {
                 throw new DynamicBindException("Cannot find target method " + name);
             }
 
-            MethodHandle cachedHandle = selector.getMethodHandle();
-            invokedHandle = cachedHandle.asSpreader(Object[].class, arguments.length)
+            invokedHandle = selector.getMethodHandle()
+                    .asSpreader(Object[].class, arguments.length)
                     .asType(MethodType.methodType(Object.class, Object[].class));
 
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
-            mc.methodHandleCache.put(methodHandleEntry, cachedHandle, invokedHandle);
+            mc.methodHandleCache.put(methodHandleEntry, invokedHandle);
         } else {
-            mc.setTarget(cacheEntry.targetValue);
+            // mc.setTarget(cacheEntry.targetValue);
             invokedHandle = cacheEntry.invokedValue;
         }
 
@@ -260,17 +260,6 @@ public final class DynamicMetafactory {
         private final LinkedList<CacheMap.Entry> list = new LinkedList<>();
 
         /* package */
-        synchronized Entry get(MethodHandleEntry entry) {
-            int hash = entry.hash;
-            for (Entry e : list) {
-                if ((e.key.hashCode() == hash) && (e.key.equals(entry))) {
-                    return e;
-                }
-            }
-            return null;
-        }
-
-        /* package */
         synchronized Entry get(Object[] entry) {
             int hash = MethodHandleEntry.computeHashCode(entry);
             for (Entry e : list) {
@@ -284,8 +273,8 @@ public final class DynamicMetafactory {
         }
 
         /* package */
-        synchronized void put(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
-            list.addFirst(new Entry(key, targetValue, invokedValue));
+        synchronized void put(MethodHandleEntry key, MethodHandle invokedValue) {
+            list.addFirst(new Entry(key, invokedValue));
             if (list.size() > CALLSITE_CACHE_SIZE) {
                 list.removeLast();
             }
@@ -293,12 +282,10 @@ public final class DynamicMetafactory {
 
         /* package */ static final class Entry {
             /* package */ final MethodHandleEntry key;
-            /* package */ final MethodHandle targetValue;
             /* package */ final MethodHandle invokedValue;
 
-            /* package */ Entry(MethodHandleEntry key, MethodHandle targetValue, MethodHandle invokedValue) {
+            /* package */ Entry(MethodHandleEntry key, MethodHandle invokedValue) {
                 this.key = key;
-                this.targetValue = targetValue;
                 this.invokedValue = invokedValue;
             }
         }
