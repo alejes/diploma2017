@@ -15,6 +15,8 @@ import static kotlin.DynamicMetafactory.*;
     protected final MethodType type;
     protected final boolean isStaticCall;
     protected final InvokeType invokeType;
+    /* Nullable */
+    protected final String[] namedArguments;
     protected final int flags;
     protected String name;
     protected MethodHandle handle;
@@ -28,6 +30,7 @@ import static kotlin.DynamicMetafactory.*;
                             String name,
                             int flags,
                             InvokeType invokeType,
+                            /* Nullable */  String[] namedArguments,
                             boolean isStaticCall) {
         this.arguments = arguments;
         this.mc = mc;
@@ -36,6 +39,7 @@ import static kotlin.DynamicMetafactory.*;
         this.name = name;
         this.invokeType = invokeType;
         this.flags = flags;
+        this.namedArguments = namedArguments;
         this.isStaticCall = isStaticCall;
     }
 
@@ -88,7 +92,7 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     protected void changeTargetGuard() {
-        MethodHandle fallback = makeFallBack(mc, caller, type, name, flags, null, invokeType);
+        MethodHandle fallback = makeFallBack(mc, caller, type, name, flags, namedArguments, invokeType);
         Class<?>[] handleParameters = handle.type().parameterArray();
         for (int i = 0; i < arguments.length; ++i) {
             MethodHandle guard;
@@ -161,17 +165,21 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     private final static class InvokerSelector extends DynamicSelector {
-        /* Nullable */
-        private final String[] namedArguments;
-
         private InvokerSelector(DynamicCallSite mc,
                                 MethodHandles.Lookup caller,
                                 MethodType type,
                                 String name,
                                 Object[] arguments,
                                 /* Nullable */  String[] namedArguments) {
-            super(arguments, mc, caller, type, name, /* flags */ 0, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
-            this.namedArguments = namedArguments;
+            super(arguments,
+                    mc,
+                    caller,
+                    type,
+                    name,
+                    /* flags */ 0,
+                    InvokeType.METHOD,
+                    namedArguments,
+                    /* isStaticCall */ arguments[0] instanceof Class);
         }
 
         @Override
@@ -197,8 +205,6 @@ import static kotlin.DynamicMetafactory.*;
     }
 
     private final static class MethodSelector extends DynamicSelector {
-        /* Nullable */
-        private final String[] namedArguments;
 
         private MethodSelector(DynamicCallSite mc,
                                MethodHandles.Lookup caller,
@@ -207,8 +213,15 @@ import static kotlin.DynamicMetafactory.*;
                                Object[] arguments,
                                int flags,
                                /* Nullable */  String[] namedArguments) {
-            super(arguments, mc, caller, type, name, flags, InvokeType.METHOD, /* isStaticCall */ arguments[0] instanceof Class);
-            this.namedArguments = namedArguments;
+            super(arguments,
+                    mc,
+                    caller,
+                    type,
+                    name,
+                    flags,
+                    InvokeType.METHOD,
+                    namedArguments,
+                    /* isStaticCall */ arguments[0] instanceof Class);
         }
 
         @Override
@@ -229,8 +242,15 @@ import static kotlin.DynamicMetafactory.*;
                               String name,
                               Object[] arguments,
                               InvokeType it) {
-            // [TODO] static call for fields
-            super(arguments, mc, caller, type, name, /* flags */ 0, it, /* isStaticCall */ false);
+            super(arguments,
+                    mc,
+                    caller,
+                    type,
+                    name,
+                    /* flags */ 0,
+                    it,
+                    /* namedArguments */ null,
+                    /* isStaticCall */ false);
         }
 
         @Override

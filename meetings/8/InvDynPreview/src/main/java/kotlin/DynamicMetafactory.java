@@ -114,7 +114,6 @@ public final class DynamicMetafactory {
         MethodHandle invokedHandle;
 
         if (cacheEntry == null) {
-            //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.GET);
             if (!selector.setCallSite()) {
                 throw new DynamicBindException("Cannot find getter for field " + name);
@@ -127,7 +126,6 @@ public final class DynamicMetafactory {
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
             mc.methodHandleCache.put(methodHandleEntry, invokedHandle);
         } else {
-            //mc.setTarget(cacheEntry.targetValue);
             invokedHandle = cacheEntry.invokedValue;
         }
 
@@ -144,7 +142,6 @@ public final class DynamicMetafactory {
         MethodHandle invokedHandle;
 
         if (cacheEntry == null) {
-            //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getFieldSelector(mc, caller, type, name, arguments, InvokeType.SET);
             if (!selector.setCallSite()) {
                 throw new DynamicBindException("Cannot find setter for field " + name);
@@ -157,7 +154,6 @@ public final class DynamicMetafactory {
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
             mc.methodHandleCache.put(methodHandleEntry, invokedHandle);
         } else {
-            //mc.setTarget(cacheEntry.targetValue);
             invokedHandle = cacheEntry.invokedValue;
         }
 
@@ -178,7 +174,6 @@ public final class DynamicMetafactory {
         MethodHandle invokedHandle;
 
         if (cacheEntry == null) {
-            //[TODO] Selector
             DynamicSelector selector = DynamicSelector.getMethodSelector(mc, caller, type, name, arguments, flags, namedArguments);
             String operatorCounterpart = ASSIGNMENT_OPERATION_COUNTERPARTS.get(name);
             boolean hasCounterpart = operatorCounterpart != null;
@@ -207,7 +202,6 @@ public final class DynamicMetafactory {
             MethodHandleEntry methodHandleEntry = MethodHandleEntry.buildFromArguments(arguments);
             mc.methodHandleCache.put(methodHandleEntry, invokedHandle);
         } else {
-            // mc.setTarget(cacheEntry.targetValue);
             invokedHandle = cacheEntry.invokedValue;
         }
 
@@ -264,8 +258,6 @@ public final class DynamicMetafactory {
             int hash = MethodHandleEntry.computeHashCode(entry);
             for (Entry e : list) {
                 if ((e.key.hashCode() == hash) && e.key.objectEquals(entry)) {
-//                        iterator.remove();
-//                        list.addFirst(e);
                     return e;
                 }
             }

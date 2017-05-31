@@ -147,9 +147,6 @@ public final class DynamicOverloadResolution {
                 return false;
         }
 
-            /*
-             * [TODO] isVisibilityMoreSpecific
-             */
         Class<?>[] aParameters = a.getParameterTypes();
         Class<?>[] bParameters = b.getParameterTypes();
         boolean isAVarargs = a.isVarArgs();
